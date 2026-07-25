@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>梯维派工 · 交互原型</title>
+  <style>
+    :root {
+      --primary: #334155;
+      --primary-dark: #1e293b;
+      --accent: #047857;
+      --accent-soft: #ecfdf5;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --surface-subtle: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #dbe2ea;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --warning: #9a3412;
+      --warning-soft: #fff7ed;
+      --info: #1d4ed8;
+      --info-soft: #eff6ff;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgb(15 23 42 / 8%);
+      --focus: 0 0 0 3px rgb(51 65 85 / 24%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background: var(--background);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--background);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button, select, input[type="file"] {
+      cursor: pointer;
+    }
+
+    button, input, select, textarea {
+      min-height: 48px;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      box-shadow: var(--focus);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 8px;
+      left: 8px;
+      padding: 10px 14px;
+      color: white;
+      background: var(--primary-dark);
+      border-radius: var(--radius);
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .hidden { display: none !important; }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 20px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 10px 16px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      font-weight: 650;
+      text-decoration: none;
+      transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease;
+    }
+
+    .btn:active { opacity: .78; }
+    .btn:disabled { cursor: not-allowed; opacity: .45; }
+
+    .btn-primary {
+      color: white;
+      background: var(--accent);
+    }
+
+    .btn-primary:hover { background: #03694d; }
+
+    .btn-secondary {
+      color: var(--primary-dark);
+      background: white;
+      border-color: #94a3b8;
+    }
+
+    .btn-secondary:hover { background: var(--surface-subtle); }
+
+    .btn-quiet {
+      color: var(--primary);
+      background: transparent;
+    }
+
+    .btn-quiet:hover { background: var(--surface-subtle); }
+
+    .btn-danger {
+      color: white;
+      background: var(--danger);
+    }
+
+    .btn-block { width: 100%; }
+
+    .prototype-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .02em;
+    }
+
+    .prototype-flag::before {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .login-shell {
+      display: grid;
+      min-height: 100dvh;
+      align-items: center;
+      padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+    }
+
+    .login-card {
+      width: min(100%, 420px);
+      margin: 0 auto;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      color: white;
+      background: var(--primary);
+      border-radius: 8px;
+    }
+
+    .brand-mark .icon { width: 26px; height: 26px; }
+
+    .brand-name {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: .02em;
+    }
+
+    .brand-subtitle {
+      margin: 1px 0 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(22px, 6vw, 28px); line-height: 1.25; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+
+    .page-description {
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field-row {
+      display: grid;
+      gap: 16px;
+    }
+
+    label, legend {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--primary-dark);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .required { color: var(--danger); }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--text);
+      background: white;
+      border: 1px solid #94a3b8;
+      border-radius: var(--radius);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    textarea { min-height: 104px; resize: vertical; cursor: text; }
+    input { cursor: text; }
+    input[type="file"] { padding: 9px; }
+
+    input:hover, select:hover, textarea:hover { border-color: var(--primary); }
+
+    .field-hint {
+      margin: 6px 0 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .form-error {
+      margin: 12px 0;
+      padding: 10px 12px;
+      color: #991b1b;
+      background: var(--danger-soft);
+      border-left: 3px solid var(--danger);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .demo-credentials {
+      margin: 18px 0;
+      padding: 12px;
+      color: var(--text-muted);
+      background: var(--surface-subtle);
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+
+    .demo-credentials strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--text);
+    }
+
+    .text-link {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      padding: 0;
+      color: var(--info);
+      background: none;
+      border: 0;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .app-shell { min-height: 100dvh; }
+
+    .app-header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      min-height: 64px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: max(8px, env(safe-area-inset-top)) 16px 8px;
+      color: white;
+      background: var(--primary-dark);
+      border-bottom: 1px solid #475569;
+    }
+
+    .app-header .brand {
+      margin: 0;
+      gap: 8px;
+    }
+
+    .app-header .brand-mark {
+      width: 36px;
+      height: 36px;
+      color: var(--primary-dark);
+      background: white;
+    }
+
+    .app-header .brand-mark .icon { width: 22px; height: 22px; }
+    .app-header .brand-name { font-size: 16px; }
+    .app-header .brand-subtitle { color: #cbd5e1; font-size: 12px; }
+
+    .role-switch {
+      display: flex;
+      padding: 3px;
+      background: #334155;
+      border: 1px solid #64748b;
+      border-radius: 8px;
+    }
+
+    .role-switch button {
+      min-height: 40px;
+      padding: 7px 10px;
+      color: #e2e8f0;
+      background: transparent;
+      border: 0;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .role-switch button[aria-pressed="true"] {
+      color: var(--primary-dark);
+      background: white;
+    }
+
+    .app-layout { max-width: 1180px; margin: 0 auto; }
+
+    .side-nav { display: none; }
+
+    .main-content {
+      width: 100%;
+      min-width: 0;
+      padding: 20px 16px calc(92px + env(safe-area-inset-bottom));
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .page-header p { margin: 3px 0 0; color: var(--text-muted); font-size: 14px; }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 20;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+      background: white;
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 16px rgb(15 23 42 / 7%);
+    }
+
+    .bottom-nav.nav-two { grid-template-columns: repeat(2, 1fr); }
+
+    .nav-btn {
+      display: flex;
+      min-height: 54px;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 0;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .nav-btn[aria-current="page"] {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .metric-value {
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+      font-size: 22px;
+      font-weight: 750;
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar select { min-height: 44px; }
+
+    .notice {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px;
+      color: #7c2d12;
+      background: var(--warning-soft);
+      border: 1px solid #fed7aa;
+      border-radius: var(--radius);
+      font-size: 14px;
+    }
+
+    .notice .icon { margin-top: 1px; }
+    .order-list { display: grid; gap: 12px; }
+
+    .order-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 4px solid #94a3b8;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: border-color 180ms ease, background-color 180ms ease;
+    }
+
+    .order-card.urgent { border-left-color: var(--danger); }
+    .order-card:hover { border-color: #94a3b8; }
+
+    .order-open {
+      width: 100%;
+      min-height: 0;
+      padding: 16px;
+      color: inherit;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-radius: var(--radius);
+    }
+
+    .order-open:hover { background: #f8fafc; }
+
+    .card-top, .card-meta, .status-line, .action-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .card-top { justify-content: space-between; }
+
+    .order-code {
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .order-title {
+      margin: 8px 0 5px;
+      font-size: 17px;
+      font-weight: 720;
+    }
+
+    .card-meta {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .card-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card-meta .icon { width: 16px; height: 16px; flex-basis: 16px; }
+
+    .badge {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge-urgent { color: #991b1b; background: var(--danger-soft); border-color: #fecaca; }
+    .badge-normal { color: #334155; background: var(--surface-subtle); border-color: #cbd5e1; }
+    .badge-assigned { color: #1d4ed8; background: var(--info-soft); border-color: #bfdbfe; }
+    .badge-progress { color: #9a3412; background: var(--warning-soft); border-color: #fed7aa; }
+    .badge-closed { color: #047857; background: var(--accent-soft); border-color: #a7f3d0; }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      background: white;
+      border: 1px dashed #94a3b8;
+      border-radius: var(--radius);
+    }
+
+    .empty-state .icon {
+      width: 34px;
+      height: 34px;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+
+    .empty-state p { margin-bottom: 0; color: var(--text-muted); }
+
+    .panel {
+      margin-bottom: 16px;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 { margin-bottom: 14px; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .detail-item dt {
+      margin-bottom: 3px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .detail-item dd { margin: 0; font-weight: 600; }
+    .detail-item.wide { grid-column: 1 / -1; }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .photo-mock {
+      display: grid;
+      min-height: 96px;
+      place-items: center;
+      color: var(--text-muted);
+      background:
+        linear-gradient(135deg, transparent 48%, #cbd5e1 49%, #cbd5e1 51%, transparent 52%),
+        var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .photo-mock .icon { width: 28px; height: 28px; }
+
+    .timeline {
+      display: grid;
+      gap: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .timeline li {
+      position: relative;
+      min-height: 54px;
+      padding: 0 0 16px 26px;
+      color: var(--text-muted);
+      border-left: 2px solid #cbd5e1;
+    }
+
+    .timeline li::before {
+      position: absolute;
+      top: 2px;
+      left: -7px;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border: 3px solid var(--accent);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .timeline li:last-child { min-height: 0; padding-bottom: 0; border-color: transparent; }
+    .timeline strong { display: block; color: var(--text); font-size: 14px; }
+
+    .action-row { margin-top: 18px; }
+    .action-row .btn { flex: 1 1 140px; }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 3px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmented label {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 5px;
+    }
+
+    .segmented input:checked + label {
+      color: white;
+      background: var(--primary);
+    }
+
+    .segmented input:focus-visible + label {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      right: 16px;
+      bottom: calc(82px + env(safe-area-inset-bottom));
+      left: 16px;
+      max-width: 420px;
+      margin: auto;
+      padding: 12px 16px;
+      color: white;
+      background: var(--primary-dark);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 28px rgb(15 23 42 / 24%);
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      place-items: center;
+      color: white;
+      background: var(--primary);
+      border-radius: 50%;
+      font-weight: 750;
+    }
+
+    @media (min-width: 680px) {
+      .field-row { grid-template-columns: 1fr 1fr; }
+      .toolbar { grid-template-columns: minmax(180px, 280px) 1fr; align-items: center; }
+      .order-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .photo-mock { min-height: 140px; }
+    }
+
+    @media (min-width: 900px) {
+      .app-header { padding-right: 32px; padding-left: 32px; }
+      .app-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+      .side-nav {
+        position: sticky;
+        top: 64px;
+        display: flex;
+        height: calc(100dvh - 64px);
+        flex-direction: column;
+        gap: 8px;
+        padding: 24px 16px;
+        background: white;
+        border-right: 1px solid var(--border);
+      }
+      .side-nav .nav-btn {
+        justify-content: flex-start;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      .main-content { padding: 32px; }
+      .bottom-nav { display: none; }
+      .toast { bottom: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div id="root"></div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const icons = {
+        lift: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 7l3-3 3 3M9 17l3 3 3-3M12 4v16"/></svg>',
+        list: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+        plus: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+        user: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+        map: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2"/></svg>',
+        clock: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+        alert: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.7 2.2 18a2 2 0 0 0 1.8 3h16a2 2 0 0 0 1.8-3L13.7 3.7a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+        back: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+        image: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg>',
+        logout: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 3h7v18h-7"/></svg>',
+        refresh: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8A7 7 0 0 1 18 6l2 6M18 16a7 7 0 0 1-11.9 2L4 12"/></svg>'
+      };
+
+      const engineers = [
+        { id: "eng-zhang", name: "张海峰", phone: "138 0000 2417" },
+        { id: "eng-li", name: "李明", phone: "138 0000 6521" },
+        { id: "eng-wang", name: "王志远", phone: "138 0000 8309" }
+      ];
+
+      const orders = [
+        {
+          id: "WO-20260725-003", area: "西区商业楼", elevator: "C-03",
+          description: "轿厢停靠 8 层后门机反复开合，现场已设置警示牌。",
+          priority: "urgent", status: "assigned", engineerId: "eng-zhang",
+          createdAt: "今天 09:42", updatedAt: "今天 09:42", photos: 2, result: ""
+        },
+        {
+          id: "WO-20260725-002", area: "北区住宅楼", elevator: "B-12",
+          description: "运行至高楼层时有间歇性异响，需排查导靴与导轨。",
+          priority: "normal", status: "in_progress", engineerId: "eng-zhang",
+          createdAt: "今天 08:15", updatedAt: "今天 09:10", photos: 1, result: ""
+        },
+        {
+          id: "WO-20260724-019", area: "东区办公楼", elevator: "A-06",
+          description: "一层外呼按钮无响应，其余楼层运行正常。",
+          priority: "normal", status: "closed", engineerId: "eng-wang",
+          createdAt: "昨天 16:30", updatedAt: "昨天 18:12", photos: 3,
+          result: "更换一层外呼按钮触点并完成 20 次呼梯测试，运行正常。"
+        }
+      ];
+
+      const state = {
+        loggedIn: false,
+        role: "supervisor",
+        view: "list",
+        selectedId: null,
+        filter: "active",
+        toastTimer: null
+      };
+
+      const root = document.getElementById("root");
+      const toast = document.getElementById("toast");
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+        })[char]);
+      }
+
+      function statusLabel(status) {
+        return ({ assigned: "待处理", in_progress: "处理中", closed: "已关闭" })[status];
+      }
+
+      function statusBadge(status) {
+        const className = ({ assigned: "assigned", in_progress: "progress", closed: "closed" })[status];
+        return `<span class="badge badge-${className}">${statusLabel(status)}</span>`;
+      }
+
+      function priorityBadge(priority) {
+        return priority === "urgent"
+          ? `<span class="badge badge-urgent">${icons.alert}紧急</span>`
+          : '<span class="badge badge-normal">一般</span>';
+      }
+
+      function engineerName(id) {
+        return engineers.find(item => item.id === id)?.name || "未指派";
+      }
+
+      function showToast(message) {
+        clearTimeout(state.toastTimer);
+        toast.textContent = message;
+        toast.classList.remove("hidden");
+        state.toastTimer = setTimeout(() => toast.classList.add("hidden"), 3600);
+      }
+
+      function loginTemplate(forgot = false) {
+        if (forgot) {
+          return `
+            <main class="login-shell" id="main">
+              <section class="login-card" aria-labelledby="forgot-title">
+                ${brandTemplate()}
+                <h1 id="forgot-title" tabindex="-1">重置密码</h1>
+                <p class="page-description">输入预创建账号邮箱，我们会发送重置链接。</p>
+                <form id="forgot-form" novalidate>
+                  <div class="field">
+                    <label for="reset-email">工作邮箱 <span class="required" aria-hidden="true">*</span></label>
+                    <input id="reset-email" name="email" type="email" autocomplete="email" required value="supervisor@example.com">
+                  </div>
+                  <p id="forgot-error" class="form-error hidden" role="alert"></p>
+                  <button class="btn btn-primary btn-block" type="submit">发送重置链接</button>
+                  <button class="text-link" type="button" data-action="back-login">${icons.back}返回登录</button>
+                </form>
+              </section>
+            </main>`;
+        }
+
+        return `
+          <main class="login-shell" id="main">
+            <section class="login-card" aria-labelledby="login-title">
+              ${brandTemplate()}
+              <h1 id="login-title" tabindex="-1">登录工作台</h1>
+              <p class="page-description">使用项目管理员预创建的账号登录。</p>
+              <form id="login-form" novalidate>
+                <div class="field">
+                  <label for="email">工作邮箱 <span class="required" aria-hidden="true">*</span></label>
+                  <input id="email" name="email" type="email" autocomplete="username" required value="supervisor@example.com">
+                </div>
+                <div class="field">
+                  <label for="password">密码 <span class="required" aria-hidden="true">*</span></label>
+                  <input id="password" name="password" type="password" autocomplete="current-password" required value="demo1234">
+                </div>
+                <p id="login-error" class="form-error hidden" role="alert"></p>
+                <button class="btn btn-primary btn-block" type="submit">登录</button>
+                <button class="text-link" type="button" data-action="forgot">忘记密码</button>
+              </form>
+              <div class="demo-credentials">
+                <strong>演示账号</strong>
+                supervisor@example.com / demo1234
+              </div>
+              <span class="prototype-flag">交互原型 · 数据仅保存在当前页面</span>
+            </section>
+          </main>`;
+      }
+
+      function brandTemplate() {
+        return `
+          <div class="brand">
+            <span class="brand-mark">${icons.lift}</span>
+            <div>
+              <p class="brand-name">梯维派工</p>
+              <p class="brand-subtitle">电梯故障派工与交接</p>
+            </div>
+          </div>`;
+      }
+
+      function navTemplate(location, mobile = false) {
+        const wrapper = mobile ? "bottom-nav" : "side-nav";
+        const createItem = state.role === "supervisor" ? `
+            <button class="nav-btn" type="button" data-action="nav-create" ${location === "create" ? 'aria-current="page"' : ""}>
+              ${icons.plus}<span>新建工单</span>
+            </button>` : "";
+        return `
+          <nav class="${wrapper} ${state.role === "engineer" ? "nav-two" : ""}" aria-label="${mobile ? "底部" : "侧边"}主导航">
+            <button class="nav-btn" type="button" data-action="nav-list" ${location === "list" ? 'aria-current="page"' : ""}>
+              ${icons.list}<span>${state.role === "supervisor" ? "全部工单" : "我的工单"}</span>
+            </button>
+            ${createItem}
+            <button class="nav-btn" type="button" data-action="nav-profile" ${location === "profile" ? 'aria-current="page"' : ""}>
+              ${icons.user}<span>我的</span>
+            </button>
+          </nav>`;
+      }
+
+      function appTemplate() {
+        return `
+          <div class="app-shell">
+            <header class="app-header">
+              ${brandTemplate()}
+              <div class="role-switch" role="group" aria-label="切换演示角色">
+                <button type="button" data-role="supervisor" aria-pressed="${state.role === "supervisor"}">区域主管</button>
+                <button type="button" data-role="engineer" aria-pressed="${state.role === "engineer"}">电梯工程师</button>
+              </div>
+            </header>
+            <div class="app-layout">
+              ${navTemplate(state.view, false)}
+              <main class="main-content" id="main">${viewTemplate()}</main>
+            </div>
+            ${navTemplate(state.view, true)}
+          </div>`;
+      }
+
+      function viewTemplate() {
+        if (state.view === "create" && state.role === "supervisor") return createTemplate();
+        if (state.view === "detail") return detailTemplate();
+        if (state.view === "profile") return profileTemplate();
+        return listTemplate();
+      }
+
+      function visibleOrders() {
+        let result = state.role === "engineer"
+          ? orders.filter(item => item.engineerId === "eng-zhang")
+          : [...orders];
+        if (state.filter === "active") result = result.filter(item => item.status !== "closed");
+        if (["assigned", "in_progress", "closed"].includes(state.filter)) {
+          result = result.filter(item => item.status === state.filter);
+        }
+        if (state.filter === "urgent") result = result.filter(item => item.priority === "urgent");
+        return result.sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "urgent" ? -1 : 1));
+      }
+
+      function listTemplate() {
+        const available = state.role === "engineer"
+          ? orders.filter(item => item.engineerId === "eng-zhang")
+          : orders;
+        const assigned = available.filter(item => item.status === "assigned").length;
+        const progress = available.filter(item => item.status === "in_progress").length;
+        const urgent = available.filter(item => item.priority === "urgent" && item.status !== "closed").length;
+        const list = visibleOrders();
+        return `
+          <div class="page-header">
+            <div>
+              <h1 id="page-title" tabindex="-1">${state.role === "supervisor" ? "工单总览" : "我的工单"}</h1>
+              <p>${state.role === "supervisor" ? "查看全项目工单并安排处理" : "张海峰 · 只显示指派给我的工单"}</p>
+            </div>
+            ${state.role === "supervisor" ? `<button class="btn btn-primary" type="button" data-action="nav-create">${icons.plus}<span>新建</span></button>` : ""}
+          </div>
+          <div class="metrics" aria-label="工单概览">
+            <div class="metric"><div class="metric-label">待处理</div><div class="metric-value">${assigned}</div></div>
+            <div class="metric"><div class="metric-label">处理中</div><div class="metric-value">${progress}</div></div>
+            <div class="metric"><div class="metric-label">紧急未结</div><div class="metric-value">${urgent}</div></div>
+          </div>
+          <div class="notice">${icons.alert}<span>困人、停梯等紧急事件须立即执行线下应急流程，本原型仅记录工单。</span></div>
+          <div class="toolbar">
+            <label class="hidden" for="status-filter">筛选工单</label>
+            <select id="status-filter" aria-label="按状态筛选工单">
+              <option value="active" ${state.filter === "active" ? "selected" : ""}>未关闭工单</option>
+              <option value="assigned" ${state.filter === "assigned" ? "selected" : ""}>待处理</option>
+              <option value="in_progress" ${state.filter === "in_progress" ? "selected" : ""}>处理中</option>
+              <option value="closed" ${state.filter === "closed" ? "selected" : ""}>已关闭</option>
+              <option value="urgent" ${state.filter === "urgent" ? "selected" : ""}>仅看紧急</option>
+              <option value="all" ${state.filter === "all" ? "selected" : ""}>全部状态</option>
+            </select>
+            <span class="prototype-flag">交互原型 · ${list.length} 条结果</span>
+          </div>
+          <section class="order-list" aria-label="工单列表">
+            ${list.length ? list.map(orderCardTemplate).join("") : emptyTemplate()}
+          </section>`;
+      }
+
+      function orderCardTemplate(order) {
+        return `
+          <article class="order-card ${order.priority === "urgent" ? "urgent" : ""}">
+            <button class="order-open" type="button" data-action="open-order" data-id="${order.id}" aria-label="查看工单 ${order.id}，${escapeHtml(order.area)} ${escapeHtml(order.elevator)}">
+              <div class="card-top">
+                <span class="order-code">${order.id}</span>
+                <span class="status-line">${priorityBadge(order.priority)}${statusBadge(order.status)}</span>
+              </div>
+              <div class="order-title">${escapeHtml(order.area)} · ${escapeHtml(order.elevator)}</div>
+              <div class="card-meta">
+                <span>${icons.user}${escapeHtml(engineerName(order.engineerId))}</span>
+                <span>${icons.clock}${escapeHtml(order.updatedAt)}</span>
+              </div>
+            </button>
+          </article>`;
+      }
+
+      function emptyTemplate() {
+        return `
+          <div class="empty-state">
+            ${icons.list}
+            <h2>没有符合条件的工单</h2>
+            <p>调整筛选条件后再查看。</p>
+          </div>`;
+      }
+
+      function createTemplate() {
+        return `
+          <div class="page-header">
+            <div>
+              <h1 id="page-title" tabindex="-1">新建工单</h1>
+              <p>信息与照片完整后即可派工</p>
+            </div>
+          </div>
+          <form id="create-form" novalidate>
+            <section class="panel" aria-labelledby="fault-info">
+              <h2 id="fault-info">故障信息</h2>
+              <div class="field-row">
+                <div class="field">
+                  <label for="area">电梯区域 <span class="required" aria-hidden="true">*</span></label>
+                  <input id="area" name="area" required placeholder="例如：西区商业楼">
+                </div>
+                <div class="field">
+                  <label for="elevator">梯号 / 设备编号 <span class="required" aria-hidden="true">*</span></label>
+                  <input id="elevator" name="elevator" required placeholder="例如：C-03">
+                </div>
+              </div>
+              <div class="field">
+                <label for="description">故障描述 <span class="required" aria-hidden="true">*</span></label>
+                <textarea id="description" name="description" required placeholder="描述现象、发生位置和现场处置情况"></textarea>
+              </div>
+              <fieldset class="field" style="border:0;padding:0">
+                <legend>优先级 <span class="required" aria-hidden="true">*</span></legend>
+                <div class="segmented">
+                  <input id="priority-normal" name="priority" type="radio" value="normal" checked>
+                  <label for="priority-normal">一般</label>
+                  <input id="priority-urgent" name="priority" type="radio" value="urgent">
+                  <label for="priority-urgent">紧急</label>
+                </div>
+              </fieldset>
+              <div class="field">
+                <label for="engineer">接手工程师 <span class="required" aria-hidden="true">*</span></label>
+                <select id="engineer" name="engineer" required>
+                  <option value="">请选择已启用工程师</option>
+                  ${engineers.map(item => `<option value="${item.id}">${escapeHtml(item.name)} · ${item.phone}</option>`).join("")}
+                </select>
+              </div>
+              <div class="field">
+                <label for="photos">现场照片（1–3 张）<span class="required" aria-hidden="true">*</span></label>
+                <input id="photos" name="photos" type="file" accept="image/*" capture="environment" multiple required aria-describedby="photo-hint">
+                <p id="photo-hint" class="field-hint">原型不会上传文件；仅记录所选照片数量。</p>
+              </div>
+              <p id="create-error" class="form-error hidden" role="alert"></p>
+              <div class="action-row">
+                <button class="btn btn-secondary" type="button" data-action="nav-list">取消</button>
+                <button class="btn btn-primary" type="submit">创建并派工</button>
+              </div>
+            </section>
+          </form>`;
+      }
+
+      function detailTemplate() {
+        const order = orders.find(item => item.id === state.selectedId);
+        if (!order) {
+          state.view = "list";
+          return listTemplate();
+        }
+        const canReassign = state.role === "supervisor" && order.status === "assigned";
+        const canStart = state.role === "engineer" && order.engineerId === "eng-zhang" && order.status === "assigned";
+        const canClose = state.role === "engineer" && order.engineerId === "eng-zhang" && order.status === "in_progress";
+        return `
+          <div class="page-header">
+            <div>
+              <button class="btn btn-quiet" type="button" data-action="nav-list">${icons.back}返回工单</button>
+              <h1 id="page-title" tabindex="-1">${escapeHtml(order.area)} · ${escapeHtml(order.elevator)}</h1>
+              <p class="order-code">${order.id}</p>
+            </div>
+            <span class="status-line">${priorityBadge(order.priority)}${statusBadge(order.status)}</span>
+          </div>
+          <section class="panel" aria-labelledby="detail-info">
+            <h2 id="detail-info">工单信息</h2>
+            <dl class="detail-grid">
+              <div class="detail-item"><dt>电梯区域</dt><dd>${escapeHtml(order.area)}</dd></div>
+              <div class="detail-item"><dt>梯号 / 设备编号</dt><dd>${escapeHtml(order.elevator)}</dd></div>
+              <div class="detail-item"><dt>接手工程师</dt><dd>${escapeHtml(engineerName(order.engineerId))}</dd></div>
+              <div class="detail-item"><dt>创建时间</dt><dd>${escapeHtml(order.createdAt)}</dd></div>
+              <div class="detail-item wide"><dt>故障描述</dt><dd>${escapeHtml(order.description)}</dd></div>
+              ${order.result ? `<div class="detail-item wide"><dt>处理结果</dt><dd>${escapeHtml(order.result)}</dd></div>` : ""}
+            </dl>
+          </section>
+          <section class="panel" aria-labelledby="site-photos">
+            <h2 id="site-photos">现场照片 <span class="badge badge-normal">${order.photos} 张</span></h2>
+            <div class="photo-grid">
+              ${Array.from({ length: order.photos }, (_, index) => `<div class="photo-mock" role="img" aria-label="现场照片 ${index + 1}">${icons.image}</div>`).join("")}
+            </div>
+          </section>
+          <section class="panel" aria-labelledby="status-history">
+            <h2 id="status-history">处理进度</h2>
+            <ol class="timeline">
+              <li><strong>工单已创建并指派</strong>${escapeHtml(order.createdAt)} · ${escapeHtml(engineerName(order.engineerId))}</li>
+              ${order.status !== "assigned" ? `<li><strong>工程师开始处理</strong>${escapeHtml(order.updatedAt)}</li>` : ""}
+              ${order.status === "closed" ? `<li><strong>工单已关闭</strong>${escapeHtml(order.updatedAt)}</li>` : ""}
+            </ol>
+          </section>
+          ${canReassign ? reassignTemplate(order) : ""}
+          ${canStart ? `<button class="btn btn-primary btn-block" type="button" data-action="start-order">开始处理</button>` : ""}
+          ${canClose ? closeTemplate() : ""}
+          ${state.role === "supervisor" && order.status !== "assigned" ? '<p class="field-hint">工程师已开始处理，主管不可再改派。</p>' : ""}
+          ${order.status === "closed" ? '<p class="field-hint">此工单已关闭，当前为只读状态。</p>' : ""}`;
+      }
+
+      function reassignTemplate(order) {
+        return `
+          <section class="panel" aria-labelledby="reassign-title">
+            <h2 id="reassign-title">改派工程师</h2>
+            <form id="reassign-form">
+              <div class="field">
+                <label for="reassign-engineer">接手工程师</label>
+                <select id="reassign-engineer" name="engineer">
+                  ${engineers.map(item => `<option value="${item.id}" ${item.id === order.engineerId ? "selected" : ""}>${escapeHtml(item.name)} · ${item.phone}</option>`).join("")}
+                </select>
+              </div>
+              <button class="btn btn-secondary btn-block" type="submit">确认改派</button>
+            </form>
+          </section>`;
+      }
+
+      function closeTemplate() {
+        return `
+          <section class="panel" aria-labelledby="close-title">
+            <h2 id="close-title">完成处理</h2>
+            <form id="close-form" novalidate>
+              <div class="field">
+                <label for="result">处理结果 <span class="required" aria-hidden="true">*</span></label>
+                <textarea id="result" name="result" required placeholder="填写排查、维修与验证结果"></textarea>
+              </div>
+              <p id="close-error" class="form-error hidden" role="alert"></p>
+              <button class="btn btn-primary btn-block" type="submit">填写结果并关闭</button>
+            </form>
+          </section>`;
+      }
+
+      function profileTemplate() {
+        const roleName = state.role === "supervisor" ? "电梯区域主管" : "电梯工程师";
+        const name = state.role === "supervisor" ? "陈主管" : "张海峰";
+        return `
+          <div class="page-header">
+            <div>
+              <h1 id="page-title" tabindex="-1">我的</h1>
+              <p>当前登录账号与原型信息</p>
+            </div>
+          </div>
+          <section class="panel profile-card">
+            <span class="avatar" aria-hidden="true">${name.slice(0, 1)}</span>
+            <div>
+              <h2 style="margin:0">${name}</h2>
+              <p style="margin:2px 0 0;color:var(--text-muted)">${roleName}</p>
+            </div>
+          </section>
+          <section class="panel">
+            <h2>原型说明</h2>
+            <p>所有操作均为内存 mock，刷新页面后恢复初始工单。真实产品将使用 Supabase 登录、数据库和照片存储。</p>
+            <span class="prototype-flag">交互原型 · 不会提交真实数据</span>
+          </section>
+          <button class="btn btn-danger btn-block" type="button" data-action="logout">${icons.logout}退出登录</button>`;
+      }
+
+      function render(focus = true) {
+        root.innerHTML = state.loggedIn ? appTemplate() : loginTemplate(false);
+        if (focus) requestAnimationFrame(() => document.querySelector("h1[tabindex='-1']")?.focus());
+      }
+
+      function showInlineError(id, message, focusId) {
+        const error = document.getElementById(id);
+        error.textContent = message;
+        error.classList.remove("hidden");
+        document.getElementById(focusId)?.focus();
+      }
+
+      root.addEventListener("click", event => {
+        const roleButton = event.target.closest("[data-role]");
+        if (roleButton) {
+          state.role = roleButton.dataset.role;
+          state.view = "list";
+          state.filter = "active";
+          state.selectedId = null;
+          render();
+          showToast(`已切换为${state.role === "supervisor" ? "区域主管" : "电梯工程师"}视图`);
+          return;
+        }
+
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+
+        if (action === "forgot") {
+          root.innerHTML = loginTemplate(true);
+          requestAnimationFrame(() => document.getElementById("forgot-title")?.focus());
+          return;
+        }
+        if (action === "back-login") { render(); return; }
+        if (action === "nav-list") { state.view = "list"; render(); return; }
+        if (action === "nav-create") { state.view = "create"; render(); return; }
+        if (action === "nav-profile") { state.view = "profile"; render(); return; }
+        if (action === "open-order") {
+          state.selectedId = button.dataset.id;
+          state.view = "detail";
+          render();
+          return;
+        }
+        if (action === "start-order") {
+          const order = orders.find(item => item.id === state.selectedId);
+          if (order && order.status === "assigned") {
+            order.status = "in_progress";
+            order.updatedAt = "刚刚";
+            render();
+            showToast("已开始处理，主管将看到最新状态");
+          }
+          return;
+        }
+        if (action === "logout") {
+          state.loggedIn = false;
+          state.role = "supervisor";
+          state.view = "list";
+          render();
+          showToast("已退出演示账号");
+        }
+      });
+
+      root.addEventListener("change", event => {
+        if (event.target.id === "status-filter") {
+          state.filter = event.target.value;
+          render(false);
+        }
+        if (event.target.id === "photos" && event.target.files.length > 3) {
+          event.target.value = "";
+          showInlineError("create-error", "最多选择 3 张照片，请重新选择。", "photos");
+        }
+      });
+
+      root.addEventListener("submit", event => {
+        event.preventDefault();
+        const form = event.target;
+
+        if (form.id === "login-form") {
+          const data = new FormData(form);
+          if (!data.get("email") || !data.get("password")) {
+            showInlineError("login-error", "请输入邮箱和密码。", !data.get("email") ? "email" : "password");
+            return;
+          }
+          state.loggedIn = true;
+          state.role = "supervisor";
+          state.view = "list";
+          render();
+          showToast("登录成功，当前为区域主管视图");
+          return;
+        }
+
+        if (form.id === "forgot-form") {
+          const email = new FormData(form).get("email");
+          if (!email) {
+            showInlineError("forgot-error", "请输入用于登录的工作邮箱。", "reset-email");
+            return;
+          }
+          root.innerHTML = loginTemplate(false);
+          showToast(`重置链接已模拟发送至 ${email}`);
+          return;
+        }
+
+        if (form.id === "create-form") {
+          const data = new FormData(form);
+          const photos = document.getElementById("photos").files;
+          const required = ["area", "elevator", "description", "engineer"];
+          const missing = required.find(name => !String(data.get(name) || "").trim());
+          if (missing) {
+            const labels = { area: "电梯区域", elevator: "梯号 / 设备编号", description: "故障描述", engineer: "接手工程师" };
+            showInlineError("create-error", `请填写${labels[missing]}。`, missing);
+            return;
+          }
+          if (photos.length < 1 || photos.length > 3) {
+            showInlineError("create-error", "请选择 1–3 张现场照片。", "photos");
+            return;
+          }
+          const next = String(orders.length + 1).padStart(3, "0");
+          const order = {
+            id: `WO-20260725-${next}`,
+            area: String(data.get("area")).trim(),
+            elevator: String(data.get("elevator")).trim(),
+            description: String(data.get("description")).trim(),
+            priority: data.get("priority"),
+            status: "assigned",
+            engineerId: data.get("engineer"),
+            createdAt: "刚刚",
+            updatedAt: "刚刚",
+            photos: photos.length,
+            result: ""
+          };
+          orders.unshift(order);
+          state.selectedId = order.id;
+          state.view = "detail";
+          render();
+          showToast(`工单已创建并指派给${engineerName(order.engineerId)}`);
+          return;
+        }
+
+        if (form.id === "reassign-form") {
+          const order = orders.find(item => item.id === state.selectedId);
+          if (!order || order.status !== "assigned") {
+            showToast("工单状态已变化，无法改派");
+            render();
+            return;
+          }
+          order.engineerId = new FormData(form).get("engineer");
+          order.updatedAt = "刚刚";
+          render();
+          showToast(`已改派给${engineerName(order.engineerId)}`);
+          return;
+        }
+
+        if (form.id === "close-form") {
+          const result = String(new FormData(form).get("result") || "").trim();
+          if (!result) {
+            showInlineError("close-error", "请填写处理结果后再关闭工单。", "result");
+            return;
+          }
+          const order = orders.find(item => item.id === state.selectedId);
+          if (!order || order.status !== "in_progress") {
+            showToast("工单状态已变化，请刷新后重试");
+            render();
+            return;
+          }
+          order.result = result;
+          order.status = "closed";
+          order.updatedAt = "刚刚";
+          render();
+          showToast("工单已关闭，处理结果已记录");
+        }
+      });
+
+      render(false);
+    })();
+  </script>
+</body>
+</html>
