@@ -1,6 +1,6 @@
 # 测试与质量策略
 
-版本：0.3
+版本：0.4
 
 最后审校：2026-07-25
 
@@ -101,6 +101,18 @@ supabase start
 supabase db reset
 supabase test db
 ```
+
+低权限集成套件还需要从 `supabase status -o env` 取得本地项目参数，并仅注入当前 shell：
+
+```bash
+export TEST_SUPABASE_URL=http://127.0.0.1:54321
+export TEST_SUPABASE_PUBLISHABLE_KEY=...
+export TEST_SUPABASE_SECRET_KEY=...
+pnpm run test:integration
+```
+
+三项变量不完整时套件明确标记为 skipped，避免误连远端项目；secret key 只用于
+setup/teardown，业务断言均由邮箱密码登录得到的低权限 session 执行。
 
 `supabase db reset` 必须从空库重放全部 migration 和 seed。测试至少准备：
 
@@ -433,6 +445,7 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
 ```json
 {
   "scripts": {
+    "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "test": "jest",
@@ -445,6 +458,10 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
   }
 }
 ```
+
+`pnpm install` 通过 `prepare` 安装 Husky hook；提交时 `.husky/pre-commit` 自动运行
+`pnpm run verify:fast`。完整 `verify`、数据库、集成和 E2E 仍按变更范围显式运行，不放入
+本地 hook，避免外部服务或双端构建阻塞普通提交。
 
 `verify-docs.mjs` 只检查必需文档及本地链接、`CLAUDE.md` 导入和
 `API_CONTRACT.md` 接口编号。AI 对话 JSONL 是记录文件，不由该脚本读取或作为门禁。
@@ -492,9 +509,11 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 
 ## 12. 当前缺口
 
-仓库已落盘 Jest/RNTL、migration/pgTAP、Maestro flows、`e2e-test` profile 与双平台 EAS
-workflow；以下仍未取得外部证据：
+仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
+`e2e-test` profile 与双平台 EAS workflow；以下仍未取得外部证据：
 
+- 本地 Supabase 尚未启动，因此 migration/pgTAP、生成类型和低权限集成套件尚未实际通过；
+  无本地测试变量时集成套件只会明确 skipped。
 - EAS 项目尚需由维护者关联 GitHub；在 `preview` 配置 App 公开变量，在仅供 Maestro 的
   `production` 环境配置虚构账号与 E2E 数据门禁变量。
 - EAS Android/iOS 构建与 Maestro job 尚未实际运行。

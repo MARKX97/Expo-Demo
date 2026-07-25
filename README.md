@@ -82,6 +82,7 @@ development build、Android APK、iOS Ad Hoc IPA、模拟器和签名限制的�
 | `pnpm run lint` | 检查代码规范 |
 | `pnpm run typecheck` | 检查 TypeScript 类型 |
 | `pnpm test` | 运行前端单元、组件与路由测试 |
+| `pnpm run verify:fast` | 运行提交时由 Husky 自动执行的快速门禁 |
 | `pnpm run verify` | 运行提交前的本地质量门禁 |
 | `pnpm exec expo-doctor` | 检查 Expo 配置与依赖兼容性 |
 | `supabase start` | 启动本地 Supabase |

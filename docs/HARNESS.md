@@ -159,8 +159,9 @@ flowchart LR
 ## 当前缺口
 
 仓库已具备知识索引、验收 ID、P0/P1 业务源码、Supabase migration、pgTAP、前端单元测试、
-文档门禁、Maestro flows 与双平台 EAS workflow。数据库生成类型、本地 Supabase 重放、
-低权限集成、完整 `pnpm run verify`、云端 Maestro 执行与双端构建证据尚未完成，因此
+文档门禁、低权限 Supabase 集成套件、Maestro flows 与双平台 EAS workflow。数据库生成
+类型、本地 Supabase 重放、低权限集成实际执行、完整 `pnpm run verify`、云端 Maestro
+执行与双端构建证据尚未完成，因此
 现阶段是“已实现、未完整验证”的 Harness。
 
 后续实现任务必须按 `docs/TESTING.md` 扩展对应自动链路；只有检查真实运行并产生证据后，
