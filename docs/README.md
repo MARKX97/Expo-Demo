@@ -29,7 +29,8 @@
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |
 | AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 逐行 JSON 解析、脱敏检查 |
 
-当前 Expo 源码和 Supabase migration 尚未创建，因此不能把任何实现项标记为“已验证”。
+仓库包含可启动的 Expo 工程骨架与开发目录；业务页面、Service、Supabase migration 和
+自动测试尚未实现，因此不能把任何产品实现项标记为“已验证”。
 
 ## 变更路由
 

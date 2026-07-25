@@ -397,9 +397,9 @@ E2E 不塞进本地 `verify`，因为它需要构建产物和云端设备；由 
 
 ## 12. 当前缺口
 
-当前仅完成测试设计，以下尚未实现：
+当前仅建立测试设计与目录/命令骨架，以下尚未实现：
 
-- Expo/Jest/RNTL 配置和测试代码。
+- 文档验证脚本、Jest/RNTL 测试代码与可通过的完整 `verify` 链路。
 - Supabase migration、seed、pgTAP 与本地集成环境。
 - Maestro flows、EAS E2E profile 与 workflows。
 - CI、artifact 保存和双端真机验收。

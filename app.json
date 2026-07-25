@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Elevator Handoff",
+    "slug": "elevator-handoff",
+    "version": "0.1.0",
+    "scheme": "elevatorhandoff",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router"
+    ],
+    "android": {
+      "package": "com.markx97.elevatorhandoff"
+    },
+    "ios": {
+      "bundleIdentifier": "com.markx97.elevatorhandoff"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

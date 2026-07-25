@@ -1,6 +1,6 @@
 # Architecture
 
-版本：0.2
+版本：0.3
 
 日期：2026-07-25
 
@@ -106,6 +106,28 @@ flowchart TB
 这是单一 Git 仓库。V1 只计划一个 JavaScript 应用，不增加 workspace
 编排工具；只有实际需要时才创建目录，不为未来功能预建空抽象。
 
+## 开发优先级与并行边界
+
+优先级表示实现顺序，不表示可裁剪范围；P2 仍是交付前必做。具体字段、页面、接口和测试
+分别以 `BACKEND.md`、`FRONTEND.md`、`API_CONTRACT.md` 和 `TESTING.md` 为准，本表不复制契约。
+
+| 优先级 | 后端 | 前端 | 依赖与完成条件 |
+| --- | --- | --- | --- |
+| P0 工程与安全基线 | 建立 Auth/profile、核心 schema/constraint、最小 RLS、seed；生成数据库类型 | 建立 Expo Router、Supabase 单例、session/profile 恢复、登录和角色路由 | 先固定 `API_CONTRACT.md`；migration 可从空库重放，生成类型一致，主管/工程师真实账号可登录，匿名和停用账号被服务端拒绝，`verify` 基线可执行 |
+| P1 业务闭环 | 完成查询、写 RPC、Storage policy、幂等与乐观锁，并覆盖 pgTAP/低权限集成测试 | 完成列表、建单上传、详情、改派、开始、关闭和密码重置；所有操作只调用 Service | 后端每稳定一组接口并更新生成类型，前端即可联调该组；主管建单至工程师关闭的主流程通过组件、数据库和集成测试，失败路径无脏数据 |
+| P2 双端交付 | 固化 E2E 测试项目、数据准备/清理与验证证据 | 完成双端系统相册、深链、无障碍、错误恢复和构建配置验证 | 仅在 P1 前后端闭环后执行完整 Maestro；Android/iOS 构建可安装，密码重置与跨设备 UAT 通过，全部 PRD 验收 ID 有证据 |
+
+可并行边界：
+
+- P0 契约固定后，后端 migration/RLS 与前端路由、页面结构、Service mock 可并行；真实
+  Service 联调必须等待对应 migration、RPC 和生成类型落地。
+- P1 按 `Auth/Profile`、工单读取、工单写入、Storage 四组纵向切片推进；每组以后端契约测试
+  通过和生成类型更新作为前端联调入口，不等待全部后端完成。
+- 测试用例与 Maestro flow 可依据 PRD 和接口契约并行编写，但真实集成、E2E 和 UAT 只能在
+  对应前后端切片及确定 seed 可用后通过。
+- 任何并行分支修改字段、RPC、错误码或页面行为时，必须先更新其唯一事实源；不得用临时
+  第二套类型或接口绕过依赖。
+
 ## 漂移防护
 
 - `AGENTS.md` 是通用地图和硬约束；`CLAUDE.md` 只导入它，不维护副本。
@@ -126,3 +148,9 @@ flowchart TB
 | 后端 | Supabase | 一体化提供真实认证、Postgres、RLS 与照片存储。 |
 | API | Supabase query + RPC | V1 无需额外 Node 服务；关键写入仍有服务端边界。 |
 | 状态管理 | Auth context + screen-local server state | 当前规模不需要 Redux。 |
+
+## 变更记录
+
+| 日期 | 修改人 | 摘要 |
+| --- | --- | --- |
+| 2026-07-25 | Codex | 增加前后端 P0/P1/P2 开发顺序、并行边界与阶段完成条件。 |

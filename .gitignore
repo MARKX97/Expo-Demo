@@ -1,2 +1,26 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# generated native projects
+/android/
+/ios/
+
+# local environment
+.env*.local
+
+# test output
+coverage/
+
+# tooling output
 .playwright-cli/
 output/
+
+# local system files
+.DS_Store
+*.tsbuildinfo

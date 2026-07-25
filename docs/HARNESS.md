@@ -158,6 +158,8 @@ flowchart LR
 
 ## 当前缺口
 
-仓库已具备知识索引、验收 ID 和测试设计，但尚未创建 Expo 源码、Supabase migration、`npm run verify`、CI 和 Maestro workflow，因此现阶段仍是“可执行设计”，不是“已验证 Harness”。
+仓库已具备知识索引、验收 ID、测试设计、Expo 工程骨架和命令契约，但尚未实现业务源码、
+Supabase migration、完整 `npm run verify`、CI 和 Maestro workflow，因此现阶段仍是
+“可执行设计”，不是“已验证 Harness”。
 
 首个实现任务必须按 `docs/TESTING.md` 建立最小自动链路；只有对应检查真实运行并产生证据后，才能在 `docs/README.md` 提升状态。
