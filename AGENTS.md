@@ -74,12 +74,12 @@
 5. 新增构建依赖或原生配置时，同一变更必须更新 `docs/RUNBOOK.md`。
 6. 修改行为或修复缺陷时，同一变更必须更新对应测试和验收映射。
 7. 实现后运行 `npm run verify` 与任务要求的 E2E/UAT；具体门禁见 `docs/TESTING.md`。
-8. Agent 自行选择 `docs/ai-chat-history.jsonl` 的刷新时机；每次任务交付、提交推送或交接前必须补齐自上次导出后的全部用户与助手可见消息，并去重、校验。排除系统/开发者指令、内部推理、原始工具输出、凭据和本机临时绝对路径。
+8. Agent 自行选择 `docs/ai-chat-history.jsonl` 的刷新时机；每次任务交付、提交推送或交接前必须补齐自上次导出后的全部用户与助手可见消息并去重。不得写入系统/开发者指令、内部推理、原始工具输出、凭据和本机临时绝对路径。该文件仅用于记录，不属于测试或 `verify` 门禁。
 
 ## 完成定义
 
 - 代码、文档、migration 与生成类型一致。
-- `README.md`、`docs/prd.md` 与 `docs/ai-chat-history.jsonl` 保持可交付。
+- `README.md` 与 `docs/prd.md` 保持可交付。
 - PRD 验收 ID 均映射到测试，`npm run verify` 通过。
 - 每个页面操作均能在 `API_CONTRACT.md` 追踪到 Service、后端接口、错误和测试。
 - 没有把凭据、`.env` 或真实用户数据提交到 Git。

@@ -1,10 +1,10 @@
 # 前后端对接契约
 
-版本：0.1
+版本：0.2
 
 日期：2026-07-25
 
-状态：实现前基线
+状态：P0/P1 已实现，待 Supabase 集成验证
 
 适用：Expo App ↔ Supabase Auth / PostgREST / RPC / Storage
 
@@ -578,6 +578,9 @@ supabase.storage.from('work-order-media').upload(path, arrayBuffer, {
 - 1–3 张串行上传；首张失败即停止后续上传，并对已成功路径执行 `STO-03`。
 - 同一草稿重试保持 ID 不变；`Duplicate` 只可视为该草稿先前上传结果未知，最终仍由
   `RPC-02` 验证对象。
+- Supabase Storage 上传会返回新对象，因此 SELECT policy 必须允许启用主管读取自己合法
+  路径下、尚未出现在 `work_order_attachments` 的草稿对象。对象一旦关联附件，这个临时
+  分支立即失效，后续读取只按对应工单可见性判断。
 
 ### `STO-02` 获取私有图片 URL
 
@@ -653,4 +656,5 @@ V1 的自动保证只覆盖 App 仍可继续执行补偿的失败和取消路径
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-25 | Codex | 补充 Storage 上传返回值所需的最小草稿 SELECT 权限，避免上传被自身 policy 拒绝。 |
 | 2026-07-25 | Codex | 建立页面、Service、Auth、查询、RPC 与 Storage 的一对一对接契约。 |

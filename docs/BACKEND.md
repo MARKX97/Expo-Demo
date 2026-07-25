@@ -1,10 +1,10 @@
 # 后端与数据库技术设计
 
-版本：0.2
+版本：0.3
 
 日期：2026-07-25
 
-状态：实现前基线
+状态：P0/P1 后端已实现，等待本地 Supabase 运行验证
 
 后端：Supabase Auth + Postgres + Storage
 
@@ -334,7 +334,10 @@ work-orders/{uploader_user_id}/{work_order_id}/{attachment_id}.jpg
 - bucket 配置 `public = false`、`file_size_limit = 10 MiB`，allowed MIME 仅 `image/jpeg`。
 - INSERT policy：仅启用主管；路径段必须匹配
   `work-orders/{auth.uid()}/{work_order_id}/{attachment_id}.jpg`。
-- SELECT policy：`storage_path` 已存在于 `work_order_attachments`，且调用者可读取对应工单。
+- SELECT policy：
+  - 已落库对象要求 `storage_path` 已存在于 `work_order_attachments`，且调用者可读取对应工单；
+  - 尚未落库的草稿对象只允许启用主管读取本人上传且路径合法的对象，用于 Supabase
+    Storage 上传的 `INSERT ... RETURNING` 响应。对象一旦落库，该草稿分支立即失效。
 - DELETE policy：仅 `owner_id = auth.uid()` 的启用主管，且该 path 尚未进入附件表。
 - 不创建 UPDATE policy，客户端上传固定 `upsert: false`。
 - 客户端上传全部成功后调用创建 RPC；明确业务失败时删除本次未落库对象，网络结果未知时
@@ -342,6 +345,11 @@ work-orders/{uploader_user_id}/{work_order_id}/{attachment_id}.jpg
 - RPC 从 `storage.objects` 只读验证对象元数据；所有上传和删除仍通过 Storage API。
 - V1 只保证 App 可继续执行时的补偿清理。进程强制终止等异常中断由 Storage 控制台人工
   清理；需要自动保证时再增加调用 Storage API 的定时 Edge Function。
+
+草稿 SELECT 是对原实现前契约的必要收窄修正：当前 Storage API 的上传响应需要读取刚插入
+的对象；若 SELECT 仅允许已落库附件，RPC 前的上传会被 RLS 拒绝。此分支带
+`NOT EXISTS work_order_attachments`，不会扩大已落库附件的读取权限。依据：
+[Supabase Storage 403 troubleshooting](https://supabase.com/docs/guides/troubleshooting/storage-error-403-forbidden-new-row-violates-row-level-security-policy-on-upload-a94384)。
 
 ## 11. 关键时序
 
@@ -420,16 +428,21 @@ PoC 默认规模：最多 100 个账号、10,000 个工单、每单最多 3 图�
 
 ## 15. Migration 与类型同步
 
-推荐顺序：
+当前实现：
 
-1. 新建 enum、表、constraint 和索引。
-2. 启用 RLS 并创建 helper/RPC。
-3. 创建私有 bucket 与 Storage policies。
-4. 用主管、工程师 A、工程师 B 三个账号执行权限测试。
-5. 生成客户端类型：
+- `supabase/migrations/20260725000000_initial_backend.sql` 是从空库重放的单一 schema
+  事实源，包含枚举、表、constraint、索引、RLS、RPC、私有 bucket 和 Storage policy。
+- `supabase/tests/database/backend_test.sql` 在事务内创建虚构 Auth/profile/Storage 数据，
+  覆盖 schema、拒绝路径、主状态流转、版本冲突和跨工程师隔离。
+- 测试数据不写入 seed，避免仓库保存可登录凭据；本地 Auth 集成账号由后续集成测试通过
+  本地 Admin API 临时创建。
+- 当前环境没有可用的 Supabase CLI/Postgres 容器，尚未执行 migration、pgTAP 和数据库
+  类型生成。`src/types/database.generated.ts` 不在本次手写，必须在 schema 实际重放后运行：
 
 ```bash
-npx supabase gen types typescript --linked > src/types/database.generated.ts
+supabase db reset
+supabase test db
+supabase gen types typescript --local > src/types/database.generated.ts
 ```
 
 `database.generated.ts` 由命令生成，不手工修改。任何 schema migration 必须在同一变更中重新生成类型并更新本文档。
@@ -454,4 +467,6 @@ npx supabase gen types typescript --linked > src/types/database.generated.ts
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-25 | Codex | 为 Storage 上传返回增加仅限本人未落库草稿的 SELECT 分支，落库后仍按工单权限读取。 |
+| 2026-07-25 | Codex | 落地单一 migration、P0/P1 RPC/RLS/Storage policy 与最小 pgTAP；记录待运行验证项。 |
 | 2026-07-25 | Codex | 建立 Supabase schema、关系、RPC、RLS 与 Storage 基线。 |

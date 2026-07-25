@@ -7,7 +7,14 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许梯维派工选择现场照片，用于创建电梯故障工单。",
+          "microphonePermission": false
+        }
+      ]
     ],
     "android": {
       "package": "com.markx97.elevatorhandoff"

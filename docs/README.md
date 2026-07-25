@@ -19,18 +19,19 @@
 | 领域 | 唯一事实源 | 当前状态 | 主要验证证据 |
 | --- | --- | --- | --- |
 | 产品范围与验收 | [`prd.md`](prd.md) | 已定义 | 验收 ID 与测试映射 |
-| 总体架构 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | 已定义 | typecheck、结构检查 |
-| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已定义 | Jest、RNTL、Maestro |
-| 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已定义 | migration、pgTAP、集成测试 |
-| 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已定义 | 接口覆盖、生成类型、集成测试 |
-| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已定义 | `verify`、CI、E2E 产物 |
+| 总体架构 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | 已实现 | typecheck、lint、结构审查 |
+| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL；Maestro 待补 |
+| 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已实现 | migration、pgTAP 已落盘；本地执行待补 |
+| 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已实现 | Service/RPC 已对齐；集成测试待补 |
+| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | 静态/单元/文档通过；DB、集成、E2E 待补 |
 | Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已定义 | EAS build、真机验收 |
 | Agent 开发护栏 | [`HARNESS.md`](HARNESS.md) | 已定义 | 文档检查、review 清单 |
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |
-| AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 逐行 JSON 解析、脱敏检查 |
+| AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 非门禁记录；交付前补齐 |
 
-仓库包含可启动的 Expo 工程骨架与开发目录；业务页面、Service、Supabase migration 和
-自动测试尚未实现，因此不能把任何产品实现项标记为“已验证”。
+仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP 与最小前端测试。真实
+Supabase 重放/集成、Maestro、EAS 构建和双端真机证据尚未完成，因此产品实现仍不能标记为
+“已验证”。
 
 ## 变更路由
 
@@ -70,5 +71,5 @@
 - 每个 PR 检查本索引链接和状态。
 - 文档状态只能随同验证证据升级，不能凭实现者描述升级。
 - 发现陈旧规则时，优先修正文档并增加机械检查。
-- AI 对话记录可由 Agent 自行选择刷新时机，但任务交付、提交推送或交接前必须补齐全部新增的用户与助手可见消息；只允许去重和脱敏，不得遗漏或改写历史内容。
+- AI 对话记录文件保留在仓库。Agent 可自行选择刷新时机，但任务交付、提交推送或交接前必须完整记录全部新增的用户与助手可见消息并去重；不得写入凭据、内部推理、原始工具输出或本机临时路径。该要求仅是记录规范，不属于测试或 `verify` 门禁。
 - 测试截图、视频和日志作为 CI/EAS artifact 保存，不提交生成物到 Git。

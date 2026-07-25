@@ -1,0 +1,4 @@
+project_id = "expo-demo"
+
+[db.seed]
+enabled = false

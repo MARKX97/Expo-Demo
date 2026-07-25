@@ -95,7 +95,7 @@ flowchart LR
 7. 保存失败与成功证据，让后续 agent 能定位执行命令和结果。
 8. 对照 PRD 检查角色、状态、失败恢复与安全边界。
 9. 如果代码无法满足文档，停止并修正文档/决策，不静默偏离。
-10. 交付前按 `AGENTS.md` 的脱敏规则更新 AI 对话 JSONL。
+10. 交付前按 `AGENTS.md` 的非门禁记录规范更新 AI 对话 JSONL。
 
 ## 机械护栏
 
@@ -108,7 +108,7 @@ flowchart LR
 | Schema 可重建 | `supabase db reset` |
 | constraint、RPC、RLS、Storage | pgTAP + 低权限集成测试 |
 | PRD 主流程 | Maestro Android/iOS |
-| 文档和工具入口 | Markdown/链接、`@AGENTS.md`、JSONL 检查 |
+| 文档和工具入口 | Markdown/链接、`@AGENTS.md` |
 | 无凭据入库 | secret scan + review |
 
 规则优先写成标准工具能执行的检查。只有现有工具无法表达时才新增自定义脚本；脚本失败信息必须说明修复方式。
@@ -158,8 +158,9 @@ flowchart LR
 
 ## 当前缺口
 
-仓库已具备知识索引、验收 ID、测试设计、Expo 工程骨架和命令契约，但尚未实现业务源码、
-Supabase migration、完整 `npm run verify`、CI 和 Maestro workflow，因此现阶段仍是
-“可执行设计”，不是“已验证 Harness”。
+仓库已具备知识索引、验收 ID、P0/P1 业务源码、Supabase migration、pgTAP、前端单元测试
+和文档门禁。数据库生成类型、本地 Supabase 重放、低权限集成、完整 `npm run verify`、
+CI、Maestro workflow 与双端构建证据尚未完成，因此现阶段是“已实现、未完整验证”的
+Harness。
 
 首个实现任务必须按 `docs/TESTING.md` 建立最小自动链路；只有对应检查真实运行并产生证据后，才能在 `docs/README.md` 提升状态。

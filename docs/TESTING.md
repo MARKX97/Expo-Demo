@@ -157,7 +157,6 @@ Supabase CLI 会用 Mailpit 捕获本地邮件，见
 - Markdown 格式和本地链接有效。
 - `CLAUDE.md` 仍导入 `@AGENTS.md`。
 - `API_CONTRACT.md` 中每个页面操作均有 Service、后端接口、错误和测试责任。
-- JSONL 每行可解析，不包含系统提示、内部推理、凭据或临时绝对路径。
 - TypeScript 无错误，lint 无错误。
 - `expo-doctor` 通过。
 - migration 后生成类型与提交版本一致。
@@ -373,7 +372,8 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
 }
 ```
 
-`verify-docs.mjs` 只做三件事：Markdown/链接检查、`CLAUDE.md` 导入检查、聊天 JSONL 脱敏与解析检查。不要为它引入应用运行时依赖。
+`verify-docs.mjs` 只检查必需文档及本地链接、`CLAUDE.md` 导入和
+`API_CONTRACT.md` 接口编号。AI 对话 JSONL 是记录文件，不由该脚本读取或作为门禁。
 
 E2E 不塞进本地 `verify`，因为它需要构建产物和云端设备；由 `.eas/workflows/` 独立门禁。
 

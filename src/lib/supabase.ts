@@ -1,0 +1,44 @@
+import 'react-native-url-polyfill/auto';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
+import { AppState } from 'react-native';
+
+import { AppError } from '@/lib/app-error';
+
+let client: SupabaseClient | null = null;
+let appStateSubscription: { remove(): void } | null = null;
+
+export function getSupabase(): SupabaseClient {
+  if (client) return client;
+
+  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !publishableKey) {
+    throw new AppError(
+      'SERVER_ERROR',
+      '缺少 EXPO_PUBLIC_SUPABASE_URL 或 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY。',
+    );
+  }
+
+  client = createClient(url, publishableKey, {
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+      flowType: 'pkce',
+      lock: processLock,
+    },
+  });
+
+  if (!appStateSubscription) {
+    if (AppState.currentState === 'active') client.auth.startAutoRefresh();
+    appStateSubscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') client?.auth.startAutoRefresh();
+      else client?.auth.stopAutoRefresh();
+    });
+  }
+
+  return client;
+}

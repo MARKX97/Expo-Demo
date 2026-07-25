@@ -1,6 +1,6 @@
 # Android / iOS 运行手册
 
-版本：0.2
+版本：0.3
 
 日期：2026-07-25
 
@@ -80,6 +80,16 @@ npx expo install @supabase/supabase-js \
 {
   "expo": {
     "scheme": "elevatorhandoff",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许梯维派工选择现场照片，用于创建电梯故障工单。",
+          "microphonePermission": false
+        }
+      ]
+    ],
     "android": {
       "package": "com.markx97.elevatorhandoff"
     },
@@ -283,6 +293,8 @@ npx expo-doctor
 
 - Git 工作区没有误提交 `.env*` 或密钥。
 - `app.json` 中 package、bundle identifier 与 scheme 固定。
+- `expo-image-picker` plugin 保留明确的 iOS 相册用途文案；修改后重新构建 development
+  client。
 - Supabase migration 已应用，测试账号与角色存在。
 - Supabase Auth Redirect URLs 已允许 `elevatorhandoff://reset-password`，PKCE 重置邮件在
   发起请求的同一测试设备打开。
