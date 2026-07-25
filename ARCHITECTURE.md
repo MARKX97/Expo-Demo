@@ -1,10 +1,10 @@
 # Architecture
 
-版本：0.4
+版本：0.5
 
 日期：2026-07-25
 
-状态：P0/P1 已实现，待 Supabase 集成与双端验证
+状态：P0/P1 已实现；P2 构建/E2E 配置已落盘，待外部双端验证
 
 ## 目标
 
@@ -134,7 +134,7 @@ flowchart TB
 - `docs/README.md` 记录事实源、状态和验证证据；状态不能脱离证据升级。
 - schema 变更顺序固定为：更新 PRD/后端文档 → migration → 生成类型 → service → UI → 验证。
 - Service 或接口变更必须先更新 `docs/API_CONTRACT.md`，再同步后端 migration、生成类型和前端调用。
-- 首个应用 scaffold 必须提供单一 `npm run verify`；完整门禁见 `docs/TESTING.md`。
+- 首个应用 scaffold 必须提供单一 `pnpm run verify`；完整门禁见 `docs/TESTING.md`。
 - 结构性约束优先用 TypeScript、Postgres constraint、RLS 和测试执行，不依赖文字提醒。
 
 这些约束采用 OpenAI [Harness engineering](https://openai.com/index/harness-engineering/) 的核心做法：仓库内知识作为事实源、短 `AGENTS.md` 作为地图、渐进式披露，以及把重要不变量升级为可机械验证的规则。
@@ -153,5 +153,6 @@ flowchart TB
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-25 | Codex | 落盘 P2 EAS 双平台测试构建、Maestro 主流程与 UAT 证据模板；未声明外部构建已通过。 |
 | 2026-07-25 | Codex | P0/P1 前后端按契约落地；保留数据库集成、E2E 与双端构建验证缺口。 |
 | 2026-07-25 | Codex | 增加前后端 P0/P1/P2 开发顺序、并行边界与阶段完成条件。 |

@@ -98,7 +98,7 @@ export default function WorkOrderDetailScreen() {
         <>
           <View style={styles.badges}>
             {detail.priority === 'urgent' && <Text style={styles.urgent}>紧急</Text>}
-            <Text style={styles.status}>{statusLabel[detail.status]}</Text>
+            <Text style={styles.status} testID="work-order-status">{statusLabel[detail.status]}</Text>
           </View>
           <Panel>
             <Text style={styles.sectionTitle}>工单信息</Text>
@@ -189,6 +189,7 @@ function Actions({
           label="确认改派"
           loading={busy}
           onPress={() => void onAction('reassign')}
+          testID="reassign-work-order"
         />
       </Panel>
     );
@@ -199,7 +200,7 @@ function Actions({
   return (
     <Panel>
       <Text style={styles.sectionTitle}>处理结果</Text>
-      <Field label="处理结果" multiline onChangeText={setResolution} value={resolution} />
+      <Field label="处理结果" multiline onChangeText={setResolution} testID="work-order-resolution" value={resolution} />
       <Button
         label="完成并关闭"
         loading={busy}

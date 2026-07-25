@@ -49,10 +49,9 @@ export default function NewWorkOrderScreen() {
   const choosePhotos = async () => {
     setError(null);
     const result = await ImagePicker.launchImageLibraryAsync({
-      allowsMultipleSelection: true,
+      allowsMultipleSelection: false,
       mediaTypes: ['images'],
       quality: 1,
-      selectionLimit: 3 - photos.length,
     });
     if (result.canceled) return;
 
@@ -116,9 +115,9 @@ export default function NewWorkOrderScreen() {
       {error && <Notice tone="error">{error}</Notice>}
       <Panel>
         <Text style={styles.sectionTitle}>故障信息</Text>
-        <Field label="电梯区域" onChangeText={setElevatorArea} value={elevatorArea} />
-        <Field label="梯号或设备编号" onChangeText={setElevatorCode} value={elevatorCode} />
-        <Field label="故障描述" multiline onChangeText={setDescription} value={description} />
+        <Field label="电梯区域" onChangeText={setElevatorArea} testID="work-order-area" value={elevatorArea} />
+        <Field label="梯号或设备编号" onChangeText={setElevatorCode} testID="work-order-code" value={elevatorCode} />
+        <Field label="故障描述" multiline onChangeText={setDescription} testID="work-order-description" value={description} />
         <Text style={styles.label}>优先级</Text>
         <View style={styles.segment}>
           {(['normal', 'urgent'] as const).map((value) => (
@@ -129,6 +128,7 @@ export default function NewWorkOrderScreen() {
               key={value}
               onPress={() => setPriority(value)}
               style={[styles.segmentItem, priority === value && styles.segmentActive]}
+              testID={`priority-${value}`}
             >
               <Text style={[styles.segmentText, priority === value && styles.segmentTextActive]}>
                 {value === 'normal' ? '一般' : '紧急'}
@@ -180,6 +180,7 @@ export default function NewWorkOrderScreen() {
           disabled={photos.length >= 3 || submitting}
           label={photos.length ? '继续选择照片' : '选择现场照片'}
           onPress={() => void choosePhotos()}
+          testID="pick-work-order-photo"
           variant="secondary"
         />
         <Text style={styles.help}>照片会转换为最长边 2048px、质量 0.82 的 JPEG。</Text>

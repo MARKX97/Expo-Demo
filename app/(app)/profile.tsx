@@ -27,7 +27,7 @@ export default function ProfileScreen() {
           value={profile?.role === 'elevator_supervisor' ? '电梯区域主管' : '电梯工程师'}
         />
       </Panel>
-      <Button label="退出登录" loading={submitting} onPress={() => void logout()} variant="danger" />
+      <Button label="退出登录" loading={submitting} onPress={() => void logout()} testID="logout" variant="danger" />
     </Screen>
   );
 }

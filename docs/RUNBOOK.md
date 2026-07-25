@@ -1,6 +1,6 @@
 # Android / iOS 运行手册
 
-版本：0.3
+版本：0.4
 
 日期：2026-07-25
 
@@ -32,7 +32,7 @@ Android APK 可直接安装。iOS 真机 IPA 必须签名；EAS Ad Hoc 方式要
 
 ### 通用
 
-1. 安装 Git、项目约定的 Node.js LTS 与 npm。
+1. 安装 Git、项目约定的 Node.js LTS 与 pnpm。
 2. 注册并登录 [Expo](https://expo.dev/) 账号。
 3. 创建 Supabase 项目并准备：
    - Project URL
@@ -42,21 +42,22 @@ Android APK 可直接安装。iOS 真机 IPA 必须签名；EAS Ad Hoc 方式要
 ```bash
 git clone git@github.com:MARKX97/Expo-Demo.git
 cd Expo-Demo
-npm install
-npx eas-cli@latest login
-npx eas-cli@latest build:configure
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dlx eas-cli@latest login
+pnpm dlx eas-cli@latest build:configure
 ```
 
 首个 Expo scaffold 必须安装 development client：
 
 ```bash
-npx expo install expo-dev-client
+pnpm exec expo install expo-dev-client
 ```
 
 安装前后端对接所需的最小客户端依赖：
 
 ```bash
-npx expo install @supabase/supabase-js \
+pnpm exec expo install @supabase/supabase-js \
   @react-native-async-storage/async-storage \
   react-native-url-polyfill \
   expo-image-picker \
@@ -114,7 +115,24 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 `EXPO_PUBLIC_*` 会进入客户端包，因此只能放客户端可公开的 Supabase URL 与 publishable
 key。`service_role` key 永远不能放入 App、EAS 客户端环境变量或 Git。
 
-云端构建时，在 Expo 项目的 EAS Environment Variables 中分别为 `development` 与 `preview` 配置相同变量。不要把真实值写进 `eas.json`。
+云端构建时，在 Expo 项目的 EAS Environment Variables 中分别为 `development` 与
+`preview` 配置相同变量。`e2e-test` 复用 `preview` 环境。不要把真实值写进 `eas.json`。
+
+运行 EAS Maestro 前，在 `production` 环境配置
+`docs/TESTING.md` 第 8.1 节列出的 `MAESTRO_*` 虚构测试账号变量，以及：
+
+```dotenv
+E2E_ALLOW_TEST_RESET=true
+E2E_SUPABASE_URL=https://YOUR_E2E_PROJECT_REF.supabase.co
+E2E_PROJECT_REF=YOUR_E2E_PROJECT_REF
+E2E_SUPABASE_SECRET_KEY=YOUR_E2E_SECRET_KEY
+```
+
+`E2E_SUPABASE_SECRET_KEY` 必须使用 EAS Secret 可见性，账号密码使用 Sensitive/Secret；
+任何变量都不得使用 `EXPO_PUBLIC_*` 前缀。当前没有 build profile 读取 `production`
+环境，它在本 PoC 中只隔离 Maestro hook 管理变量；`e2e-test` 构建仍只读取 `preview`
+中的 `EXPO_PUBLIC_SUPABASE_*`。未来新增 production build 前，必须先把 E2E 管理变量
+迁出该环境，避免管理员密钥进入 build job。
 
 ## 4. EAS build profiles
 
@@ -137,6 +155,16 @@ key。`service_role` key 永远不能放入 App、EAS 客户端环境变量或 G
       "android": {
         "buildType": "apk"
       }
+    },
+    "e2e-test": {
+      "withoutCredentials": true,
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
     }
   }
 }
@@ -145,13 +173,15 @@ key。`service_role` key 永远不能放入 App、EAS 客户端环境变量或 G
 - `development` 包含开发客户端，安装后仍需连接 Metro。
 - `preview` 是可独立运行的内部演示包，不需要启动 Metro。
 - Android `preview.android.buildType = apk` 保证得到可直接安装的 APK，而不是只能通过 Play Store 分发的 AAB。
+- `e2e-test` 生成 Android APK 与 iOS Simulator `.app`，仅供自动化；iOS 产物不能安装到
+  真机，且尚未等同于交付验收。
 
 ## 5. Android 真机
 
 ### 5.1 Development build
 
 ```bash
-npx eas-cli@latest build --platform android --profile development
+pnpm dlx eas-cli@latest build --platform android --profile development
 ```
 
 首次构建按提示让 EAS 生成并托管 Android keystore。构建完成后：
@@ -162,14 +192,14 @@ npx eas-cli@latest build --platform android --profile development
 4. 在电脑项目目录启动 Metro：
 
 ```bash
-npx expo start --dev-client
+pnpm exec expo start --dev-client
 ```
 
 5. 手机与电脑同一局域网时，从 development client 连接该开发服务器。
 6. 局域网发现失败时改用：
 
 ```bash
-npx expo start --dev-client --tunnel
+pnpm exec expo start --dev-client --tunnel
 ```
 
 JS/TS 修改可热更新；新增原生依赖、修改 plugin 或原生权限后必须重新执行 EAS development build。
@@ -177,7 +207,7 @@ JS/TS 修改可热更新；新增原生依赖、修改 plugin 或原生权限后
 ### 5.2 Preview APK
 
 ```bash
-npx eas-cli@latest build --platform android --profile preview
+pnpm dlx eas-cli@latest build --platform android --profile preview
 ```
 
 把 EAS 生成的安装链接或二维码发给测试者。Preview 包独立运行，不依赖电脑和 Metro；仍需要网络访问 Supabase。
@@ -200,7 +230,7 @@ npx eas-cli@latest build --platform android --profile preview
 ### 6.2 注册测试设备
 
 ```bash
-npx eas-cli@latest device:create
+pnpm dlx eas-cli@latest device:create
 ```
 
 命令会给出注册链接。用目标 iPhone 打开链接，按页面提示安装临时描述文件并完成设备登记。每新增一台设备，都要重新构建或刷新 Ad Hoc provisioning profile，旧 IPA 不会自动支持新设备。
@@ -208,7 +238,7 @@ npx eas-cli@latest device:create
 ### 6.3 Development build
 
 ```bash
-npx eas-cli@latest build --platform ios --profile development
+pnpm dlx eas-cli@latest build --platform ios --profile development
 ```
 
 首次构建：
@@ -220,7 +250,7 @@ npx eas-cli@latest build --platform ios --profile development
 5. 安装后启动 Metro：
 
 ```bash
-npx expo start --dev-client
+pnpm exec expo start --dev-client
 ```
 
 6. 打开主屏幕中的 App，连接当前开发服务器。
@@ -228,7 +258,7 @@ npx expo start --dev-client
 ### 6.4 Preview IPA
 
 ```bash
-npx eas-cli@latest build --platform ios --profile preview
+pnpm dlx eas-cli@latest build --platform ios --profile preview
 ```
 
 Preview 包无需 Metro，但只能安装到构建时已写入 Ad Hoc provisioning profile 的设备。新增设备后必须重新构建。
@@ -242,7 +272,7 @@ Preview 包无需 Metro，但只能安装到构建时已写入 Ad Hoc provisioni
 3. 在项目中运行：
 
 ```bash
-npx expo run:ios --device
+pnpm exec expo run:ios --device
 ```
 
 该路径使用本地 Xcode 签名，不满足“完全无需 iOS 开发环境”，且免费签名有效期和能力受 Apple 限制。若只要求完成作业演示，优先使用 Android APK 可减少账号与签名风险。
@@ -252,7 +282,7 @@ npx expo run:ios --device
 macOS + Xcode 可直接运行：
 
 ```bash
-npx expo run:ios
+pnpm exec expo run:ios
 ```
 
 也可增加专用 EAS profile：
@@ -271,7 +301,7 @@ npx expo run:ios
 ```
 
 ```bash
-npx eas-cli@latest build --platform ios --profile ios-simulator
+pnpm dlx eas-cli@latest build --platform ios --profile ios-simulator
 ```
 
 Simulator build 不能安装到真实 iPhone。
@@ -281,9 +311,9 @@ Simulator build 不能安装到真实 iPhone。
 每次 EAS 构建前执行：
 
 ```bash
-npm ci
-npm run verify
-npx expo-doctor
+pnpm install --frozen-lockfile
+pnpm run verify
+pnpm exec expo-doctor
 ```
 
 测试构建 profile、Maestro flows 和 EAS Workflows 以
@@ -309,3 +339,47 @@ npx expo-doctor
 4. 工程师账号在另一设备刷新、开始处理并关闭。
 5. 忘记密码链接能通过 `elevatorhandoff://reset-password` 返回 App。
 6. 未授权账号和越权操作被 Supabase 拒绝。
+
+## 10. P2 E2E 执行
+
+首次运行前关联 EAS 项目与 GitHub 仓库，并按第 3 节分别配置 `preview` 构建变量和
+`production` Maestro 管理变量：
+
+```bash
+pnpm dlx eas-cli@latest init
+pnpm dlx eas-cli@latest workflow:validate .eas/workflows/e2e-test-android.yml
+pnpm dlx eas-cli@latest workflow:validate .eas/workflows/e2e-test-ios.yml
+```
+
+本地已有对应 APK / iOS Simulator `.app` 和模拟器时，可用 Maestro CLI：
+
+```bash
+maestro test .maestro/flows/smoke-login.yml
+maestro test .maestro/flows/critical-journey.yml
+maestro test .maestro/flows/expired-reset-link.yml
+```
+
+账号通过 `MAESTRO_*` shell 变量注入；不要把 `-e PASSWORD=...` 命令复制到共享日志。
+数据脚本会在任何网络请求前校验重置开关、HTTPS URL、project ref 与 secret key：
+
+```bash
+node scripts/e2e-test-data.mjs self-check
+node scripts/e2e-test-data.mjs prepare
+node scripts/e2e-test-data.mjs cleanup
+```
+
+`prepare` 先清理历史 `E2E-*` 工单，再确保 1 个主管和 2 个工程师账号/profile 可用；
+`cleanup` 删除 Storage 对象、附件和工单，不删除账号。正常结束由
+`after_maestro_tests` 清理；若云端作业中断，下一次 `prepare` 会先补偿清理。
+EAS 运行：
+
+```bash
+pnpm dlx eas-cli@latest workflow:run .eas/workflows/e2e-test-android.yml
+pnpm dlx eas-cli@latest workflow:run .eas/workflows/e2e-test-ios.yml
+```
+
+Android/iOS workflow 都使用手动 `workflow_dispatch`。包含管理员密钥的 Maestro hook
+不得对不可信 Pull Request 自动运行；维护者确认分支可信后再触发。构建、Maestro 与双端
+UAT 未真实执行前，
+P2 状态只能标记为“配置已落盘，待外部验证”。证据填写
+[测试与质量策略](TESTING.md#111-uat-与证据模板)。

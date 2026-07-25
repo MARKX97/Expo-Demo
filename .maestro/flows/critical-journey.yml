@@ -1,0 +1,160 @@
+appId: com.markx97.elevatorhandoff
+name: Dispatch, isolation and close
+---
+- runScript: ../shared/create-run-data.js
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- addMedia:
+    - ../../tests/fixtures/work-order-photo.jpg
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
+- extendedWaitUntil:
+    visible: 工单总览
+    timeout: 15000
+- tapOn:
+    id: nav-new-work-order
+- tapOn:
+    id: create-work-order-submit
+- assertVisible: 请填写电梯区域。
+- tapOn:
+    id: work-order-area
+- inputText: A区机房
+- tapOn:
+    id: work-order-code
+- inputText: ${output.workOrderCode}
+- tapOn:
+    id: work-order-description
+- inputText: Maestro P2 test
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: priority-urgent
+    direction: DOWN
+- tapOn:
+    id: priority-urgent
+- scrollUntilVisible:
+    element:
+      text: 选择工程师 ${ENGINEER_A_NAME}
+    direction: DOWN
+- tapOn: 选择工程师 ${ENGINEER_A_NAME}
+- scrollUntilVisible:
+    element:
+      id: pick-work-order-photo
+    direction: DOWN
+- tapOn:
+    id: pick-work-order-photo
+- runFlow: ../shared/pick-first-image.yml
+- extendedWaitUntil:
+    visible: 移除照片 1
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: create-work-order-submit
+    direction: DOWN
+- tapOn:
+    id: create-work-order-submit
+- extendedWaitUntil:
+    visible: ${output.workOrderCode}
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: 改派给 ${ENGINEER_B_NAME}
+    direction: DOWN
+- tapOn: 改派给 ${ENGINEER_B_NAME}
+- tapOn:
+    id: reassign-work-order
+- extendedWaitUntil:
+    visible: ${ENGINEER_B_NAME}
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 改派给 ${ENGINEER_A_NAME}
+    direction: DOWN
+- tapOn: 改派给 ${ENGINEER_A_NAME}
+- tapOn:
+    id: reassign-work-order
+- extendedWaitUntil:
+    visible: ${ENGINEER_A_NAME}
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 返回工单
+    direction: UP
+- tapOn: 返回工单
+- tapOn:
+    id: nav-profile
+- tapOn:
+    id: logout
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${ENGINEER_B_EMAIL}
+      PASSWORD: ${ENGINEER_B_PASSWORD}
+- extendedWaitUntil:
+    visible: 我的工单
+    timeout: 15000
+- assertNotVisible: ${output.workOrderCode}
+- tapOn:
+    id: nav-profile
+- tapOn:
+    id: logout
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${ENGINEER_A_EMAIL}
+      PASSWORD: ${ENGINEER_A_PASSWORD}
+- extendedWaitUntil:
+    visible: ${output.workOrderCode}
+    timeout: 15000
+- tapOn: ${output.workOrderCode}
+- scrollUntilVisible:
+    element:
+      id: start-work-order
+    direction: DOWN
+- tapOn:
+    id: start-work-order
+- scrollUntilVisible:
+    element:
+      id: work-order-status
+    direction: UP
+- extendedWaitUntil:
+    visible: 处理中
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: close-work-order
+    direction: DOWN
+- tapOn:
+    id: close-work-order
+- scrollUntilVisible:
+    element:
+      text: 请填写处理结果。
+    direction: UP
+- assertVisible: 请填写处理结果。
+- scrollUntilVisible:
+    element:
+      id: work-order-resolution
+    direction: DOWN
+- tapOn:
+    id: work-order-resolution
+- inputText: ${output.resolution}
+- hideKeyboard
+- tapOn:
+    id: close-work-order
+- tapOn: 确认关闭
+- scrollUntilVisible:
+    element:
+      id: work-order-status
+    direction: UP
+- extendedWaitUntil:
+    visible: 已关闭
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: 此工单已关闭，当前为只读状态。
+    direction: DOWN
+- assertVisible: 此工单已关闭，当前为只读状态。

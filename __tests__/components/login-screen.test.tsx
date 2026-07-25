@@ -14,9 +14,9 @@ jest.mock('@/lib/auth-context', () => ({
 describe('LoginScreen', () => {
   it('renders the real login form', async () => {
     const view = await render(<LoginScreen />);
-    expect(view.getByText('梯维派工')).toBeOnTheScreen();
-    expect(view.getByLabelText('工作邮箱')).toBeOnTheScreen();
-    expect(view.getByLabelText('密码')).toBeOnTheScreen();
-    expect(view.getByTestId('login-submit')).toBeOnTheScreen();
+    expect(view.getByText('梯维派工')).toBeTruthy();
+    expect(view.getByLabelText('工作邮箱')).toBeTruthy();
+    expect(view.getByLabelText('密码')).toBeTruthy();
+    expect(view.getByTestId('login-submit')).toBeTruthy();
   });
 });

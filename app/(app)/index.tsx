@@ -58,14 +58,14 @@ export default function WorkOrderListScreen() {
   return (
     <Screen
       action={isSupervisor
-        ? <Button label="新建" onPress={() => router.push('/(app)/work-orders/new')} />
+        ? <Button label="新建" onPress={() => router.push('/(app)/work-orders/new')} testID="nav-new-work-order" />
         : undefined}
       description={isSupervisor ? '查看全项目工单并安排处理' : `${context?.profile.displayName} · 只显示指派给我的工单`}
       scroll={false}
       title={isSupervisor ? '工单总览' : '我的工单'}
     >
       <View style={styles.navigation}>
-        <Button label="个人中心" onPress={() => router.push('/(app)/profile')} variant="secondary" />
+        <Button label="个人中心" onPress={() => router.push('/(app)/profile')} testID="nav-profile" variant="secondary" />
         {fetchedAt && (
           <Text style={styles.updated}>上次更新 {new Date(fetchedAt).toLocaleTimeString('zh-CN')}</Text>
         )}

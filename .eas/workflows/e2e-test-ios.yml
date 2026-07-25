@@ -1,0 +1,33 @@
+name: e2e-test-ios
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_ios_for_e2e:
+    name: Build iOS Simulator app
+    type: build
+    params:
+      platform: ios
+      profile: e2e-test
+
+  maestro_test:
+    name: Run iOS critical journeys
+    needs: [build_ios_for_e2e]
+    type: maestro
+    environment: production
+    params:
+      build_id: ${{ needs.build_ios_for_e2e.outputs.build_id }}
+      flow_path:
+        - .maestro/flows/smoke-login.yml
+        - .maestro/flows/critical-journey.yml
+        - .maestro/flows/expired-reset-link.yml
+      record_screen: true
+      retries: 0
+    hooks:
+      before_maestro_tests:
+        - name: Prepare isolated E2E data
+          run: node scripts/e2e-test-data.mjs prepare
+      after_maestro_tests:
+        - name: Clean isolated E2E data
+          run: node scripts/e2e-test-data.mjs cleanup

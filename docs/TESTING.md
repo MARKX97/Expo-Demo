@@ -1,6 +1,6 @@
 # 测试与质量策略
 
-版本：0.2
+版本：0.3
 
 最后审校：2026-07-25
 
@@ -121,8 +121,10 @@ EAS 云端设备不能访问开发机的本地 Supabase，因此使用独立、�
 
 - 只存虚构账号和图片，不存真实业务数据。
 - App 只接收 publishable key。
-- CI 准备数据时可在服务端使用 secret key，但不得写入 App bundle、日志或 artifact。
-- 每次运行使用唯一 `run_id`，运行结束删除对应用户、工单和 Storage 对象。
+- E2E 准备脚本只在 Maestro job 的 hook 中使用 secret key，不得写入 build job、App
+  bundle、日志或 artifact。
+- 每次运行前清理 `elevator_code = E2E-*` 的旧工单，再复用并校准 1 个主管与 2 个工程师
+  账号；运行结束删除对应 Storage 对象、附件和工单，但保留测试账号。
 - 禁止对生产项目执行 `db reset`、seed 或 E2E 清理。
 
 密码重置分两层验证：
@@ -244,17 +246,64 @@ service key 只允许用于 suite setup/teardown，断言必须使用真实低�
 Maestro 的 [`addMedia`](https://docs.maestro.dev/reference/commands-available/addmedia)
 支持将工作区图片加入 Android/iOS 设备相册。
 
+仓库内 Flow 使用以下运行时变量，值只能来自本地 shell 或 EAS `production` Environment，
+不得写进 YAML、Git 日志或截图：
+
+| EAS / shell 变量 | Flow 内变量 | 用途 |
+| --- | --- | --- |
+| `MAESTRO_SUPERVISOR_EMAIL` | `SUPERVISOR_EMAIL` | 主管测试邮箱 |
+| `MAESTRO_SUPERVISOR_PASSWORD` | `SUPERVISOR_PASSWORD` | 主管测试密码 |
+| `MAESTRO_ENGINEER_A_EMAIL` | `ENGINEER_A_EMAIL` | 工程师 A 测试邮箱 |
+| `MAESTRO_ENGINEER_A_PASSWORD` | `ENGINEER_A_PASSWORD` | 工程师 A 测试密码 |
+| `MAESTRO_ENGINEER_B_EMAIL` | `ENGINEER_B_EMAIL` | 工程师 B 测试邮箱 |
+| `MAESTRO_ENGINEER_B_PASSWORD` | `ENGINEER_B_PASSWORD` | 工程师 B 测试密码 |
+| `MAESTRO_ENGINEER_A_NAME` | `ENGINEER_A_NAME` | 工程师 A 页面显示名 |
+| `MAESTRO_ENGINEER_B_NAME` | `ENGINEER_B_NAME` | 工程师 B 页面显示名 |
+
+Maestro CLI 会读取 `MAESTRO_` 前缀的 shell 变量，并在 Flow 内暴露去掉前缀后的名称。
+EAS `maestro` job 使用 `environment: production` 读取同名变量。`EXPO_PUBLIC_SUPABASE_*`
+仍由 `e2e-test.environment = preview` 注入构建；`production` 在本 PoC 中只作为 Maestro
+管理变量的隔离环境，当前没有 build profile 使用它。
+
+Maestro 数据 hook 还需要以下变量：
+
+| 变量 | 可见性 | 约束 |
+| --- | --- | --- |
+| `E2E_ALLOW_TEST_RESET` | Plain text | 必须精确为 `true` |
+| `E2E_SUPABASE_URL` | Sensitive | 只能是 `https://<project-ref>.supabase.co` |
+| `E2E_PROJECT_REF` | Sensitive | 必须与 URL hostname 完全一致 |
+| `E2E_SUPABASE_SECRET_KEY` | Secret | 仅 Maestro hook 读取，禁止 `EXPO_PUBLIC_*` 前缀 |
+
+`scripts/e2e-test-data.mjs` 提供三个命令：
+
+```bash
+node scripts/e2e-test-data.mjs self-check
+node scripts/e2e-test-data.mjs prepare
+node scripts/e2e-test-data.mjs cleanup
+```
+
+`prepare` 先执行同范围清理，再创建或更新虚构 Auth 用户和 `profiles`；`cleanup` 严格按
+Storage 对象 → `work_order_attachments` → `work_orders` 顺序删除
+`elevator_code = E2E-*` 数据，不删除 Auth 用户。任何门禁变量缺失、URL 非 HTTPS 或
+project ref 不匹配都会在网络请求前失败，且输出不包含密钥。
+
 ### 8.2 Flow 清单
 
 | Flow | 关键步骤 |
 | --- | --- |
-| `smoke-login` | 启动 → 主管登录 → 工单列表 |
-| `supervisor-create` | 登录 → 选择 1 张测试照片 → 创建并指派 |
-| `supervisor-reassign` | 改派 `assigned` 成功；处理中不出现改派 |
-| `engineer-process` | 工程师 A 登录 → 刷新 → 开始 → 填结果 → 关闭 |
-| `engineer-isolation` | 工程师 B 登录 → 搜索不到 A 的工单 |
-| `validation-errors` | 0/4 张照片、空处理结果、重复提交 |
-| `password-reset-route` | 冷/热启动打开 reset deep link → 建立 recovery session → 更新密码 |
+| `smoke-login.yml` | 清空状态 → 主管登录 → 工单列表 |
+| `critical-journey.yml` | 主管校验失败路径 → 选择照片建单 → 改派往返 → 工程师 B 隔离 → 工程师 A 开始、空结果校验并关闭 |
+| `expired-reset-link.yml` | 冷启动打开无效 reset deep link → 显示恢复入口；仅验证失败恢复，不伪造成功 recovery |
+
+`critical-journey.yml` 通过 `addMedia` 写入
+`tests/fixtures/work-order-photo.jpg`，再调用
+`.maestro/shared/pick-first-image.yml`。该 subflow 按 Maestro 官方 recipe 使用 Android
+MediaProvider / DocumentsUI 与 iOS 17/18 选择器的可选 fallback；若平台系统 UI 升级，
+只更新此文件并保留失败截图。
+
+真实密码重置成功依赖“同一设备发起请求后收到的实时 PKCE 链接”，不能用仓库内固定 token
+自动化。发布候选必须按第 11 节 UAT 在真机验证成功链路；自动 Flow 只覆盖失效链接的
+安全恢复路径。
 
 自动 E2E 可以用顺序切换账号证明跨 session 同步，但不能证明真实跨设备。最终交付仍必须由两台设备或一台设备加一台模拟器执行 UAT。
 
@@ -267,6 +316,7 @@ Maestro 的 [`addMedia`](https://docs.maestro.dev/reference/commands-available/a
   "build": {
     "e2e-test": {
       "withoutCredentials": true,
+      "environment": "preview",
       "ios": {
         "simulator": true
       },
@@ -278,13 +328,12 @@ Maestro 的 [`addMedia`](https://docs.maestro.dev/reference/commands-available/a
 }
 ```
 
-Android PR workflow：
+Android 手动 workflow：
 
 ```yaml
 name: e2e-test-android
 on:
-  pull_request:
-    branches: ['*']
+  workflow_dispatch:
 jobs:
   build_android_for_e2e:
     type: build
@@ -294,12 +343,22 @@ jobs:
   maestro_test:
     needs: [build_android_for_e2e]
     type: maestro
+    environment: production
+    hooks:
+      before_maestro_tests:
+        - name: Prepare isolated E2E data
+          run: node scripts/e2e-test-data.mjs prepare
+      after_maestro_tests:
+        - name: Clean isolated E2E data
+          run: node scripts/e2e-test-data.mjs cleanup
     params:
       build_id: ${{ needs.build_android_for_e2e.outputs.build_id }}
       flow_path:
         - .maestro/flows/smoke-login.yml
-        - .maestro/flows/supervisor-create.yml
-        - .maestro/flows/engineer-process.yml
+        - .maestro/flows/critical-journey.yml
+        - .maestro/flows/expired-reset-link.yml
+      record_screen: true
+      retries: 0
 ```
 
 iOS 发布候选 workflow：
@@ -317,32 +376,47 @@ jobs:
   maestro_test:
     needs: [build_ios_for_e2e]
     type: maestro
+    environment: production
+    hooks:
+      before_maestro_tests:
+        - name: Prepare isolated E2E data
+          run: node scripts/e2e-test-data.mjs prepare
+      after_maestro_tests:
+        - name: Clean isolated E2E data
+          run: node scripts/e2e-test-data.mjs cleanup
     params:
       build_id: ${{ needs.build_ios_for_e2e.outputs.build_id }}
       flow_path:
         - .maestro/flows/smoke-login.yml
-        - .maestro/flows/supervisor-create.yml
-        - .maestro/flows/engineer-process.yml
+        - .maestro/flows/critical-journey.yml
+        - .maestro/flows/expired-reset-link.yml
+      record_screen: true
+      retries: 0
 ```
 
 实际实现时以当前 EAS Workflows schema 校验结果为准。手动运行：
 
 ```bash
-eas workflow:validate .eas/workflows/e2e-test-android.yml
-eas workflow:validate .eas/workflows/e2e-test-ios.yml
-eas workflow:run .eas/workflows/e2e-test-android.yml
-eas workflow:run .eas/workflows/e2e-test-ios.yml
+pnpm dlx eas-cli@latest workflow:validate .eas/workflows/e2e-test-android.yml
+pnpm dlx eas-cli@latest workflow:validate .eas/workflows/e2e-test-ios.yml
+pnpm dlx eas-cli@latest workflow:run .eas/workflows/e2e-test-android.yml
+pnpm dlx eas-cli@latest workflow:run .eas/workflows/e2e-test-ios.yml
 ```
 
 EAS 的 Maestro job 当前仍标记为 alpha。若出现平台级不稳定，保留同一套 `.maestro` flows 和 `e2e-test` 构建，在具备模拟器的 CI runner 上执行 `maestro test`；不得因此删除 E2E 或降低断言。
+
+`after_maestro_tests` 是正常完成路径的清理，不作为唯一保险；基础设施中断时该 hook
+可能来不及执行，因此下一次 `prepare` 必须先做同范围清理。管理员密钥使任意不可信
+仓库代码都可能越权读取测试项目，所以 Android/iOS 都只允许维护者手动触发，不允许
+对任意 Pull Request 自动运行。
 
 ## 9. CI 与质量门禁
 
 | 时机 | 必须通过 | 是否阻塞 |
 | --- | --- | --- |
 | 每个 PR | 文档、typecheck、lint、单元/组件、DB、集成 | 是 |
-| App/后端 PR | Android Maestro 主流程 | 是 |
-| 合入 `main` 或每日 | Android 完整 Maestro | 是 |
+| App/后端 PR | 静态、单元、DB 与集成测试；不注入 E2E 管理密钥 | 是 |
+| 合入受信分支前 | 维护者手动触发 Android 完整 Maestro | 是 |
 | 发布候选 | Android + iOS 完整 Maestro、EAS build | 是 |
 | 最终交付 | 双角色跨设备 UAT、密码重置、安装验证 | 是 |
 
@@ -366,8 +440,8 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
     "test:integration": "jest tests/integration --runInBand",
     "test:db": "supabase test db",
     "verify:docs": "node scripts/verify-docs.mjs",
-    "verify:fast": "npm run typecheck && npm run lint && npm run test:unit",
-    "verify": "npm run verify:docs && npx expo-doctor && npm run verify:fast && npm run test:db && npm run test:integration"
+    "verify:fast": "pnpm run typecheck && pnpm run lint && pnpm run test:unit",
+    "verify": "pnpm run verify:docs && pnpm exec expo-doctor && pnpm run verify:fast && pnpm run test:db && pnpm run test:integration"
   }
 }
 ```
@@ -395,13 +469,36 @@ E2E 不塞进本地 `verify`，因为它需要构建产物和云端设备；由 
 3. Android 和 iOS 构建均可安装并启动。
 4. 至少一次双角色跨设备流程完成。
 
+### 11.1 UAT 与证据模板
+
+Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行项只能写“未执行”，不能写
+“通过”：
+
+| 字段 | 记录 |
+| --- | --- |
+| 平台 / OS / 设备 |  |
+| commit SHA / App 版本 |  |
+| EAS build ID / profile |  |
+| Supabase 测试项目标识（不含 URL/key） |  |
+| 测试账号角色（不含邮箱全值/密码） |  |
+| 安装与冷启动 | 未执行 / 通过 / 失败 |
+| 主管登录、1 张照片建单、改派 | 未执行 / 通过 / 失败 |
+| 工程师隔离、开始、关闭 | 未执行 / 通过 / 失败 |
+| 密码重置邮件与同设备 deep link | 未执行 / 通过 / 失败 |
+| VoiceOver/TalkBack、最大字体、44pt 触控 | 未执行 / 通过 / 失败 |
+| Maestro 报告 / 截图 / 视频位置 |  |
+| 工单 ID / 最终状态 |  |
+| 缺陷与复测结论 |  |
+
 ## 12. 当前缺口
 
-当前仅建立测试设计与目录/命令骨架，以下尚未实现：
+仓库已落盘 Jest/RNTL、migration/pgTAP、Maestro flows、`e2e-test` profile 与双平台 EAS
+workflow；以下仍未取得外部证据：
 
-- 文档验证脚本、Jest/RNTL 测试代码与可通过的完整 `verify` 链路。
-- Supabase migration、seed、pgTAP 与本地集成环境。
-- Maestro flows、EAS E2E profile 与 workflows。
-- CI、artifact 保存和双端真机验收。
+- EAS 项目尚需由维护者关联 GitHub；在 `preview` 配置 App 公开变量，在仅供 Maestro 的
+  `production` 环境配置虚构账号与 E2E 数据门禁变量。
+- EAS Android/iOS 构建与 Maestro job 尚未实际运行。
+- 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
+- 完整 `pnpm run verify` 仍以本地 Supabase、依赖安装和现有测试实际结果为准。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

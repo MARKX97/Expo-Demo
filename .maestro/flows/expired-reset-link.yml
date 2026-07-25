@@ -1,0 +1,18 @@
+appId: com.markx97.elevatorhandoff
+name: Expired password reset recovery
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- stopApp
+- openLink:
+    link: elevatorhandoff://reset-password?code=expired-e2e-code
+- runFlow:
+    when:
+      visible: Open
+    commands:
+      - tapOn: Open
+- extendedWaitUntil:
+    visible: 链接无法使用
+    timeout: 15000
+- assertVisible: 重新发送重置邮件

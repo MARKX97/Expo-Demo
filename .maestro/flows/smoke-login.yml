@@ -1,0 +1,15 @@
+appId: com.markx97.elevatorhandoff
+name: Supervisor login smoke
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
+- extendedWaitUntil:
+    visible: 工单总览
+    timeout: 15000
+- assertVisible: 新建

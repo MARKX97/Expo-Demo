@@ -20,18 +20,18 @@
 | --- | --- | --- | --- |
 | 产品范围与验收 | [`prd.md`](prd.md) | 已定义 | 验收 ID 与测试映射 |
 | 总体架构 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | 已实现 | typecheck、lint、结构审查 |
-| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL；Maestro 待补 |
+| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL、Maestro flow；双端执行待补 |
 | 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已实现 | migration、pgTAP 已落盘；本地执行待补 |
 | 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已实现 | Service/RPC 已对齐；集成测试待补 |
-| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | 静态/单元/文档通过；DB、集成、E2E 待补 |
+| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | 静态/单元/文档通过；DB、集成、E2E 执行待补 |
 | Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已定义 | EAS build、真机验收 |
 | Agent 开发护栏 | [`HARNESS.md`](HARNESS.md) | 已定义 | 文档检查、review 清单 |
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |
 | AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 非门禁记录；交付前补齐 |
 
-仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP 与最小前端测试。真实
-Supabase 重放/集成、Maestro、EAS 构建和双端真机证据尚未完成，因此产品实现仍不能标记为
-“已验证”。
+仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP、前端测试，以及 P2
+Maestro flow 与 EAS 双平台测试构建配置。真实 Supabase 重放/集成、EAS 构建、Maestro
+运行和双端真机证据尚未完成，因此产品实现仍不能标记为“已验证”。
 
 ## 变更路由
 

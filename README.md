@@ -30,7 +30,7 @@ Continuous Native Generation 在构建时生成。
 ## 环境要求
 
 - Git
-- Node.js 22.13 LTS 或更高版本与 npm
+- Node.js 22.13 LTS 或更高版本与 pnpm
 - Expo 账号
 - Supabase 项目
 - Android 真机，或具备签名条件的 iPhone/iPad
@@ -41,7 +41,8 @@ Continuous Native Generation 在构建时生成。
 ```bash
 git clone git@github.com:MARKX97/Expo-Demo.git
 cd Expo-Demo
-npm install
+corepack enable
+pnpm install --frozen-lockfile
 cp .env.example .env.local
 ```
 
@@ -58,16 +59,16 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 首次在设备上开发，需要先生成并安装 development build：
 
 ```bash
-npx eas-cli@latest login
-npx eas-cli@latest build --platform android --profile development
+pnpm dlx eas-cli@latest login
+pnpm dlx eas-cli@latest build --platform android --profile development
 # 或
-npx eas-cli@latest build --platform ios --profile development
+pnpm dlx eas-cli@latest build --platform ios --profile development
 ```
 
 安装完成后启动 Metro：
 
 ```bash
-npm run start
+pnpm run start
 ```
 
 development build、Android APK、iOS Ad Hoc IPA、模拟器和签名限制的完整步骤见
@@ -77,12 +78,12 @@ development build、Android APK、iOS Ad Hoc IPA、模拟器和签名限制的�
 
 | 命令 | 用途 |
 | --- | --- |
-| `npm run start` | 启动 Expo development client 的 Metro |
-| `npm run lint` | 检查代码规范 |
-| `npm run typecheck` | 检查 TypeScript 类型 |
-| `npm test` | 运行前端单元、组件与路由测试 |
-| `npm run verify` | 运行提交前的本地质量门禁 |
-| `npx expo-doctor` | 检查 Expo 配置与依赖兼容性 |
+| `pnpm run start` | 启动 Expo development client 的 Metro |
+| `pnpm run lint` | 检查代码规范 |
+| `pnpm run typecheck` | 检查 TypeScript 类型 |
+| `pnpm test` | 运行前端单元、组件与路由测试 |
+| `pnpm run verify` | 运行提交前的本地质量门禁 |
+| `pnpm exec expo-doctor` | 检查 Expo 配置与依赖兼容性 |
 | `supabase start` | 启动本地 Supabase |
 | `supabase db reset` | 从 migration 与 seed 重建本地数据库 |
 | `supabase test db` | 运行 pgTAP 数据库测试 |
@@ -130,7 +131,7 @@ development build、Android APK、iOS Ad Hoc IPA、模拟器和签名限制的�
 提交前运行：
 
 ```bash
-npm run verify
+pnpm run verify
 ```
 
 涉及数据库或权限时，额外运行：
@@ -139,7 +140,7 @@ npm run verify
 supabase start
 supabase db reset
 supabase test db
-npm run test:integration
+pnpm run test:integration
 ```
 
 涉及用户主流程、路由、照片或原生配置时，按
@@ -150,13 +151,13 @@ npm run test:integration
 Android 内部演示 APK：
 
 ```bash
-npx eas-cli@latest build --platform android --profile preview
+pnpm dlx eas-cli@latest build --platform android --profile preview
 ```
 
 iOS 内部演示 IPA：
 
 ```bash
-npx eas-cli@latest build --platform ios --profile preview
+pnpm dlx eas-cli@latest build --platform ios --profile preview
 ```
 
 Preview 包可脱离 Metro 运行，但仍需要网络访问 Supabase。iOS 安装受 Apple 签名和已登记

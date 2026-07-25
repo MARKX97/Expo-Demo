@@ -1,0 +1,10 @@
+appId: com.markx97.elevatorhandoff
+---
+- tapOn:
+    id: login-email
+- inputText: ${EMAIL}
+- tapOn:
+    id: login-password
+- inputText: ${PASSWORD}
+- tapOn:
+    id: login-submit
