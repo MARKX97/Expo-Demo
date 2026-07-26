@@ -1,8 +1,8 @@
 # 测试与质量策略
 
-版本：0.4
+版本：0.5
 
-最后审校：2026-07-25
+最后审校：2026-07-27
 
 ## 1. 目标
 
@@ -438,6 +438,15 @@ EAS 的 Maestro job 当前仍标记为 alpha。若出现平台级不稳定，保
 
 OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁，但这依赖成熟的自动修复和可观测系统。本 PoC 涉及 RLS 和真实认证，不复制该策略，安全与主流程测试保持阻塞。
 
+`.github/workflows/verify.yml` 在 Pull Request、`main` push 和人工触发时运行完整门禁：
+
+1. 使用仓库约定的 Node 22 与 pnpm。
+2. 在 GitHub runner 启动本地 Supabase，并从空库重放 migration。
+3. 把本地 URL、publishable key 和 secret key 仅注入当前 job。
+4. 运行 `pnpm run verify`，覆盖文档、Expo Doctor、静态检查、Jest、pgTAP 和低权限集成。
+
+该 workflow 不连接托管 Supabase，不读取 EAS/E2E 凭据，也不执行付费双端构建。
+
 ## 10. 命令契约
 
 首个 Expo scaffold 必须提供：
@@ -512,6 +521,7 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
 `e2e-test` profile 与双平台 EAS workflow；以下仍未取得外部证据：
 
+- GitHub `verify` workflow 已配置，需在提交后由 GitHub runner 取得首次运行证据。
 - 本地 Supabase 尚未启动，因此 migration/pgTAP、生成类型和低权限集成套件尚未实际通过；
   无本地测试变量时集成套件只会明确 skipped。
 - EAS 项目尚需由维护者关联 GitHub；在 `preview` 配置 App 公开变量，在仅供 Maestro 的

@@ -15,6 +15,7 @@ const requiredFiles = [
   'docs/TESTING.md',
   'docs/RUNBOOK.md',
   'docs/HARNESS.md',
+  '.github/workflows/verify.yml',
 ];
 
 for (const file of requiredFiles) {

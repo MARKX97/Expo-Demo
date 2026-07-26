@@ -1,8 +1,8 @@
 # Harness Engineering 开发护栏
 
-版本：0.3
+版本：0.4
 
-日期：2026-07-25
+日期：2026-07-27
 
 ## 目标
 
@@ -111,6 +111,9 @@ flowchart LR
 | 文档和工具入口 | Markdown/链接、`@AGENTS.md` |
 | 无凭据入库 | secret scan + review |
 
+`.github/workflows/verify.yml` 在 GitHub runner 启动隔离的本地 Supabase，并执行完整
+`pnpm run verify`；它不接触托管项目或 E2E 管理密钥。
+
 规则优先写成标准工具能执行的检查。只有现有工具无法表达时才新增自定义脚本；脚本失败信息必须说明修复方式。
 
 ## Agent 可读性
@@ -159,9 +162,9 @@ flowchart LR
 ## 当前缺口
 
 仓库已具备知识索引、验收 ID、P0/P1 业务源码、Supabase migration、pgTAP、前端单元测试、
-文档门禁、低权限 Supabase 集成套件、Maestro flows 与双平台 EAS workflow。数据库生成
-类型、本地 Supabase 重放、低权限集成实际执行、完整 `pnpm run verify`、云端 Maestro
-执行与双端构建证据尚未完成，因此
+文档门禁、GitHub `verify` workflow、低权限 Supabase 集成套件、Maestro flows 与双平台
+EAS workflow。数据库生成类型、本地 Supabase 重放、低权限集成实际执行、CI 首次运行、
+云端 Maestro 执行与双端构建证据尚未完成，因此
 现阶段是“已实现、未完整验证”的 Harness。
 
 后续实现任务必须按 `docs/TESTING.md` 扩展对应自动链路；只有检查真实运行并产生证据后，

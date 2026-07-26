@@ -1,8 +1,8 @@
 # 仓库知识索引
 
-版本：0.2
+版本：0.3
 
-最后审校：2026-07-25
+最后审校：2026-07-27
 
 ## 目的
 
@@ -23,7 +23,7 @@
 | 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL、Maestro flow；双端执行待补 |
 | 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已实现 | migration、pgTAP 已落盘；本地执行待补 |
 | 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已实现 | Service/RPC 与低权限集成套件已对齐；本地执行待补 |
-| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | 静态/单元/文档通过；DB、低权限集成、E2E 执行待补 |
+| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | GitHub CI 已配置；DB、低权限集成、E2E 运行证据待补 |
 | Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已定义 | EAS build、真机验收 |
 | Agent 开发护栏 | [`HARNESS.md`](HARNESS.md) | 已定义 | 文档检查、review 清单 |
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |

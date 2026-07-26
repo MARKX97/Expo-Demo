@@ -31,6 +31,7 @@ Continuous Native Generation 在构建时生成。
 
 - Git
 - Node.js 22.13 LTS 或更高版本与 pnpm
+- Docker 与 Supabase CLI（仅完整本地数据库/集成验证需要）
 - Expo 账号
 - Supabase 项目
 - Android 真机，或具备签名条件的 iPhone/iPad
@@ -141,6 +142,10 @@ pnpm run verify
 supabase start
 supabase db reset
 supabase test db
+eval "$(supabase status -o env \
+  --override-name api.url=TEST_SUPABASE_URL \
+  --override-name auth.anon_key=TEST_SUPABASE_PUBLISHABLE_KEY \
+  --override-name auth.service_role_key=TEST_SUPABASE_SECRET_KEY)"
 pnpm run test:integration
 ```
 

@@ -1,0 +1,55 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: supabase/setup-cli@v2
+        with:
+          version: 2.109.1
+          github-token: ${{ github.token }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start and reset local Supabase
+        run: |
+          supabase start
+          supabase db reset
+
+      - name: Export local Supabase test variables
+        run: |
+          eval "$(supabase status -o env \
+            --override-name api.url=TEST_SUPABASE_URL \
+            --override-name auth.anon_key=TEST_SUPABASE_PUBLISHABLE_KEY \
+            --override-name auth.service_role_key=TEST_SUPABASE_SECRET_KEY)"
+          {
+            echo "TEST_SUPABASE_URL=$TEST_SUPABASE_URL"
+            echo "TEST_SUPABASE_PUBLISHABLE_KEY=$TEST_SUPABASE_PUBLISHABLE_KEY"
+            echo "TEST_SUPABASE_SECRET_KEY=$TEST_SUPABASE_SECRET_KEY"
+          } >> "$GITHUB_ENV"
+
+      - run: pnpm run verify
