@@ -553,6 +553,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - iOS Simulator 与 Android 的 `e2e-test` 构建均已成功。iOS build ID 为
   `b9751d27-e544-4f2a-8a95-cbc309c13aae`；Android APK build ID 为
   `95a61bde-6a07-48f5-b6c4-fe0b0be1bad0`。两者尚未取得 Maestro 运行证据。
+- iOS Simulator 运行时已安装；上述 iOS build 已在 iOS 26.5 的 iPhone 17 Pro Simulator
+  成功安装、冷启动并显示登录页。已导入一张测试照片供手动建单；登录、建单和跨角色闭环
+  仍待执行并记录。
 - 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，
   仓库 Secret `E2E_ENV_B64` 已配置，且已获得运行确认。工作流表单的浏览器连接重复超时，
   因此尚未提交；恢复连接后只提交一次，并以 GitHub run URL 作为运行证据。
