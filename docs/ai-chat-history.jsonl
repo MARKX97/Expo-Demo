@@ -242,3 +242,7 @@
 {"record_type":"message","timestamp":"2026-07-27T05:04:00.000Z","role":"assistant","content":"现在已进入真实数据库权限层：Auth 用户创建成功，失败是 `service_role` 对 `public.profiles` 没有 `INSERT` 权限。先检查所有 migration 的 GRANT/RLS 约束和夹具调用链，再决定补数据库权限还是改夹具入口。"}
 {"record_type":"message","timestamp":"2026-07-27T05:05:00.000Z","role":"assistant","content":"调用链确认：E2E 和低权限套件都已设计为用运行时注入的 `service_role` 做夹具准备/清理，当前 migration 却只给 `authenticated` 读权限，文档与 schema 不一致。修复是在新 migration 中仅授予三张业务表 CRUD，并用 pgTAP 固化。"}
 {"record_type":"message","timestamp":"2026-07-27T05:06:00.000Z","role":"assistant","content":"本地静态门禁通过；新增 pgTAP 断言需由 CI 的本地 Supabase 执行。提交前我补齐本轮对话记录，然后推送验证这一数据库权限层。"}
+{"record_type":"message","timestamp":"2026-07-27T05:07:00.000Z","role":"assistant","content":"提交 `ffc409b` 已创建，快速门禁通过。现在推送并等待 pgTAP 与低权限集成的联动结果。"}
+{"record_type":"message","timestamp":"2026-07-27T05:08:00.000Z","role":"assistant","content":"新 CI 已触发：run 30238949131。我继续跟踪数据库与低权限两层。"}
+{"record_type":"message","timestamp":"2026-07-27T05:11:00.000Z","role":"assistant","content":"CI 仍在重建本地 Supabase，尚未进入 pgTAP；我继续等待，不提前判断迁移结果。"}
+{"record_type":"message","timestamp":"2026-07-27T05:14:00.000Z","role":"assistant","content":"CI 已全绿：migration 重放、43 项 pgTAP、低权限 Auth/RLS/Storage/RPC 集成均通过。最后只同步对话记录；按你的约束，JSONL 不作为验证门禁。"}
