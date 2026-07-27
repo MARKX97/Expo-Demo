@@ -354,3 +354,5 @@
 {"record_type":"message","timestamp":"2026-07-28T02:03:00.000Z","role":"assistant","content":"iOS 26.5 Simulator runtime 下载完成，已启动 iPhone 17 Pro Simulator。EAS CLI 下载归档后未完成安装，改用同一官方归档和 Simulator 原生命令安装。"}
 {"record_type":"message","timestamp":"2026-07-28T02:04:00.000Z","role":"assistant","content":"Elevator Handoff 已在 iOS Simulator 成功安装并冷启动到登录页；测试照片已导入 Simulator 相册，供后续手动建单体验。"}
 {"record_type":"message","timestamp":"2026-07-28T02:05:00.000Z","role":"assistant","content":"Simulator 保持在登录页，测试照片已导入；安装、冷启动和体验证据已通过文档检查，登录与业务闭环不标记为已完成。"}
+{"record_type":"message","timestamp":"2026-07-28T02:08:00.000Z","role":"user","content":"测试邮箱和密码是什么"}
+{"record_type":"message","timestamp":"2026-07-28T02:09:00.000Z","role":"assistant","content":"已确认三组虚构测试账号邮箱；密码被 EAS 配置为仅构建机可见的 Secret，无法安全回读，不写入对话记录或 Git。"}
