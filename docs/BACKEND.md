@@ -445,8 +445,8 @@ PoC 默认规模：最多 100 个账号、10,000 个工单、每单最多 3 图�
   覆盖 schema、拒绝路径、主状态流转、版本冲突和跨工程师隔离。
 - 测试数据不写入 seed，避免仓库保存可登录凭据；本地 Auth 集成账号由后续集成测试通过
   本地 Admin API 临时创建。
-- GitHub Verify 已从空库重放 migration，并通过 43 项 pgTAP 与真实低权限
-  Auth/RLS/Storage/RPC 集成测试。
+- GitHub Verify 已从空库重放 migration，并通过 43 项 pgTAP、真实低权限
+  Auth/RLS/Storage/RPC 集成测试与本地 Mailpit/PKCE 密码重置成功链路。
 - `src/types/database.generated.ts` 已从实际 migration schema 生成并接入 Supabase Client，
   不允许手写：
 

@@ -23,16 +23,16 @@
 | 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL、Maestro flow；双端执行待补 |
 | 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已实现 | CI migration 重放、43 项 pgTAP、低权限集成已通过；生成类型与漂移门禁已落地 |
 | 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已实现 | Service/RPC 与低权限集成套件已通过 CI；E2E 待补 |
-| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | GitHub CI 已通过；EAS E2E 与真机证据待补 |
+| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | GitHub CI、类型漂移、Mailpit/PKCE 已通过；EAS E2E 与真机证据待补 |
 | Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已定义 | EAS build、真机验收 |
 | Agent 开发护栏 | [`HARNESS.md`](HARNESS.md) | 已定义 | 文档检查、review 清单 |
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |
 | AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 非门禁记录；交付前补齐 |
 
 仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP、前端测试，以及 P2
-Maestro flow 与 EAS 双平台测试构建配置。Supabase migration、pgTAP 和低权限集成已由
-GitHub CI 验证；生成类型与漂移门禁已落地。EAS 构建、Maestro 运行和双端真机证据尚未
-完成，因此产品实现仍不能标记为“已验证”。
+Maestro flow 与 EAS 双平台测试构建配置。Supabase migration、pgTAP、低权限集成和本地
+Mailpit/PKCE 密码重置已由 GitHub CI 验证；生成类型与漂移门禁已落地。EAS 构建、Maestro
+运行和双端真机证据尚未完成，因此产品实现仍不能标记为“已验证”。
 
 ## 变更路由
 

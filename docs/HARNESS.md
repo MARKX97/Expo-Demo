@@ -164,8 +164,9 @@ flowchart LR
 
 仓库已具备知识索引、验收 ID、P0/P1 业务源码、Supabase migration、pgTAP、前端单元测试、
 文档门禁、GitHub `verify` workflow、低权限 Supabase 集成套件、Maestro flows 与双平台
-EAS workflow。GitHub CI 已完成 migration 重放、43 项 pgTAP 与低权限集成验证；数据库
-生成类型及漂移门禁已落地；云端 Maestro 执行与双端构建/真机证据尚未完成，因此
+EAS workflow。GitHub CI 已完成 migration 重放、43 项 pgTAP、低权限集成与本地
+Mailpit/PKCE 密码重置验证；数据库生成类型及漂移门禁已落地；云端 Maestro 执行与双端
+构建/真机证据尚未完成，因此
 现阶段是“已实现、未完整验证”的 Harness。
 
 后续实现任务必须按 `docs/TESTING.md` 扩展对应自动链路；只有检查真实运行并产生证据后，

@@ -535,9 +535,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
 `e2e-test` profile 与双平台 EAS workflow；以下仍未取得外部证据：
 
-- GitHub Verify 已在 `main` 成功从空库重放 migration，并通过 43 项 pgTAP 与低权限
-  Auth/RLS/Storage/RPC 集成测试。
-- 数据库生成类型已接入客户端；GitHub Verify 会从 migration 重新生成并检查提交版本漂移。
+- GitHub Verify 已在 `main` 成功从空库重放 migration，并通过 43 项 pgTAP、低权限
+  Auth/RLS/Storage/RPC 集成测试与本地 Mailpit/PKCE 密码重置成功链路。
+- 数据库生成类型已接入客户端；GitHub Verify 从 migration 重新生成并已证明提交版本零漂移。
 - EAS 项目尚需由维护者关联 GitHub；在 `preview` 配置 App 公开变量，在仅供 Maestro 的
   `production` 环境配置虚构账号与 E2E 数据门禁变量。
 - EAS Android/iOS 构建与 Maestro job 尚未实际运行。
