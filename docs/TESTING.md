@@ -550,10 +550,12 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `production` 虚构账号、E2E 数据门禁变量均已配置。
 - 托管 Supabase 已通过 migration 初始化并同步 Auth 配置；三类测试账号的密码登录与
   角色已验证。
-- iOS Simulator 的 `e2e-test` 构建已成功；Android `e2e-test` 构建仍在队列中。
+- iOS Simulator 与 Android 的 `e2e-test` 构建均已成功。iOS build ID 为
+  `b9751d27-e544-4f2a-8a95-cbc309c13aae`；Android APK build ID 为
+  `95a61bde-6a07-48f5-b6c4-fe0b0be1bad0`。两者尚未取得 Maestro 运行证据。
 - 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，
-  仓库 Secret `E2E_ENV_B64` 已配置。双端 Maestro 仍在等待 Android `e2e-test`
-  构建从 Free Tier Queue 出队，尚未取得运行证据。
+  仓库 Secret `E2E_ENV_B64` 已配置，且已获得运行确认。工作流表单的浏览器连接重复超时，
+  因此尚未提交；恢复连接后只提交一次，并以 GitHub run URL 作为运行证据。
 - 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
 - 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
   Docker 环境。
