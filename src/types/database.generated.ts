@@ -68,6 +68,7 @@ export type Database = {
           {
             foreignKeyName: "work_order_attachments_work_order_id_fkey"
             columns: ["work_order_id"]
+            isOneToOne: false
             referencedRelation: "work_orders"
             referencedColumns: ["id"]
           },
@@ -126,12 +127,14 @@ export type Database = {
           {
             foreignKeyName: "work_orders_assignee_id_fkey"
             columns: ["assignee_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "work_orders_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },

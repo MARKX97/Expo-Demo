@@ -264,3 +264,8 @@
 {"record_type":"message","timestamp":"2026-07-27T10:19:00.000Z","role":"assistant","content":"数据库类型现已接入，TypeScript 已通过；CI 也会在 migration 后重新生成并用 Git diff 拒绝漂移。现在转入新增认证/上传失败链路的实际验证，先跑无需 Docker 的完整快速门禁。"}
 {"record_type":"message","timestamp":"2026-07-27T10:19:30.000Z","role":"assistant","content":"第一次组合命令被系统默认 Node 20 抢占，项目本身未进入 Expo 检查；文档门禁已通过。我改用工作区固定的 Node 24 继续，避免把环境版本误报成代码失败。"}
 {"record_type":"message","timestamp":"2026-07-27T10:21:00.000Z","role":"assistant","content":"审查新增 Mailpit 测试时发现一个确定性问题：邮件轮询上限是 15 秒，但 Jest 默认单测超时只有 5 秒。若邮件稍慢，测试会在自己的错误信息前被 Jest 提前终止；我把该用例的超时限定为 20 秒，不放大全局超时。"}
+{"record_type":"message","timestamp":"2026-07-27T10:22:00.000Z","role":"assistant","content":"仓库内新增链路已通过静态和快速测试；真实 Supabase 验证需要 CI 的 Docker 环境。你此前已明确允许提交推送，我现在提交这批变更触发 GitHub Verify，等 migration、类型漂移、Mailpit/PKCE、RLS/RPC 全部给出真实结果后再继续。"}
+{"record_type":"message","timestamp":"2026-07-27T10:23:00.000Z","role":"assistant","content":"提交被 Husky 正确拦住，但原因仍是 hook 继承了系统 Node 20，不是测试失败。我不会跳过 hook；改为让提交进程继承仓库要求的 Node 24，再完整执行 `verify:fast`。"}
+{"record_type":"message","timestamp":"2026-07-27T10:24:00.000Z","role":"assistant","content":"推送已成功，提交 `3b812db` 已触发 Verify。现在等真实 CI；关键观察点是“官方 CLI 重新生成类型是否零差异”和“Mailpit 密码重置是否完整走通”，任何失败都会继续修到全绿。"}
+{"record_type":"message","timestamp":"2026-07-27T10:27:00.000Z","role":"assistant","content":"CI 已给出第一条真实反馈：migration 重放成功，但官方 CLI 生成的类型与本地 Postgres Meta 输出不完全一致，漂移门禁按设计阻塞。现在直接读取该 step 的 diff，用 CI 官方产物修正生成文件，而不是放宽门禁。"}
+{"record_type":"message","timestamp":"2026-07-27T10:33:00.000Z","role":"assistant","content":"根因已定位：Supabase CLI 2.109.1 使用同一版 Postgres Meta，但默认开启一对一关系检测；本地首次生成时误用了 `false`。实际差异只有 3 个 `isOneToOne: false` 字段，现已按官方 CLI 默认值重新生成，不改门禁。"}
