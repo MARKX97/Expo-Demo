@@ -1,3 +1,5 @@
+/** @jest-environment node */
+
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -49,17 +51,14 @@ integration('Supabase low-privilege permissions', () => {
     engineerB = createClient(config!.url, config!.publishableKey, authOptions());
 
     for (const user of Object.values(users)) {
-      const result = (await authAdminRequest('/users', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: user.email,
-          password,
-          email_confirm: true,
-        }),
-      })) as { id?: string; user?: { id?: string } };
-      const userId = result.user?.id ?? result.id;
-      expect(userId).toEqual(expect.any(String));
-      user.id = userId!;
+      const { data, error } = await admin.auth.admin.createUser({
+        email: user.email,
+        password,
+        email_confirm: true,
+      });
+      expect(error).toBeNull();
+      expect(data.user).not.toBeNull();
+      user.id = data.user!.id;
     }
     storagePath = `work-orders/${users.supervisor.id}/${workOrderId}/${attachmentId}.jpg`;
     const { error: profileError } = await admin.from('profiles').insert([
@@ -92,28 +91,9 @@ integration('Supabase low-privilege permissions', () => {
     await admin.from('work_order_attachments').delete().eq('work_order_id', workOrderId);
     await admin.from('work_orders').delete().eq('id', workOrderId);
     for (const user of Object.values(users)) {
-      if (user.id) {
-        await authAdminRequest(`/users/${user.id}`, { method: 'DELETE' });
-      }
+      if (user.id) await admin.auth.admin.deleteUser(user.id);
     }
   });
-
-  async function authAdminRequest(path: string, init: RequestInit) {
-    const response = await fetch(`${config!.url}/auth/v1/admin${path}`, {
-      ...init,
-      headers: {
-        apikey: config!.secretKey,
-        Authorization: `Bearer ${config!.secretKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(`Supabase Auth fixture request failed (${response.status}): ${text}`);
-    }
-    return text ? JSON.parse(text) : null;
-  }
 
   it('enforces assignment isolation and optimistic state transitions', async () => {
     const fixture = await readFile(resolve(process.cwd(), 'tests/fixtures/work-order-photo.jpg'));
