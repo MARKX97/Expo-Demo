@@ -551,8 +551,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - 托管 Supabase 已通过 migration 初始化并同步 Auth 配置；三类测试账号的密码登录与
   角色已验证。
 - iOS Simulator 的 `e2e-test` 构建已成功；Android `e2e-test` 构建仍在队列中。
-- 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，但
-  仓库 Secret 与双端 Maestro 运行证据尚未完成。
+- 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，
+  仓库 Secret `E2E_ENV_B64` 已配置。双端 Maestro 仍在等待 Android `e2e-test`
+  构建从 Free Tier Queue 出队，尚未取得运行证据。
 - 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
 - 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
   Docker 环境。

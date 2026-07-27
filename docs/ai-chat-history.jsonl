@@ -306,3 +306,9 @@
 {"record_type":"message","timestamp":"2026-07-27T15:36:00.000Z","role":"assistant","content":"配置与 fallback workflow 的最小改动已通过文档、Expo 配置、类型、Lint、Jest 和 YAML 检查；未发现验证码或密钥进入 Git。现在提交并推送，让 GitHub 先接管完整 CI 与 workflow 语法校验。"}
 {"record_type":"message","timestamp":"2026-07-27T15:37:00.000Z","role":"assistant","content":"提交 `0e82261` 已推到 `main`，Husky 快速门禁全绿。GitHub 已开始远端 Verify；Android 免费构建仍在队列中，我会并行等待 CI 和构建，不把排队误报为失败。"}
 {"record_type":"message","timestamp":"2026-07-27T15:41:00.000Z","role":"assistant","content":"GitHub Verify 已在提交 `0e82261` 上全绿，新增 Device E2E workflow 也被 GitHub 正常识别为 active。接下来同步真实证据状态：EAS/Supabase 变量已配置、iOS 构建成功、Android 仍排队，Maestro 尚未执行。"}
+{"record_type":"message","timestamp":"2026-07-27T15:48:00.000Z","role":"assistant","content":"我继续收尾：先核对 Android 构建、最新 CI 和 GitHub Secret 当前状态；随后运行双端 Maestro，最后把真实证据写回文档并提交推送。浏览器只用于已授权的 GitHub Actions 配置与触发。"}
+{"record_type":"message","timestamp":"2026-07-27T15:49:00.000Z","role":"assistant","content":"Android 仍是外部免费队列，最新 Verify 卡在 Expo 依赖联网检查而非代码步骤；migration、类型和文档均已通过。现在检查 GitHub Secret 是否已经添加，若没有就继续完成。"}
+{"record_type":"message","timestamp":"2026-07-27T15:52:00.000Z","role":"assistant","content":"GitHub Secret 的名称和脱敏后的内容已填写完成；按你此前“配置环境变量/全部完成”的授权，我现在提交到 `MARKX97/Expo-Demo`，随后只检查 Secret 名称是否存在。"}
+{"record_type":"message","timestamp":"2026-07-27T15:53:00.000Z","role":"assistant","content":"GitHub `E2E_ENV_B64` 已成功创建，敏感剪贴板内容也已清空。现在只等 Android APK 出队；拿到 URL 后会立即触发 Android → iOS 串行 Maestro。"}
+{"record_type":"message","timestamp":"2026-07-27T15:55:00.000Z","role":"assistant","content":"最新 Verify 已全绿。Android 构建已排队约 1 小时 17 分钟，Expo 没有返回失败或缺配置；这是当前唯一等待项，我继续轮询，不重提构建以免回到队尾。"}
+{"record_type":"message","timestamp":"2026-07-27T15:59:00.000Z","role":"assistant","content":"队列原因已确认：Expo 页面明确显示 `Free Tier Queue`，不是并发、凭据或构建错误；当前已排队约 1 小时 20 分钟。先把 GitHub Secret 已完成和真实等待原因同步进测试事实源。"}
