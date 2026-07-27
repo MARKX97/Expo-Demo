@@ -32,7 +32,8 @@
 仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP、前端测试，以及 P2
 Maestro flow 与 EAS 双平台测试构建配置。Supabase migration、pgTAP、低权限集成和本地
 Mailpit/PKCE 密码重置已由 GitHub CI 验证；生成类型与漂移门禁已落地。EAS 构建、Maestro
-运行和双端真机证据尚未完成，因此产品实现仍不能标记为“已验证”。
+运行和双端真机证据尚未完成。EAS 项目已关联，环境变量仍待配置，因此产品实现仍不能
+标记为“已验证”。
 
 ## 变更路由
 
