@@ -30,13 +30,13 @@ integration('Supabase low-privilege permissions', () => {
   const runId = randomUUID();
   const password = `Integration-${runId}`;
   const users = {
-    supervisor: { id: randomUUID(), email: `supervisor-${runId}@example.test` },
-    engineerA: { id: randomUUID(), email: `engineer-a-${runId}@example.test` },
-    engineerB: { id: randomUUID(), email: `engineer-b-${runId}@example.test` },
+    supervisor: { id: '', email: `supervisor-${runId}@example.test` },
+    engineerA: { id: '', email: `engineer-a-${runId}@example.test` },
+    engineerB: { id: '', email: `engineer-b-${runId}@example.test` },
   };
   const workOrderId = randomUUID();
   const attachmentId = randomUUID();
-  const storagePath = `work-orders/${users.supervisor.id}/${workOrderId}/${attachmentId}.jpg`;
+  let storagePath = '';
   let admin: SupabaseClient;
   let supervisor: SupabaseClient;
   let engineerA: SupabaseClient;
@@ -49,14 +49,16 @@ integration('Supabase low-privilege permissions', () => {
     engineerB = createClient(config!.url, config!.publishableKey, authOptions());
 
     for (const user of Object.values(users)) {
-      const { error } = await admin.auth.admin.createUser({
-        id: user.id,
+      const { data, error } = await admin.auth.admin.createUser({
         email: user.email,
         password,
         email_confirm: true,
       });
       expect(error).toBeNull();
+      expect(data.user).not.toBeNull();
+      user.id = data.user!.id;
     }
+    storagePath = `work-orders/${users.supervisor.id}/${workOrderId}/${attachmentId}.jpg`;
     const { error: profileError } = await admin.from('profiles').insert([
       {
         id: users.supervisor.id,

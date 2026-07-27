@@ -124,7 +124,7 @@ setup/teardown，业务断言均由邮箱密码登录得到的低权限 session 
 | 工程师 B | 验证跨工程师隔离 |
 | 停用工程师 | 验证不能被新工单选择 |
 
-pgTAP 可以在事务内准备 Auth 关联行；需要真实邮箱密码登录的集成测试账号由 suite setup 使用本地 Admin API 创建。数据库测试使用 `begin`/`rollback` 隔离。集成测试使用唯一
+pgTAP 可以在事务内准备 Auth 关联行；需要真实邮箱密码登录的集成测试账号由 suite setup 使用本地 Admin API 创建，并使用 Auth 返回的用户 ID 准备 profile。数据库测试使用 `begin`/`rollback` 隔离。集成测试使用唯一
 `run_id` 命名工单和 Storage 路径，并在 suite 结束清理。
 
 ### 5.2 E2E 测试项目
