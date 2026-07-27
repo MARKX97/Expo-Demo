@@ -13,6 +13,7 @@ expo-env.d.ts
 
 # local environment
 .env*.local
+supabase/.temp/
 
 # test output
 coverage/

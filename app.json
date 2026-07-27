@@ -20,7 +20,10 @@
       "package": "com.markx97.elevatorhandoff"
     },
     "ios": {
-      "bundleIdentifier": "com.markx97.elevatorhandoff"
+      "bundleIdentifier": "com.markx97.elevatorhandoff",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "experiments": {
       "typedRoutes": true

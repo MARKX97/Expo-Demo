@@ -192,7 +192,9 @@ URL。Auth client 使用 PKCE，因此链接必须在发起重置的同一设备
 
 本地/CI 的 `supabase/config.toml` 必须关闭 Auth 自助注册，并将
 `elevatorhandoff://reset-password` 加入允许的 redirect URL。托管测试项目必须在
-Dashboard 使用相同设置；Admin API 预创建账号不受关闭自助注册影响。
+Dashboard 使用相同设置；Admin API 预创建账号不受关闭自助注册影响。该文件同时显式
+固定 8 位最小密码，并保留托管项目已有的邮箱确认、发送频率、OTP 长度与 TOTP 设置，
+避免 `supabase config push` 用本地默认值意外覆盖远端安全配置。
 
 ## 7. RPC 契约
 

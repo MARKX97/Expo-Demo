@@ -97,7 +97,10 @@ pnpm exec expo install @supabase/supabase-js \
       "package": "com.markx97.elevatorhandoff"
     },
     "ios": {
-      "bundleIdentifier": "com.markx97.elevatorhandoff"
+      "bundleIdentifier": "com.markx97.elevatorhandoff",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     }
   }
 }
@@ -136,6 +139,21 @@ E2E_SUPABASE_SECRET_KEY=YOUR_E2E_SECRET_KEY
 中的 `EXPO_PUBLIC_SUPABASE_*`。未来新增 production build 前，必须先把 E2E 管理变量
 迁出该环境，避免管理员密钥进入 build job。
 
+### 3.1 初始化托管 Supabase
+
+首次使用空项目时，在配置 EAS 变量后执行：
+
+```bash
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push --dry-run
+supabase db push
+supabase config push
+```
+
+`db push` 只应用仓库 migration；`config push` 同步关闭注册、密码长度与重置深链等 Auth
+配置。执行前必须先审阅 dry run 和配置 diff，不能用 Dashboard 手工建表替代 migration。
+
 ## 4. EAS build profiles
 
 实现阶段在根目录创建以下 `eas.json`：
@@ -143,7 +161,8 @@ E2E_SUPABASE_SECRET_KEY=YOUR_E2E_SECRET_KEY
 ```json
 {
   "cli": {
-    "version": ">= 16.0.0"
+    "version": ">= 16.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -385,3 +404,7 @@ Android/iOS workflow 都使用手动 `workflow_dispatch`。包含管理员密钥
 UAT 未真实执行前，
 P2 状态只能标记为“配置已落盘，待外部验证”。证据填写
 [测试与质量策略](TESTING.md#111-uat-与证据模板)。
+
+若 Expo 账户不包含付费 Maestro job，先分别完成 `e2e-test` 构建，再从 GitHub Actions
+手动运行 `Device E2E`，输入 Android APK 与 iOS Simulator 归档 URL。该 fallback 的
+Secret、串行数据隔离与产物规则以 `TESTING.md` 第 8 节为准。

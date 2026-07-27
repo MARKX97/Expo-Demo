@@ -358,7 +358,7 @@ Android 手动 workflow：
 ```yaml
 name: e2e-test-android
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 jobs:
   build_android_for_e2e:
     type: build
@@ -391,7 +391,7 @@ iOS 发布候选 workflow：
 ```yaml
 name: e2e-test-ios
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 jobs:
   build_ios_for_e2e:
     type: build
@@ -430,6 +430,13 @@ pnpm dlx eas-cli@latest workflow:run .eas/workflows/e2e-test-ios.yml
 
 EAS 的 Maestro job 当前仍标记为 alpha。若出现平台级不稳定，保留同一套 `.maestro` flows 和 `e2e-test` 构建，在具备模拟器的 CI runner 上执行 `maestro test`；不得因此删除 E2E 或降低断言。
 
+免费 Expo 账户不能运行 EAS Maestro job 时，使用
+`.github/workflows/device-e2e.yml`。维护者提供已完成的 Android APK 与 iOS Simulator
+归档 URL，并在 GitHub 仓库 Secret `E2E_ENV_B64` 中保存第 8.1 节 12 个变量组成的
+dotenv 文本之 Base64。Workflow 仅允许从 `main` 手动触发，在 GitHub 模拟器上按
+Android → iOS 串行执行同一套 Flow；解码后的每个值在写入 `GITHUB_ENV` 前必须调用
+`add-mask`，测试后无条件执行补偿清理并上传 JUnit、截图和日志。
+
 `after_maestro_tests` 是正常完成路径的清理，不作为唯一保险；基础设施中断时该 hook
 可能来不及执行，因此下一次 `prepare` 必须先做同范围清理。管理员密钥使任意不可信
 仓库代码都可能越权读取测试项目，所以 Android/iOS 都只允许维护者手动触发，不允许
@@ -460,6 +467,7 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
    Jest、pgTAP 和低权限集成；失败时直接显示所属层级。
 
 该 workflow 不连接托管 Supabase，不读取 EAS/E2E 凭据，也不执行付费双端构建。
+托管 E2E 仅由手动 `device-e2e.yml` 或 EAS workflow 执行。
 
 ## 10. 命令契约
 
