@@ -154,11 +154,7 @@ export type Database = {
         Returns: boolean
       }
       close_work_order: {
-        Args: {
-          p_expected_version: number
-          p_id: string
-          p_resolution: string
-        }
+        Args: { p_expected_version: number; p_id: string; p_resolution: string }
         Returns: {
           assignee_id: string
           closed_at: string
@@ -367,3 +363,4 @@ export const Constants = {
     },
   },
 } as const
+
