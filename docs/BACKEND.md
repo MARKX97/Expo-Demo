@@ -315,6 +315,10 @@ profile/work order policy 相互递归。附件 SELECT policy 复用工单可见
 权限 helper 必须是固定 `search_path` 的 `security definer` 函数，并撤销 `public` 和
 `anon` 默认执行权限，只向 `authenticated` 授予需要的 RPC。
 
+上表只描述客户端角色。运行时注入的 `service_role` 仅供本地/CI/E2E 的夹具准备与清理，
+对 `profiles`、`work_orders`、`work_order_attachments` 显式授予
+`SELECT/INSERT/UPDATE/DELETE`；不得把该密钥注入 App 或 EAS build。
+
 ## 10. Storage
 
 Bucket：
@@ -407,7 +411,8 @@ sequenceDiagram
 | `EXPO_PUBLIC_SUPABASE_URL` | 是 | 是 | Supabase Project URL |
 | `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 是 | 是 | 客户端 publishable key |
 
-服务端 `service_role` 只存在于 Supabase 托管环境/控制台，项目代码和 EAS 客户端环境不得保存。
+`service_role` 只允许在 Supabase 托管环境、控制台或本地/CI/E2E 数据准备进程中运行时注入；
+项目源码、App 和 EAS build 环境不得保存。
 
 ## 13. 性能与容量
 

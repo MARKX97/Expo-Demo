@@ -235,3 +235,10 @@
 {"record_type":"message","timestamp":"2026-07-27T04:54:00.000Z","role":"assistant","content":"确认根因：运行时 `fetch` 实际是 React Native polyfill，不是 Node 原生实现；文件级环境注解不会清除 preset 的 `setupFiles`。最小可靠修复是单独一份集成 Jest 配置：保留 Expo 的 TypeScript transform，仅清空 React Native setup，并固定 Node 环境。"}
 {"record_type":"message","timestamp":"2026-07-27T04:55:00.000Z","role":"assistant","content":"配置探针发现 Jest 会把 `preset` 的 `setupFiles` 合并回来；当前方案还没真正隔离。我改为直接展开现有 preset 后覆盖该数组，不增加依赖或复制 transform。"}
 {"record_type":"message","timestamp":"2026-07-27T04:56:00.000Z","role":"assistant","content":"独立配置现已实证生效：`setupFiles=[]`、Node 环境、Expo transform 保留；文档、类型、lint、7 个单元测试通过，集成套件本地按缺少 Supabase 变量跳过。我补齐记录后提交推送下一轮 CI。"}
+{"record_type":"message","timestamp":"2026-07-27T04:57:00.000Z","role":"assistant","content":"提交 `2ff04b9` 已创建，Husky 门禁通过；现在推送并等待独立 Node 集成配置的真实验证。"}
+{"record_type":"message","timestamp":"2026-07-27T04:58:00.000Z","role":"assistant","content":"新 CI 已触发：run 30238518042。我继续跟踪到真实权限断言。"}
+{"record_type":"message","timestamp":"2026-07-27T05:01:00.000Z","role":"assistant","content":"GitHub 公共 API 达到匿名频率上限，但 CI 本身仍在运行。我改用已登录的 Actions 页面继续读取，不重跑任务。"}
+{"record_type":"message","timestamp":"2026-07-27T05:03:00.000Z","role":"assistant","content":"独立配置已让 CI 进入下一层，但低权限步骤仍失败；我现在读取新的业务/运行时断言。前置文档、Expo、类型、lint、单元和数据库测试全部通过。"}
+{"record_type":"message","timestamp":"2026-07-27T05:04:00.000Z","role":"assistant","content":"现在已进入真实数据库权限层：Auth 用户创建成功，失败是 `service_role` 对 `public.profiles` 没有 `INSERT` 权限。先检查所有 migration 的 GRANT/RLS 约束和夹具调用链，再决定补数据库权限还是改夹具入口。"}
+{"record_type":"message","timestamp":"2026-07-27T05:05:00.000Z","role":"assistant","content":"调用链确认：E2E 和低权限套件都已设计为用运行时注入的 `service_role` 做夹具准备/清理，当前 migration 却只给 `authenticated` 读权限，文档与 schema 不一致。修复是在新 migration 中仅授予三张业务表 CRUD，并用 pgTAP 固化。"}
+{"record_type":"message","timestamp":"2026-07-27T05:06:00.000Z","role":"assistant","content":"本地静态门禁通过；新增 pgTAP 断言需由 CI 的本地 Supabase 执行。提交前我补齐本轮对话记录，然后推送验证这一数据库权限层。"}

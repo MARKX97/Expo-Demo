@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(40);
+select plan(43);
 
 select ok(
   to_regtype('public.app_role') is not null,
@@ -59,6 +59,30 @@ select ok(
     where oid = 'public.work_order_attachments'::regclass
   ),
   'work_order_attachments has RLS'
+);
+select ok(
+  has_table_privilege(
+    'service_role',
+    'public.profiles',
+    'SELECT, INSERT, UPDATE, DELETE'
+  ),
+  'service_role can manage profile fixtures'
+);
+select ok(
+  has_table_privilege(
+    'service_role',
+    'public.work_orders',
+    'SELECT, INSERT, UPDATE, DELETE'
+  ),
+  'service_role can manage work order fixtures'
+);
+select ok(
+  has_table_privilege(
+    'service_role',
+    'public.work_order_attachments',
+    'SELECT, INSERT, UPDATE, DELETE'
+  ),
+  'service_role can manage attachment fixtures'
 );
 select is(
   (select b.public from storage.buckets b where b.id = 'work-order-media'),
