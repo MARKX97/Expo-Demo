@@ -181,7 +181,8 @@ Supabase CLI 会用 Mailpit 捕获本地邮件，见
 - `expo-doctor` 通过。
 - migration 后生成类型与提交版本一致。
 - GitHub Verify 通过 `pnpm run types:generate` 重新生成数据库类型，并以 `git diff
-  --exit-code -- src/types/database.generated.ts` 拒绝未提交的 schema/type 漂移。
+  --quiet -- src/types/database.generated.ts` 拒绝未提交的 schema/type 漂移；差异行写入
+  GitHub annotations，便于无需下载完整日志直接定位。
 
 ### 7.2 单元测试
 

@@ -156,6 +156,7 @@ flowchart LR
 - PRD 验收 ID 是否更新了 `TESTING.md` 映射和自动测试？
 - 权限测试是否使用真实低权限身份并覆盖拒绝路径？
 - 测试失败是否留下 agent 可读证据，是否存在靠重试隐藏的 flake？
+- 生成类型漂移是否在 GitHub annotations 中保留可定位的差异行？
 - Android/iOS build profile 是否仍与 RUNBOOK 一致？
 - 是否能用测试或 constraint 代替容易腐烂的文字提醒？
 

@@ -43,7 +43,13 @@ jobs:
       - name: Verify generated database types
         run: |
           pnpm run types:generate
-          git diff --exit-code -- src/types/database.generated.ts
+          if ! git diff --quiet -- src/types/database.generated.ts; then
+            git diff --unified=0 -- src/types/database.generated.ts |
+              while IFS= read -r line; do
+                echo "::error file=src/types/database.generated.ts::$line"
+              done
+            exit 1
+          fi
 
       - name: Export local Supabase test variables
         run: |
