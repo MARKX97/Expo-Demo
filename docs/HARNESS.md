@@ -111,8 +111,8 @@ flowchart LR
 | 文档和工具入口 | Markdown/链接、`@AGENTS.md` |
 | 无凭据入库 | secret scan + review |
 
-`.github/workflows/verify.yml` 在 GitHub runner 启动隔离的本地 Supabase，并执行完整
-`pnpm run verify`；它不接触托管项目或 E2E 管理密钥。
+`.github/workflows/verify.yml` 在 GitHub runner 启动隔离的本地 Supabase，并按完整
+`pnpm run verify` 命令链执行具名 steps；它不接触托管项目或 E2E 管理密钥。
 
 规则优先写成标准工具能执行的检查。只有现有工具无法表达时才新增自定义脚本；脚本失败信息必须说明修复方式。
 

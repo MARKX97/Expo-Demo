@@ -443,7 +443,8 @@ OpenAI Harness Engineering 提到高吞吐团队可以弱化部分阻塞门禁�
 1. 使用仓库约定的 Node 22 与 pnpm。
 2. 在 GitHub runner 启动本地 Supabase，并从空库重放 migration。
 3. 把本地 URL、publishable key 和 secret key 仅注入当前 job。
-4. 运行 `pnpm run verify`，覆盖文档、Expo Doctor、静态检查、Jest、pgTAP 和低权限集成。
+4. 按 `pnpm run verify` 的同一顺序执行具名 steps，覆盖文档、Expo Doctor、静态检查、
+   Jest、pgTAP 和低权限集成；失败时直接显示所属层级。
 
 该 workflow 不连接托管 Supabase，不读取 EAS/E2E 凭据，也不执行付费双端构建。
 

@@ -52,4 +52,17 @@ jobs:
             echo "TEST_SUPABASE_SECRET_KEY=$TEST_SUPABASE_SECRET_KEY"
           } >> "$GITHUB_ENV"
 
-      - run: pnpm run verify
+      - name: Verify documentation
+        run: pnpm run verify:docs
+
+      - name: Verify Expo dependencies
+        run: pnpm exec expo-doctor
+
+      - name: Verify TypeScript, lint and Jest
+        run: pnpm run verify:fast
+
+      - name: Verify database
+        run: pnpm run test:db
+
+      - name: Verify low-privilege integration
+        run: pnpm run test:integration
