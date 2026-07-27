@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:unit": "jest __tests__",
-    "test:integration": "jest tests/integration --runInBand",
+    "test:integration": "jest --config jest.integration.config.cjs --runInBand",
     "test:db": "supabase test db",
     "verify:docs": "node scripts/verify-docs.mjs",
     "verify:fast": "pnpm run typecheck && pnpm run lint && pnpm run test:unit",

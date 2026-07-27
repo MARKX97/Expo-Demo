@@ -225,3 +225,13 @@
 {"record_type":"message","timestamp":"2026-07-27T04:39:00.000Z","role":"assistant","content":"根因修复采用一行测试环境隔离：集成套件强制 Node 环境，继续复用已安装的 `supabase-js` Auth Admin；删除上一轮临时 HTTP helper，文档先同步这一约束。"}
 {"record_type":"message","timestamp":"2026-07-27T04:40:00.000Z","role":"assistant","content":"本地默认 Node 被切回 20，和仓库要求的 Node 22 不符；这不是代码失败。我使用仓库既定的 Node 22 工具链重新执行验证。"}
 {"record_type":"message","timestamp":"2026-07-27T04:41:00.000Z","role":"assistant","content":"修复在 Node 22 下通过文档、类型、lint、7 个单元测试；本机没有启动 Supabase，集成套件按设计跳过。提交前我补齐本轮可见对话记录，然后按已授权流程提交并推送触发 CI。"}
+{"record_type":"message","timestamp":"2026-07-27T04:42:00.000Z","role":"assistant","content":"提交审计完成：`main` 正常跟踪 `origin/main`，无进行中的 Git 操作，仅 3 个预期文件。提交将明确记录 Jest Node 环境这一根因修复。"}
+{"record_type":"message","timestamp":"2026-07-27T04:43:00.000Z","role":"assistant","content":"提交 `838e09d` 已创建，Husky 快速门禁通过。现在普通推送到既有 `origin/main`，随后继续等待真实 Supabase 集成结果。"}
+{"record_type":"message","timestamp":"2026-07-27T04:44:00.000Z","role":"assistant","content":"新 CI 已触发：run 30238000860。我会继续跟到低权限集成步骤给出结论。"}
+{"record_type":"message","timestamp":"2026-07-27T04:48:00.000Z","role":"assistant","content":"CI 正在重建本地 Supabase；依赖安装和前置配置均已通过，尚未运行到本次修复的低权限步骤。"}
+{"record_type":"message","timestamp":"2026-07-27T04:50:00.000Z","role":"assistant","content":"Node 环境修复后前置门禁全部通过，但低权限步骤仍有下一层失败。我继续读取新的具体断言，不会把当前补丁回滚或猜测为 Supabase 问题。"}
+{"record_type":"message","timestamp":"2026-07-27T04:52:00.000Z","role":"assistant","content":"新日志证明 `@jest-environment node` 只切换了 Jest 环境，没有阻止 `jest-expo` 的 setup 继续覆盖网络实现。下一步只处理 preset 注入：确认具体 setup 文件后，为集成脚本使用独立 Node Jest 配置。"}
+{"record_type":"message","timestamp":"2026-07-27T04:53:00.000Z","role":"assistant","content":"我先做一次临时环境探针，确认 Jest 中 `fetch/Response` 的真实实现；探针完成后立即移除。"}
+{"record_type":"message","timestamp":"2026-07-27T04:54:00.000Z","role":"assistant","content":"确认根因：运行时 `fetch` 实际是 React Native polyfill，不是 Node 原生实现；文件级环境注解不会清除 preset 的 `setupFiles`。最小可靠修复是单独一份集成 Jest 配置：保留 Expo 的 TypeScript transform，仅清空 React Native setup，并固定 Node 环境。"}
+{"record_type":"message","timestamp":"2026-07-27T04:55:00.000Z","role":"assistant","content":"配置探针发现 Jest 会把 `preset` 的 `setupFiles` 合并回来；当前方案还没真正隔离。我改为直接展开现有 preset 后覆盖该数组，不增加依赖或复制 transform。"}
+{"record_type":"message","timestamp":"2026-07-27T04:56:00.000Z","role":"assistant","content":"独立配置现已实证生效：`setupFiles=[]`、Node 环境、Expo transform 保留；文档、类型、lint、7 个单元测试通过，集成套件本地按缺少 Supabase 变量跳过。我补齐记录后提交推送下一轮 CI。"}
