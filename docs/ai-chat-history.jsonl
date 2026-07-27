@@ -346,3 +346,6 @@
 {"record_type":"message","timestamp":"2026-07-28T01:10:00.000Z","role":"assistant","content":"GitHub Device E2E 已获授权但浏览器控制连接再次超时，未触发任何 run；停止自动重试以避免重复提交，保留手动运行入口。"}
 {"record_type":"message","timestamp":"2026-07-28T01:11:00.000Z","role":"assistant","content":"已将 Apple Team、Simulator runtime 与 E2E 的真实外部前置缺口写入测试事实源，不将未执行的真机或邮件测试标为通过。"}
 {"record_type":"message","timestamp":"2026-07-28T01:12:00.000Z","role":"assistant","content":"测试事实源更新后通过 13 个 Markdown 文档检查，将提交真实状态而不伪造外部验证完成。"}
+{"record_type":"message","timestamp":"2026-07-28T01:15:00.000Z","role":"assistant","content":"EAS 账号与项目连接正常，但 device:list 未发现 Apple Developer Team；因此当前不能创建 iPhone 可安装的 Preview IPA。"}
+{"record_type":"message","timestamp":"2026-07-28T01:17:00.000Z","role":"assistant","content":"本机 Xcode 已安装但没有 iOS Simulator runtime。已开始下载 iOS 26.5 Simulator runtime，以便安装现有 iOS Simulator 构建进行体验。"}
+{"record_type":"message","timestamp":"2026-07-28T01:19:00.000Z","role":"assistant","content":"GitHub Device E2E 的浏览器控制重试再次超时，未创建任何 run；停止自动重试，保留手动运行入口以避免重复提交。"}
