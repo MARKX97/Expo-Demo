@@ -312,3 +312,8 @@
 {"record_type":"message","timestamp":"2026-07-27T15:53:00.000Z","role":"assistant","content":"GitHub `E2E_ENV_B64` 已成功创建，敏感剪贴板内容也已清空。现在只等 Android APK 出队；拿到 URL 后会立即触发 Android → iOS 串行 Maestro。"}
 {"record_type":"message","timestamp":"2026-07-27T15:55:00.000Z","role":"assistant","content":"最新 Verify 已全绿。Android 构建已排队约 1 小时 17 分钟，Expo 没有返回失败或缺配置；这是当前唯一等待项，我继续轮询，不重提构建以免回到队尾。"}
 {"record_type":"message","timestamp":"2026-07-27T15:59:00.000Z","role":"assistant","content":"队列原因已确认：Expo 页面明确显示 `Free Tier Queue`，不是并发、凭据或构建错误；当前已排队约 1 小时 20 分钟。先把 GitHub Secret 已完成和真实等待原因同步进测试事实源。"}
+{"record_type":"message","timestamp":"2026-07-27T16:01:00.000Z","role":"assistant","content":"Secret 和队列证据已提交到 `ba90cea` 并推送，工作区重新干净。继续等待同一个 Android 构建，避免产生重复构建和新的队列位置。"}
+{"record_type":"message","timestamp":"2026-07-27T16:02:00.000Z","role":"assistant","content":"Android 已从队列进入 `IN_PROGRESS`，说明云端配置通过了排队阶段。现在等待编译完成；若失败我会直接读取构建日志定位，不会重新猜配置。"}
+{"record_type":"message","timestamp":"2026-07-27T16:02:30.000Z","role":"user","content":"Android 构建可以先不等，可以先暂停，还有什么没做完"}
+{"record_type":"message","timestamp":"2026-07-27T16:03:00.000Z","role":"assistant","content":"可以，先暂停等待。我会停止本轮轮询，保留云端构建继续运行；它不会因为我们暂停而取消。然后给你一份按交付阻塞程度排序的剩余清单。"}
+{"record_type":"message","timestamp":"2026-07-27T16:04:00.000Z","role":"assistant","content":"暂停点已确定。交接前我补齐这次“暂停与剩余清单”的对话记录，避免 JSONL 漏掉本轮，然后保持仓库可直接继续。"}
