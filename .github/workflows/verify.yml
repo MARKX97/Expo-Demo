@@ -44,10 +44,11 @@ jobs:
         run: |
           pnpm run types:generate
           if ! git diff --quiet -- src/types/database.generated.ts; then
-            git diff --unified=0 -- src/types/database.generated.ts |
-              while IFS= read -r line; do
-                echo "::error file=src/types/database.generated.ts::$line"
-              done
+            type_diff="$(git diff -- src/types/database.generated.ts)"
+            type_diff="${type_diff//'%'/'%25'}"
+            type_diff="${type_diff//$'\r'/'%0D'}"
+            type_diff="${type_diff//$'\n'/'%0A'}"
+            echo "::error file=src/types/database.generated.ts::$type_diff"
             exit 1
           fi
 
