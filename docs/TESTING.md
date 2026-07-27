@@ -556,6 +556,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，
   仓库 Secret `E2E_ENV_B64` 已配置，且已获得运行确认。工作流表单的浏览器连接重复超时，
   因此尚未提交；恢复连接后只提交一次，并以 GitHub run URL 作为运行证据。
+- EAS `device:list` 当前未找到 Apple Developer Team，因而不能创建包含 iPhone UDID 的
+  Ad Hoc `preview` IPA；必须先由项目 owner 关联有效的付费 Apple Developer Program 团队。
+  本机虽安装 Xcode，但尚未安装 iOS Simulator runtime，现有 Simulator 构建也暂不能安装运行。
 - 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
 - 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
   Docker 环境。
