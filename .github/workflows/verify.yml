@@ -40,6 +40,11 @@ jobs:
           supabase start
           supabase db reset
 
+      - name: Verify generated database types
+        run: |
+          pnpm run types:generate
+          git diff --exit-code -- src/types/database.generated.ts
+
       - name: Export local Supabase test variables
         run: |
           eval "$(supabase status -o env \
@@ -50,6 +55,7 @@ jobs:
             echo "TEST_SUPABASE_URL=$TEST_SUPABASE_URL"
             echo "TEST_SUPABASE_PUBLISHABLE_KEY=$TEST_SUPABASE_PUBLISHABLE_KEY"
             echo "TEST_SUPABASE_SECRET_KEY=$TEST_SUPABASE_SECRET_KEY"
+            echo "TEST_MAILPIT_URL=http://127.0.0.1:54324"
           } >> "$GITHUB_ENV"
 
       - name: Verify documentation

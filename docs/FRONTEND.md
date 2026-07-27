@@ -1,8 +1,8 @@
 # 前端技术设计
 
-版本：0.3
+版本：0.4
 
-日期：2026-07-25
+日期：2026-07-27
 
 状态：P0/P1 已实现；P2 自动化标识已落盘，待 EAS 与双端真机验收
 
@@ -71,7 +71,7 @@ app/
 | 登录 | 按钮内 loading | N/A | 字段下错误；认证失败可重试 | 登录 |
 | 忘记密码 | 按钮内 loading | N/A | 限流/网络错误可重试；不暴露邮箱是否存在 | 发送重置邮件 |
 | 工单列表 | 骨架卡片 | 提示当前无工单；主管可新建 | 顶部错误条 + 下拉重试 | 主管：新建工单 |
-| 新建工单 | 上传/提交进度 | N/A | 定位到首个错误；照片失败可重试/移除 | 创建并派工 |
+| 新建工单 | 上传/提交进度 | N/A | 定位到首个错误；照片或补偿失败可重试；退出前再次清理草稿 | 创建并派工 |
 | 工单详情 | 详情骨架 | 工单不存在 | 无权限/版本冲突后重新加载 | 由角色和状态决定 |
 | 重设密码 | 解析 deep link / 按钮 loading | N/A | 链接失效时重新发送 | 保存新密码 |
 | 个人中心 | profile loading | N/A | profile 无效时退出登录 | 退出当前设备 |
@@ -144,6 +144,7 @@ interface WorkOrderService {
   list(input: ListWorkOrdersInput): Promise<WorkOrderPage>;
   getById(id: string): Promise<WorkOrderDetail>;
   create(input: CreateWorkOrderInput): Promise<WorkOrderDetail>;
+  cancelDraft(id: string): Promise<void>;
   reassign(input: ReassignWorkOrderInput): Promise<WorkOrderMutationResult>;
   start(input: StartWorkOrderInput): Promise<WorkOrderMutationResult>;
   close(input: CloseWorkOrderInput): Promise<WorkOrderMutationResult>;
@@ -164,6 +165,8 @@ Service，不依赖 Supabase client。
 - 版本冲突提示“工单已被其他人更新”，重新加载详情，不静默覆盖。
 - 创建 RPC 结果未知时保留原草稿 ID 和图片路径，重放同一幂等请求；不能先删除图片或生成
   新 ID。
+- 新建页退出前调用 `cancelDraft`；没有已上传对象时立即返回。清理失败时保留草稿并留在
+  当前页，允许用户再次重试；提交期间禁用返回。
 - 关闭是不可逆动作，提交前显示确认 sheet；处理结果为空时不打开确认。
 - 图片加载失败只影响对应缩略图；用户可单图重试，不让整页进入 error。
 - 忘记密码提交后使用统一成功提示，不暴露邮箱是否存在。
@@ -249,6 +252,7 @@ V1 只交付中文；key 保留以便后续国际化，不在首版引入翻译�
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-27 | Codex | 补齐新建页退出前的草稿照片补偿与重试契约。 |
 | 2026-07-25 | Codex | 建立 Expo 前端实现基线与验收契约。 |
 | 2026-07-25 | Codex | 补齐页面到 Service 和 Supabase 接口的一对一映射。 |
 | 2026-07-25 | Codex | 开始按 P0→P1 落地真实认证、角色路由、三个 Service 与工单闭环；页面仅调用 Service。 |

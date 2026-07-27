@@ -15,6 +15,7 @@
     "test:unit": "jest __tests__",
     "test:integration": "jest --config jest.integration.config.cjs --runInBand",
     "test:db": "supabase test db",
+    "types:generate": "supabase gen types typescript --local --schema public > src/types/database.generated.ts",
     "verify:docs": "node scripts/verify-docs.mjs",
     "verify:fast": "pnpm run typecheck && pnpm run lint && pnpm run test:unit",
     "verify": "pnpm run verify:docs && pnpm exec expo-doctor && pnpm run verify:fast && pnpm run test:db && pnpm run test:integration"

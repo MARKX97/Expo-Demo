@@ -5,11 +5,12 @@ import { createClient, processLock, type SupabaseClient } from '@supabase/supaba
 import { AppState } from 'react-native';
 
 import { AppError } from '@/lib/app-error';
+import type { Database } from '@/types/database.generated';
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
 let appStateSubscription: { remove(): void } | null = null;
 
-export function getSupabase(): SupabaseClient {
+export function getSupabase(): SupabaseClient<Database> {
   if (client) return client;
 
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -21,7 +22,7 @@ export function getSupabase(): SupabaseClient {
     );
   }
 
-  client = createClient(url, publishableKey, {
+  client = createClient<Database>(url, publishableKey, {
     auth: {
       storage: AsyncStorage,
       autoRefreshToken: true,

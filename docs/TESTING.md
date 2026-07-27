@@ -1,6 +1,6 @@
 # 测试与质量策略
 
-版本：0.5
+版本：0.6
 
 最后审校：2026-07-27
 
@@ -108,10 +108,11 @@ supabase test db
 export TEST_SUPABASE_URL=http://127.0.0.1:54321
 export TEST_SUPABASE_PUBLISHABLE_KEY=...
 export TEST_SUPABASE_SECRET_KEY=...
+export TEST_MAILPIT_URL=http://127.0.0.1:54324
 pnpm run test:integration
 ```
 
-三项变量不完整时套件明确标记为 skipped，避免误连远端项目；secret key 只用于
+四项变量不完整时套件明确标记为 skipped，避免误连远端项目；secret key 只用于
 setup/teardown，业务断言均由邮箱密码登录得到的低权限 session 执行。
 
 `supabase db reset` 必须从空库重放全部 migration 和 seed。测试至少准备：
@@ -179,6 +180,8 @@ Supabase CLI 会用 Mailpit 捕获本地邮件，见
 - TypeScript 无错误，lint 无错误。
 - `expo-doctor` 通过。
 - migration 后生成类型与提交版本一致。
+- GitHub Verify 通过 `pnpm run types:generate` 重新生成数据库类型，并以 `git diff
+  --exit-code -- src/types/database.generated.ts` 拒绝未提交的 schema/type 漂移。
 
 ### 7.2 单元测试
 
@@ -234,6 +237,10 @@ pgTAP 覆盖：
 - 签名图片 URL 仅对有工单读取权的账号可用。
 
 service key 只允许用于 suite setup/teardown，断言必须使用真实低权限客户端。
+
+网络结果未知、部分上传和补偿失败使用确定性的 Service 单元测试注入 SDK 返回值，直接
+覆盖 `WorkOrderService` 的路径复用、删除调用和错误码；这些测试不得替代真实 RLS/Storage
+集成，只负责验证真实环境难以稳定制造的客户端失败分支。
 
 ### 7.6 接口契约覆盖
 
@@ -527,13 +534,14 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
 `e2e-test` profile 与双平台 EAS workflow；以下仍未取得外部证据：
 
-- GitHub `verify` workflow 已配置，需在提交后由 GitHub runner 取得首次运行证据。
-- 本地 Supabase 尚未启动，因此 migration/pgTAP、生成类型和低权限集成套件尚未实际通过；
-  无本地测试变量时集成套件只会明确 skipped。
+- GitHub Verify 已在 `main` 成功从空库重放 migration，并通过 43 项 pgTAP 与低权限
+  Auth/RLS/Storage/RPC 集成测试。
+- 数据库生成类型已接入客户端；GitHub Verify 会从 migration 重新生成并检查提交版本漂移。
 - EAS 项目尚需由维护者关联 GitHub；在 `preview` 配置 App 公开变量，在仅供 Maestro 的
   `production` 环境配置虚构账号与 E2E 数据门禁变量。
 - EAS Android/iOS 构建与 Maestro job 尚未实际运行。
 - 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
-- 完整 `pnpm run verify` 仍以本地 Supabase、依赖安装和现有测试实际结果为准。
+- 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
+  Docker 环境。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

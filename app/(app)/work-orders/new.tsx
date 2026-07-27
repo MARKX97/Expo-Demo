@@ -1,8 +1,8 @@
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, Stack, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Field, Notice, Panel, Screen, colors } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
@@ -29,6 +29,7 @@ export default function NewWorkOrderScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loadingEngineers, setLoadingEngineers] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const loadEngineers = useCallback(() => {
     setLoadingEngineers(true);
@@ -43,6 +44,28 @@ export default function NewWorkOrderScreen() {
     const timer = setTimeout(loadEngineers, 0);
     return () => clearTimeout(timer);
   }, [loadEngineers]);
+
+  const leave = useCallback(async () => {
+    if (submitting || cancelling) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      await workOrderService.cancelDraft(draftId);
+      setCancelling(false);
+      router.back();
+    } catch (caught) {
+      setError(errorMessage(caught));
+      setCancelling(false);
+    }
+  }, [cancelling, draftId, submitting]);
+
+  useFocusEffect(useCallback(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      void leave();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [leave]));
 
   if (context?.profile.role !== 'elevator_supervisor') return <Redirect href="/(app)" />;
 
@@ -111,7 +134,14 @@ export default function NewWorkOrderScreen() {
 
   return (
     <Screen title="新建工单" description="现场信息与照片全部上传成功后才会创建工单。">
-      <Button label="返回工单" onPress={() => router.back()} variant="quiet" />
+      <Stack.Screen options={{ gestureEnabled: false }} />
+      <Button
+        disabled={submitting}
+        label="返回工单"
+        loading={cancelling}
+        onPress={() => void leave()}
+        variant="quiet"
+      />
       {error && <Notice tone="error">{error}</Notice>}
       <Panel>
         <Text style={styles.sectionTitle}>故障信息</Text>
@@ -177,7 +207,7 @@ export default function NewWorkOrderScreen() {
           ))}
         </View>
         <Button
-          disabled={photos.length >= 3 || submitting}
+          disabled={photos.length >= 3 || submitting || cancelling}
           label={photos.length ? '继续选择照片' : '选择现场照片'}
           onPress={() => void choosePhotos()}
           testID="pick-work-order-photo"
@@ -186,7 +216,7 @@ export default function NewWorkOrderScreen() {
         <Text style={styles.help}>照片会转换为最长边 2048px、质量 0.82 的 JPEG。</Text>
       </Panel>
       <Button
-        disabled={loadingEngineers}
+        disabled={loadingEngineers || cancelling}
         label="创建并派工"
         loading={submitting}
         onPress={() => void submit()}

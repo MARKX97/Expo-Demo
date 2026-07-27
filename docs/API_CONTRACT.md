@@ -1,10 +1,10 @@
 # 前后端对接契约
 
-版本：0.2
+版本：0.3
 
-日期：2026-07-25
+日期：2026-07-27
 
-状态：P0/P1 已实现，待 Supabase 集成验证
+状态：P0/P1 已实现并通过 Supabase CI 集成验证；P2 待 EAS/真机验证
 
 适用：Expo App ↔ Supabase Auth / PostgREST / RPC / Storage
 
@@ -60,7 +60,7 @@ flowchart LR
 | 工单详情 | `WorkOrderService.getById(id)` | `QRY-03` + `STO-02` | `WorkOrderDetail` + 临时图片 URL | 不存在与无权限使用同一页面 |
 | 新建页加载工程师 | `ProfileService.listActiveEngineers()` | `RPC-01` | `EngineerOption[]` | 无权限返回列表；网络失败可重试 |
 | 选择并提交现场照片 | `WorkOrderService.create(input)` | `STO-01` → `RPC-02` | 新建 `assigned` 工单 | 明确失败执行补偿；结果未知重放同一 ID |
-| 取消新建 / 上传失败 | Service 内部补偿 | `STO-03` | 已上传草稿对象被删除 | 清理失败明确提示，不静默成功 |
+| 取消新建 / 上传失败 | `WorkOrderService.cancelDraft(id)` / Service 内部补偿 | `STO-03` | 已上传草稿对象被删除 | 清理失败保留草稿并留在当前页面，可再次重试 |
 | 主管改派 | `WorkOrderService.reassign(input)` | `RPC-03` | 新接手人和新版本号 | 非 `assigned` / 版本冲突后刷新详情 |
 | 工程师开始处理 | `WorkOrderService.start(input)` | `RPC-04` | `in_progress` 和新版本号 | 越权 / 版本冲突后刷新详情 |
 | 工程师关闭工单 | `WorkOrderService.close(input)` | `RPC-05` | `closed`、处理结果和新版本号 | 空结果不发请求；冲突后刷新 |
@@ -604,6 +604,10 @@ supabase.storage.from('work-order-media').remove(paths)
 删除失败返回 `PHOTO_CLEANUP_FAILED`，页面保留草稿 ID 和路径以供再次清理，不能显示
 “已取消且清理完成”。
 
+`WorkOrderService.cancelDraft(id)` 使用内存中该草稿的稳定路径执行删除；没有上传记录时
+直接成功。删除成功后清除草稿上下文，删除失败时保留上下文。新建页的可见返回按钮和
+Android 返回键都必须先调用此方法；补偿失败时不离开页面。创建请求仍在执行时禁止退出。
+
 V1 的自动保证只覆盖 App 仍可继续执行补偿的失败和取消路径。进程被强制终止、设备断电等
 中断仍可能留下孤儿对象；当前通过 Storage 控制台人工清理。若最终验收要求覆盖崩溃中断，
 必须增加使用 service role 的定时 Edge Function，不能直接删除 `storage.objects` 行。
@@ -656,5 +660,6 @@ V1 的自动保证只覆盖 App 仍可继续执行补偿的失败和取消路径
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-27 | Codex | 增加 `cancelDraft` 补偿入口，并同步 CI 已完成的 Supabase 集成状态。 |
 | 2026-07-25 | Codex | 补充 Storage 上传返回值所需的最小草稿 SELECT 权限，避免上传被自身 policy 拒绝。 |
 | 2026-07-25 | Codex | 建立页面、Service、Auth、查询、RPC 与 Storage 的一对一对接契约。 |

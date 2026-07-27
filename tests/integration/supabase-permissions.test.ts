@@ -16,11 +16,13 @@ if (
 const config =
   testUrl &&
   process.env.TEST_SUPABASE_PUBLISHABLE_KEY &&
-  process.env.TEST_SUPABASE_SECRET_KEY
+  process.env.TEST_SUPABASE_SECRET_KEY &&
+  process.env.TEST_MAILPIT_URL
     ? {
         url: testUrl,
         publishableKey: process.env.TEST_SUPABASE_PUBLISHABLE_KEY,
         secretKey: process.env.TEST_SUPABASE_SECRET_KEY,
+        mailpitUrl: process.env.TEST_MAILPIT_URL,
       }
     : null;
 
@@ -162,6 +164,47 @@ integration('Supabase low-privilege permissions', () => {
       version: 3,
     });
   });
+
+  it('completes the PKCE password recovery flow through local Mailpit', async () => {
+    const storage = memoryStorage();
+    const recovery = createClient(config!.url, config!.publishableKey, {
+      auth: {
+        ...authOptions().auth,
+        flowType: 'pkce',
+        storage,
+      },
+    });
+    const newPassword = `Recovered-${runId}`;
+
+    const { error: requestError } = await recovery.auth.resetPasswordForEmail(
+      users.supervisor.email,
+      { redirectTo: 'elevatorhandoff://reset-password' },
+    );
+    expect(requestError).toBeNull();
+
+    const recoveryLink = await waitForRecoveryLink(
+      config!.mailpitUrl,
+      users.supervisor.email,
+    );
+    const verifyResponse = await fetch(recoveryLink, { redirect: 'manual' });
+    expect(verifyResponse.status).toBeGreaterThanOrEqual(300);
+    expect(verifyResponse.status).toBeLessThan(400);
+    const redirect = verifyResponse.headers.get('location');
+    expect(redirect).not.toBeNull();
+    const url = new URL(redirect!);
+    expect(`${url.protocol}//${url.hostname}${url.pathname}`).toBe(
+      'elevatorhandoff://reset-password',
+    );
+    const code = url.searchParams.get('code');
+    expect(code).not.toBeNull();
+
+    const { error: exchangeError } = await recovery.auth.exchangeCodeForSession(code!);
+    expect(exchangeError).toBeNull();
+    const { error: updateError } = await recovery.auth.updateUser({ password: newPassword });
+    expect(updateError).toBeNull();
+    await recovery.auth.signOut({ scope: 'local' });
+    await signIn(recovery, users.supervisor.email, newPassword);
+  }, 20_000);
 });
 
 function authOptions() {
@@ -171,4 +214,37 @@ function authOptions() {
 async function signIn(client: SupabaseClient, email: string, password: string) {
   const { error } = await client.auth.signInWithPassword({ email, password });
   expect(error).toBeNull();
+}
+
+function memoryStorage() {
+  const values = new Map<string, string>();
+  return {
+    getItem: async (key: string) => values.get(key) ?? null,
+    setItem: async (key: string, value: string) => void values.set(key, value),
+    removeItem: async (key: string) => void values.delete(key),
+  };
+}
+
+async function waitForRecoveryLink(mailpitUrl: string, email: string): Promise<string> {
+  const deadline = Date.now() + 15_000;
+  while (Date.now() < deadline) {
+    const query = new URLSearchParams({ query: `to:${email}`, limit: '1' });
+    const response = await fetch(`${mailpitUrl}/api/v1/search?${query}`);
+    if (response.ok) {
+      const result = await response.json() as {
+        messages?: { ID?: string; id?: string }[];
+      };
+      const id = result.messages?.[0]?.ID ?? result.messages?.[0]?.id;
+      if (id) {
+        const messageResponse = await fetch(`${mailpitUrl}/api/v1/message/${id}`);
+        const message = await messageResponse.json() as { HTML?: string; Text?: string };
+        const link = `${message.HTML ?? ''}\n${message.Text ?? ''}`
+          .match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify[^\s"'<>]*/)?.[0]
+          ?.replaceAll('&amp;', '&');
+        if (link) return link;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  throw new Error(`Password recovery email was not captured for ${email}`);
 }

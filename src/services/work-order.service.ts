@@ -17,6 +17,7 @@ import {
   type WorkOrderPriority,
   type WorkOrderStatus,
 } from '@/types';
+import type { Database } from '@/types/database.generated';
 
 const PAGE_SIZE = 20;
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
@@ -297,6 +298,13 @@ async function cleanup(paths: string[]): Promise<void> {
   }
 }
 
+async function cancelDraft(id: string): Promise<void> {
+  const attachments = draftAttachments.get(id);
+  if (!attachments) return;
+  await cleanup(attachments.map(({ path }) => path));
+  draftAttachments.delete(id);
+}
+
 async function uploadPhotos(
   input: CreateWorkOrderInput,
   attachments: DraftAttachment[],
@@ -376,9 +384,11 @@ async function create(input: CreateWorkOrderInput): Promise<WorkOrderDetail> {
   }
 }
 
-async function runMutation(
-  name: 'reassign_work_order' | 'start_work_order' | 'close_work_order',
-  params: Record<string, string | number>,
+type MutationName = 'reassign_work_order' | 'start_work_order' | 'close_work_order';
+
+async function runMutation<Name extends MutationName>(
+  name: Name,
+  params: Database['public']['Functions'][Name]['Args'],
 ): Promise<WorkOrderMutationResult> {
   try {
     const { data, error } = await withTimeout(getSupabase().rpc(name, params).single(), 15_000);
@@ -416,4 +426,4 @@ function close(input: CloseWorkOrderInput) {
   });
 }
 
-export const workOrderService = { list, getById, create, reassign, start, close };
+export const workOrderService = { list, getById, create, cancelDraft, reassign, start, close };

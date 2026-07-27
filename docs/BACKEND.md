@@ -1,10 +1,10 @@
 # 后端与数据库技术设计
 
-版本：0.3
+版本：0.4
 
-日期：2026-07-25
+日期：2026-07-27
 
-状态：P0/P1 后端已实现，等待本地 Supabase 运行验证
+状态：P0/P1 后端与生成类型已实现；migration、pgTAP 与低权限集成已通过 CI
 
 后端：Supabase Auth + Postgres + Storage
 
@@ -189,6 +189,10 @@ URL。Auth client 使用 PKCE，因此链接必须在发起重置的同一设备
 密码更新成功后只退出当前设备 session，再要求使用新密码登录。
 
 不使用 `service_role` key，不在客户端调用 Admin API。
+
+本地/CI 的 `supabase/config.toml` 必须关闭 Auth 自助注册，并将
+`elevatorhandoff://reset-password` 加入允许的 redirect URL。托管测试项目必须在
+Dashboard 使用相同设置；Admin API 预创建账号不受关闭自助注册影响。
 
 ## 7. RPC 契约
 
@@ -441,16 +445,20 @@ PoC 默认规模：最多 100 个账号、10,000 个工单、每单最多 3 图�
   覆盖 schema、拒绝路径、主状态流转、版本冲突和跨工程师隔离。
 - 测试数据不写入 seed，避免仓库保存可登录凭据；本地 Auth 集成账号由后续集成测试通过
   本地 Admin API 临时创建。
-- 当前环境没有可用的 Supabase CLI/Postgres 容器，尚未执行 migration、pgTAP 和数据库
-  类型生成。`src/types/database.generated.ts` 不在本次手写，必须在 schema 实际重放后运行：
+- GitHub Verify 已从空库重放 migration，并通过 43 项 pgTAP 与真实低权限
+  Auth/RLS/Storage/RPC 集成测试。
+- `src/types/database.generated.ts` 已从实际 migration schema 生成并接入 Supabase Client，
+  不允许手写：
 
 ```bash
 supabase db reset
 supabase test db
-supabase gen types typescript --local > src/types/database.generated.ts
+pnpm run types:generate
 ```
 
 `database.generated.ts` 由命令生成，不手工修改。任何 schema migration 必须在同一变更中重新生成类型并更新本文档。
+GitHub Verify 会在 migration 重放后再次生成该文件并与仓库版本比较；存在差异时直接失败，
+避免数据库、Service 与提交类型静默漂移。
 
 ## 16. 测试与验收
 
@@ -472,6 +480,7 @@ supabase gen types typescript --local > src/types/database.generated.ts
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-27 | Codex | 同步 GitHub CI migration、43 项 pgTAP 与低权限集成验证结果。 |
 | 2026-07-25 | Codex | 为 Storage 上传返回增加仅限本人未落库草稿的 SELECT 分支，落库后仍按工单权限读取。 |
 | 2026-07-25 | Codex | 落地单一 migration、P0/P1 RPC/RLS/Storage policy 与最小 pgTAP；记录待运行验证项。 |
 | 2026-07-25 | Codex | 建立 Supabase schema、关系、RPC、RLS 与 Storage 基线。 |

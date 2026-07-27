@@ -37,6 +37,8 @@ Android APK 可直接安装。iOS 真机 IPA 必须签名；EAS Ad Hoc 方式要
 3. 创建 Supabase 项目并准备：
    - Project URL
    - publishable key
+   - Auth 关闭自助注册
+   - Auth Redirect URLs 包含 `elevatorhandoff://reset-password`
 4. 克隆仓库并安装依赖：
 
 ```bash
