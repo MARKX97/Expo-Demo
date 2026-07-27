@@ -271,3 +271,4 @@
 {"record_type":"message","timestamp":"2026-07-27T10:33:00.000Z","role":"assistant","content":"根因已定位：Supabase CLI 2.109.1 使用同一版 Postgres Meta，但默认开启一对一关系检测；本地首次生成时误用了 `false`。实际差异只有 3 个 `isOneToOne: false` 字段，现已按官方 CLI 默认值重新生成，不改门禁。"}
 {"record_type":"message","timestamp":"2026-07-27T10:36:00.000Z","role":"assistant","content":"第二次 CI 仍只在类型漂移处失败，说明还有实际 Supabase 基础镜像带来的差异。公开 GitHub API 不提供 job 日志；我会使用 Chrome 的现有 GitHub 登录态读取这个失败 step 的真实 diff，只读查看，不改远端设置。"}
 {"record_type":"message","timestamp":"2026-07-27T10:42:00.000Z","role":"assistant","content":"Chrome 能确认登录态，但 GitHub 日志页过大，读取会超时。为让后续 agent 无需依赖浏览器，我会把类型漂移 diff 直接转成 GitHub annotations；这也是更符合 Harness 的可读失败证据，门禁仍保持失败。"}
+{"record_type":"message","timestamp":"2026-07-27T10:52:00.000Z","role":"assistant","content":"CI annotation 已精确指出剩余差异只是 Prettier 版本：官方 `postgres-meta:v0.96.6` 镜像锁定 3.5.3，而本地包解析到了 3.9.6。数据库结构和类型语义一致；我用镜像锁定的 3.5.3 对生成文件做机械格式化，避免逐行手改。"}
