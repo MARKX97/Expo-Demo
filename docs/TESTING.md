@@ -546,9 +546,13 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - GitHub Verify 已在 `main` 成功从空库重放 migration，并通过 43 项 pgTAP、低权限
   Auth/RLS/Storage/RPC 集成测试与本地 Mailpit/PKCE 密码重置成功链路。
 - 数据库生成类型已接入客户端；GitHub Verify 从 migration 重新生成并已证明提交版本零漂移。
-- EAS 项目已关联到 App；仍需由维护者在 Expo 控制台关联 GitHub，在 `preview` 配置 App
-  公开变量，在仅供 Maestro 的 `production` 环境配置虚构账号与 E2E 数据门禁变量。
-- EAS Android/iOS 构建与 Maestro job 尚未实际运行。
+- EAS 项目已关联到 App；`development`/`preview` 的 App 公开变量与仅供 Maestro 的
+  `production` 虚构账号、E2E 数据门禁变量均已配置。
+- 托管 Supabase 已通过 migration 初始化并同步 Auth 配置；三类测试账号的密码登录与
+  角色已验证。
+- iOS Simulator 的 `e2e-test` 构建已成功；Android `e2e-test` 构建仍在队列中。
+- 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，但
+  仓库 Secret 与双端 Maestro 运行证据尚未完成。
 - 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
 - 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
   Docker 环境。

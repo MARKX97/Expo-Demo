@@ -303,3 +303,6 @@
 {"record_type":"message","timestamp":"2026-07-27T15:22:00.000Z","role":"assistant","content":"GitHub 页面本身已登录并可访问，但浏览器控制连接在表单写入时超时；我正在做一次最小重连。若仍失败，我会把已完成配置与唯一需你点一下的 GitHub 密钥步骤明确交接，不会冒险泄露密钥。"}
 {"record_type":"message","timestamp":"2026-07-27T15:31:00.000Z","role":"assistant","content":"环境与远端链路已经闭环，测试账号也确认可登录。现在先跑仓库门禁并校验新增 GitHub Actions；Android 仍在 EAS 队列中，不影响本地校验继续。"}
 {"record_type":"message","timestamp":"2026-07-27T15:35:00.000Z","role":"assistant","content":"本轮仓库门禁已通过到 Expo Doctor、类型、Lint 和 12 项 Jest；完整本地门禁只停在“Docker daemon 未运行/全局 Supabase CLI 不在 PATH”，而远端 migration、账号和接口已单独验证。提交前我会补齐脱敏后的对话记录。"}
+{"record_type":"message","timestamp":"2026-07-27T15:36:00.000Z","role":"assistant","content":"配置与 fallback workflow 的最小改动已通过文档、Expo 配置、类型、Lint、Jest 和 YAML 检查；未发现验证码或密钥进入 Git。现在提交并推送，让 GitHub 先接管完整 CI 与 workflow 语法校验。"}
+{"record_type":"message","timestamp":"2026-07-27T15:37:00.000Z","role":"assistant","content":"提交 `0e82261` 已推到 `main`，Husky 快速门禁全绿。GitHub 已开始远端 Verify；Android 免费构建仍在队列中，我会并行等待 CI 和构建，不把排队误报为失败。"}
+{"record_type":"message","timestamp":"2026-07-27T15:41:00.000Z","role":"assistant","content":"GitHub Verify 已在提交 `0e82261` 上全绿，新增 Device E2E workflow 也被 GitHub 正常识别为 active。接下来同步真实证据状态：EAS/Supabase 变量已配置、iOS 构建成功、Android 仍排队，Maestro 尚未执行。"}
