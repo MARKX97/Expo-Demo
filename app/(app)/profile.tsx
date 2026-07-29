@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Button, Panel, Screen, colors } from '@/components/ui';
+import { Button, Panel, Screen, Text, colors } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 
 export default function ProfileScreen() {

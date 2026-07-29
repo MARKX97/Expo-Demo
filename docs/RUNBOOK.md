@@ -443,6 +443,19 @@ Android、真机、真实邮件重置或真机跨设备 UAT。
   `undefined` 并被登录表单拒绝。保留 `MAESTRO_*` 作为密钥入口，统一通过
   `node scripts/run-maestro.mjs` 转为 CLI `-e` 参数；EAS `maestro` job 在 workflow 的 `env`
   显式映射成同名的非前缀 Flow 变量。禁止把密码值直接复制到命令行或 YAML。
+
+### 10.3 最大字号回归与本机空间边界（2026-07-30）
+
+- iPhone 17 Pro / iOS 26.5 Simulator 在最大 Dynamic Type 下，当前 Release 原生产物通过完整
+  `critical-journey.yml`；Increase Contrast 下登录 smoke 也通过。为保证长邮箱、状态和操作
+  可达，业务文字与输入统一使用 1.4 倍字体上限；这保留放大能力，不等同于关闭字体缩放。
+- 最大字号回归发现 Maestro 的 `hideKeyboard` 可能在键盘已收起时仍报错，描述输入后改以
+  `keyboardDismissMode="on-drag"` 的滚动收起键盘；关闭前显式滚动到提交按钮，避免把不可见
+  控件当作已点击。
+- 本机 Xcode 首次默认双架构 Simulator 构建和 Maestro 设备日志会短时占用数 GB。发生精确的
+  `No space left on device` 时，仅清理已确认可再生成的 Maestro 测试产物、失败的 Simulator
+  `.app` 与本项目 DerivedData `Build` 缓存；随后用 `ARCHS=arm64 ONLY_ACTIVE_ARCH=YES` 构建
+  当前 Apple Silicon Simulator。不得清理仓库、模拟器数据或用户文件。
 | Fastlane（RubyGems / Homebrew） | 安装分别中断或网络失败，未安装。 | 仅在需要本地重新生成 iOS 原生构建时安装。 |
 | `brew install supabase` | 会拉取 Node 运行时及其依赖，下载受网络阻塞后取消，未安装。 | 不以它作为本项目的默认 Supabase CLI 安装方式。 |
 

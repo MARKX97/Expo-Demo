@@ -1,8 +1,8 @@
 # 前端技术设计
 
-版本：0.4
+版本：0.5
 
-日期：2026-07-27
+日期：2026-07-30
 
 状态：P0/P1 已实现；iOS Simulator 的登录、失效重置与完整派工闭环 Maestro 已验证；Android 与真机 UAT 待执行
 
@@ -89,8 +89,9 @@ artifact 后的复验，依赖升级也不能只用登录 smoke 验收。
 新建工单的本地草稿 ID 必须在 Hermes 没有全局 `crypto` 时也能生成 RFC 4122 v4 格式值；不得在导航完成前
 同步依赖未链接的原生模块。该 ID 只用于幂等创建关联，授权、字段校验和最终持久化仍由 Supabase RPC 完成。
 
-表单滚动必须在 iOS 上收起软键盘，避免键盘遮挡下方的工程师选择和提交控件；自动化 Flow 也必须在描述输入后
-显式完成键盘收起，再继续点击动态列表。
+表单滚动必须在 iOS 上收起软键盘，避免键盘遮挡下方的工程师选择和提交控件；自动化 Flow 在
+描述输入后通过 `keyboardDismissMode="on-drag"` 的滚动完成键盘收起，再继续点击动态列表，不能依赖
+最大 Dynamic Type 下不稳定的 `hideKeyboard` 平台命令。
 
 优先级和工程师单选卡片保留 `radio` 语义；触摸与 iOS 辅助功能激活必须调用同一状态更新，保证 VoiceOver 与
 Maestro 的无障碍激活不会出现“点击成功但选择未变化”。
@@ -225,7 +226,9 @@ AppShell
 - 所有触控区域至少 44×44pt；主按钮高度建议 48pt。
 - 状态使用“文字 + 颜色/图形”，不能只靠红绿区分。
 - 交互组件提供 `accessibilityLabel`、role/state；错误信息可被 screen reader 宣读。
-- 支持 Dynamic Type；文本优先换行，不用固定高度裁切。
+- 支持 Dynamic Type；文本优先换行，不用固定高度裁切。最大系统字号下，所有业务文字与输入
+  统一限制为 `1.4` 倍，避免长邮箱、状态和关键操作离开可滚动视口；这不是禁用字体缩放，仍
+  保留从系统默认到 1.4 倍的放大范围。此策略必须通过登录和完整派工 Flow 回归。
 - 尊重 reduced motion；仅使用 150–200ms 的原生反馈动画。
 - Safe Area 覆盖刘海、Dynamic Island 和底部手势区域。
 
@@ -265,7 +268,8 @@ V1 只交付中文；key 保留以便后续国际化，不在首版引入翻译�
   可访问名称和 `engineer-option-<displayName>` testID，避免 iOS 系统 UI 自动化只命中文本。
 - iOS 26：先验证“登录 → 新建工单”不会使 App 退出，再执行完整关键流；原生退出不能通过重试
   标记为通过。
-- 无障碍/真机：VoiceOver/TalkBack、44pt 触控、最大字体、错误宣读。
+- 无障碍/真机：VoiceOver/TalkBack、44pt 触控、错误宣读；最大字体已在 iOS Simulator
+  完整派工回归覆盖，仍不替代真机验收。
 
 ## 14. 风险与假设
 
@@ -277,6 +281,7 @@ V1 只交付中文；key 保留以便后续国际化，不在首版引入翻译�
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-30 | Codex | 最大 Dynamic Type Simulator 回归发现登录和工单文字过度放大；全局业务文字与输入统一采用 1.4 倍上限并保留滚动，以保证长邮箱、状态和主操作可达。 |
 | 2026-07-29 | Codex | 三次 iOS 26.5 Simulator 构建证明：快照 guard 只能推进崩溃点，随后仍在 Screen Stack 回收、转场事件和 UIKit 卸载时退出。撤回未验证的私有补丁，iOS 26 明确阻塞至上游兼容版本。 |
 | 2026-07-29 | Codex | 根因确认在 `react-native-screens` Fabric 快照路径；以 pnpm patch 在精确固定的 4.26.2 上跳过 iOS 26 快照，待新 iOS 构建与完整 Maestro 复验。 |
 | 2026-07-28 | Codex | iOS Maestro 登录与失效重置通过；关键流在 iOS 26 Fabric Screen Stack 旧页快照处崩溃，未将其误标为通过。 |

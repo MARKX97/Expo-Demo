@@ -37,7 +37,6 @@ name: Cross-device supervisor creates assigned work order
 - tapOn:
     id: work-order-description
 - inputText: Cross device handoff test
-- hideKeyboard
 - scrollUntilVisible:
     element:
       id: engineer-option-${ENGINEER_A_NAME}

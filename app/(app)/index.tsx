@@ -1,9 +1,9 @@
 import { useFocusEffect, router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { WorkOrderCard } from '@/components/work-order-card';
-import { Button, LoadingState, Notice, Screen, colors } from '@/components/ui';
+import { Button, LoadingState, Notice, Screen, Text, colors } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
 import { useAuth } from '@/lib/auth-context';
 import { workOrderService } from '@/services/work-order.service';

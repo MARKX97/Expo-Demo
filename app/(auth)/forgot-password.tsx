@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { Button, Field, Notice, Panel, Screen, colors } from '@/components/ui';
+import { Button, Field, Notice, Panel, Screen, Text, colors } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
 import { useAuth } from '@/lib/auth-context';
 import { validateEmail } from '@/lib/validation';

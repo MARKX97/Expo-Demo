@@ -1,6 +1,6 @@
 # 测试与质量策略
 
-版本：0.7
+版本：0.8
 
 最后审校：2026-07-30
 
@@ -262,9 +262,11 @@ service key 只允许用于 suite setup/teardown，断言必须使用真实低�
 - 关键控件提供稳定 `testID` 和可访问名称。
 - 工程师选择和改派是动态列表：卡片必须同时提供以当前显示名构成的稳定 `testID`
   （`engineer-option-<displayName>`）。Flow 使用该 ID 点击并在首次选择后断言“已选择”；描述输入后必须
-  显式调用 `hideKeyboard`，否则 iOS 键盘会遮挡动态列表并造成“点击成功但选择未变化”的假象。
-- 输入多行描述后，Flow 必须先收起软键盘再滚动或点击工程师卡片；不能点击被键盘遮挡的
-  accessibility bounds。
+  通过滚动收起键盘，否则 iOS 键盘会遮挡动态列表并造成“点击成功但选择未变化”的假象。
+- 输入多行描述后，Flow 必须以页面滚动收起软键盘再点击工程师卡片；不能点击被键盘遮挡的
+  accessibility bounds，也不能依赖最大 Dynamic Type 下可能误报失败的 `hideKeyboard` 平台命令。
+- 填写处理结果后，Flow 必须再次滚动到 `close-work-order` 可见再点击；不能假定最大字号下
+  关闭按钮仍与输入框同时位于视口内。
 - 优先使用 ID 或确定文本，不使用坐标点击。
 - 每条 flow 从 `clearState: true` 和确定 seed 开始。
 - 禁止固定 `sleep`；等待明确的可见状态。
@@ -497,6 +499,18 @@ maestro test --udid <simulator-udid> .maestro/flows/critical-journey.yml
 Supabase/Mailpit 四项变量时按设计跳过（2 项 skipped），未将跳过视为通过。
 该限制不影响已通过的 iOS Flow，但发布候选仍须按第 9 节补齐 DB、集成、Android 和跨设备 UAT 证据。
 
+### 8.5 最大 Dynamic Type 与对比度回归（2026-07-30）
+
+iPhone 17 Pro / iOS 26.5 Simulator 在 `accessibility-extra-extra-extra-large` 系统字号下，以
+当前 Xcode Release 原生产物通过 `critical-journey.yml`：主管建单、照片、改派、工程师隔离、
+开始、关闭校验和关闭后只读均通过，结束后清理 1 张 `E2E-*` 工单及 1 个附件。启用系统
+Increase Contrast 后，`smoke-login.yml` 也通过，测试结束后恢复默认对比度。
+
+该回归曾暴露三项问题：业务文字未统一限制字体倍率、描述输入后的 `hideKeyboard` 平台命令在
+最大字号下误报、处理结果后的关闭按钮位于视口外。修复为全局业务文字/输入 1.4 倍上限，Flow
+以滚动收起描述键盘，并在关闭前显式滚动到按钮。该证据不替代真机 VoiceOver、物理 44pt 触控
+或真实邮件重置验收。
+
 ## 9. CI 与质量门禁
 
 | 时机 | 必须通过 | 是否阻塞 |
@@ -610,6 +624,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - Expo SDK 57 官方补丁升级（Expo 57.0.9、React Native 0.86.2 及匹配运行时）后，已重新
   Pod 安装、构建新的 iOS Release 原生产物，并再次通过同一组三条 Flow；不能以升级前二进制
   替代此证据。
+- 最大 Dynamic Type 的 iOS Simulator 完整派工回归和 Increase Contrast 登录 smoke 已通过；
+  业务文字/输入以 1.4 倍上限保留放大可读性，并保证关键操作保持在可滚动视口内。该自动化
+  证据不替代真机 VoiceOver 与物理触控测量。
 - 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
   `pnpm run verify` 仍在 `supabase test db` 停止：项目 npm 启动器受 Node 20/Corepack 动态 import
   错误影响；官方 macOS ARM64 CLI 2.109.1 可运行，但本机 `supabase start` 在 Docker 镜像启动阶段
@@ -631,6 +648,6 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
   `5d528aab676d24078e90091d4592c32c857d125e`，不覆盖当前未提交工作树，不能作为本轮新原生产物的
   验收证据。
-- 真实 SMTP 密码重置、双角色真机跨设备 UAT、VoiceOver/TalkBack、最大字体和 44pt 真机验收尚未执行。
+- 真实 SMTP 密码重置、双角色真机跨设备 UAT、VoiceOver/TalkBack 和 44pt 真机验收尚未执行。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

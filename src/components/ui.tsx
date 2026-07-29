@@ -6,9 +6,10 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
+  Text as NativeText,
   TextInput,
   View,
+  type TextProps,
   type TextInputProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,6 +33,12 @@ export const colors = {
   white: '#FFFFFF',
 } as const;
 
+const formFontScaleLimit = 1.4;
+
+export function Text({ maxFontSizeMultiplier = formFontScaleLimit, ...props }: TextProps) {
+  return <NativeText maxFontSizeMultiplier={maxFontSizeMultiplier} {...props} />;
+}
+
 export function Screen({
   children,
   scroll = true,
@@ -49,8 +56,8 @@ export function Screen({
       {(title || action) && (
         <View style={styles.headingRow}>
           <View style={styles.headingCopy}>
-            {title && <Text style={styles.title}>{title}</Text>}
-            {description && <Text style={styles.description}>{description}</Text>}
+            {title && <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.title}>{title}</Text>}
+            {description && <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.description}>{description}</Text>}
           </View>
           {action}
         </View>
@@ -86,8 +93,8 @@ export function Brand() {
         <Text style={styles.brandMarkText}>T</Text>
       </View>
       <View>
-        <Text style={styles.brandName}>梯维派工</Text>
-        <Text style={styles.brandCaption}>电梯故障处理工作台</Text>
+        <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.brandName}>梯维派工</Text>
+        <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.brandCaption}>电梯故障处理工作台</Text>
       </View>
     </View>
   );
@@ -124,7 +131,7 @@ export function Button({
       testID={testID}
     >
       {loading && <ActivityIndicator color={variant === 'secondary' || variant === 'quiet' ? colors.primary : colors.white} />}
-      <Text style={[styles.buttonLabel, styles[`buttonLabel_${variant}`]]}>
+      <Text maxFontSizeMultiplier={formFontScaleLimit} style={[styles.buttonLabel, styles[`buttonLabel_${variant}`]]}>
         {loading ? '处理中…' : label}
       </Text>
     </Pressable>
@@ -140,18 +147,19 @@ export function Field({
 }: TextInputProps & { label: string; error?: string | null; hint?: string }) {
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
+      <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.label}>{label}</Text>
       <TextInput
         accessibilityHint={error ?? hint}
         accessibilityLabel={label}
         multiline={multiline}
+        maxFontSizeMultiplier={formFontScaleLimit}
         placeholderTextColor="#64748B"
         style={[styles.input, multiline && styles.textarea, error && styles.inputError]}
         {...props}
       />
-      {hint && !error && <Text style={styles.hint}>{hint}</Text>}
+      {hint && !error && <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.hint}>{hint}</Text>}
       {error && (
-        <Text accessibilityLiveRegion="polite" style={styles.fieldError}>
+        <Text accessibilityLiveRegion="polite" maxFontSizeMultiplier={formFontScaleLimit} style={styles.fieldError}>
           {error}
         </Text>
       )}
@@ -169,7 +177,7 @@ export function Notice({
 }: PropsWithChildren<{ tone?: 'info' | 'error' | 'warning' | 'success' }>) {
   return (
     <View accessibilityRole={tone === 'error' ? 'alert' : 'text'} style={[styles.notice, styles[`notice_${tone}`]]}>
-      <Text style={[styles.noticeText, styles[`noticeText_${tone}`]]}>{children}</Text>
+      <Text maxFontSizeMultiplier={formFontScaleLimit} style={[styles.noticeText, styles[`noticeText_${tone}`]]}>{children}</Text>
     </View>
   );
 }
@@ -178,7 +186,7 @@ export function LoadingState({ label = '正在加载…' }: { label?: string }) 
   return (
     <View accessibilityLabel={label} accessibilityRole="progressbar" style={styles.loading}>
       <ActivityIndicator color={colors.accent} size="large" />
-      <Text style={styles.description}>{label}</Text>
+      <Text maxFontSizeMultiplier={formFontScaleLimit} style={styles.description}>{label}</Text>
     </View>
   );
 }

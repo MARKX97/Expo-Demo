@@ -53,7 +53,6 @@ name: Dispatch, isolation and close
 - tapOn:
     id: work-order-description
 - inputText: Maestro P2 test
-- hideKeyboard
 - scrollUntilVisible:
     element:
       id: priority-urgent
@@ -173,6 +172,10 @@ name: Dispatch, isolation and close
     id: work-order-resolution
 - inputText: ${output.resolution}
 - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: close-work-order
+    direction: DOWN
 - tapOn:
     id: close-work-order
 - tapOn: 确认关闭

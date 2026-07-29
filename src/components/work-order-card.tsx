@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { colors } from '@/components/ui';
+import { Text, colors } from '@/components/ui';
 import type { WorkOrderListItem, WorkOrderStatus } from '@/types';
 
 const statusLabel: Record<WorkOrderStatus, string> = {

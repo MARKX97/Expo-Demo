@@ -1,10 +1,10 @@
 # Architecture
 
-版本：0.5
+版本：0.6
 
-日期：2026-07-25
+日期：2026-07-30
 
-状态：P0/P1 已实现；P2 双平台测试构建、Auth/profile smoke 与 iOS Maestro 完整关键流已验证；DB/RLS/低权限集成与 Mailpit/PKCE 已由 GitHub CI 验证。iOS 26 原生导航兼容补丁已固定；当前 Release 原生产物已通过三条 iOS Flow，待 Android（用户当前不具备设备）与真机 UAT 证据
+状态：P0/P1 已实现；P2 iOS Release 原生产物已通过标准与最大 Dynamic Type 完整 Maestro 流程、跨会话交接及 Increase Contrast 登录 smoke；DB/RLS/低权限集成与 Mailpit/PKCE 已由 GitHub CI 验证。待 Android（用户当前不具备设备）与真机 UAT 证据。
 
 ## 目标
 
@@ -153,6 +153,7 @@ flowchart TB
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-30 | Codex | 最大 Dynamic Type 回归修复业务文字/输入过度放大及 Flow 键盘/关闭按钮可见性问题；当前 iOS Release 原生产物通过完整闭环和 Increase Contrast 登录 smoke。 |
 | 2026-07-30 | Codex | 新增并通过两台独立 iOS Simulator 的跨角色 Maestro 链路：主管建单、工程师关闭、主管新会话读取关闭结果；测试数据与附件在结束后清理。该自动证据不替代真机跨设备 UAT。 |
 | 2026-07-30 | Codex | Expo SDK 57 补丁依赖升级后，使用新的 iOS Release 原生产物再次通过 Maestro 登录、失效重置与完整派工闭环；冻结安装与 Expo Doctor 20/20 通过，未放宽供应链冷却策略。GitHub Verify #30491230201 也完整通过 DB/RLS、低权限集成与 Mailpit/PKCE。 |
 | 2026-07-30 | Codex | 当前源码以本地 Xcode Release Simulator 原生产物通过 Maestro 登录、失效重置与完整派工闭环；测试后已复核清理 0 张 `E2E-*` 工单和 0 个附件。GitHub Verify #30474985934（功能提交）及 #30475418136（文档提交）均完成 DB/RLS/低权限集成与 Mailpit/PKCE。 |

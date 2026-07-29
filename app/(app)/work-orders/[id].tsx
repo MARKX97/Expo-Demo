@@ -1,8 +1,8 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Field, LoadingState, Notice, Panel, Screen, colors } from '@/components/ui';
+import { Button, Field, LoadingState, Notice, Panel, Screen, Text, colors } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
 import { useAuth } from '@/lib/auth-context';
 import { availableWorkOrderActions } from '@/lib/work-order-actions';

@@ -2,9 +2,9 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { Redirect, router, Stack, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { BackHandler, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Image, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Field, Notice, Panel, Screen, colors } from '@/components/ui';
+import { Button, Field, Notice, Panel, Screen, Text, colors } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
 import { useAuth } from '@/lib/auth-context';
 import { createUuid } from '@/lib/uuid';
