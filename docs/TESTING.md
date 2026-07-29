@@ -598,6 +598,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`，三条均通过。关键流覆盖
   主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读。测试数据清理复核为 0 张
   `E2E-*` 工单、0 个附件；这不是 Android 或真机 UAT 的替代。
+- Expo SDK 57 官方补丁升级（Expo 57.0.9、React Native 0.86.2 及匹配运行时）后，已重新
+  Pod 安装、构建新的 iOS Release 原生产物，并再次通过同一组三条 Flow；不能以升级前二进制
+  替代此证据。
 - 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
   `pnpm run verify` 仍在 `supabase test db` 停止：项目 npm 启动器受 Node 20/Corepack 动态 import
   错误影响；官方 macOS ARM64 CLI 2.109.1 可运行，但本机 `supabase start` 在 Docker 镜像启动阶段

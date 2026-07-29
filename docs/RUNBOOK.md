@@ -416,6 +416,22 @@ Flow 均通过；这不替代 Android、真机、真实邮件重置或跨设备 
 - Supabase CLI 的 npm 启动器在本机 Node 20/Corepack 组合下会触发动态 import 错误；直接使用
   官方 macOS ARM64 CLI 2.109.1 已完成项目只读访问和 API key 类型校验。远端 CI 仍是
   DB/RLS/低权限集成与 Mailpit/PKCE 的正式证据。
+- Expo SDK 57 的依赖兼容检查会随 SDK 补丁发布更新。若 `pnpm exec expo-doctor` 报告
+  `Patch version mismatches`，先使用 `pnpm exec expo install --fix` 同步 Expo 官方建议的补丁版本，
+  再执行 `pnpm install --frozen-lockfile`、完整快速门禁和 iOS Release Flow；不要以
+  `expo.install.exclude` 忽略真实的 React Native/Expo 版本漂移。
+- 若更新后 `expo-doctor` 仍提示某个 Expo Router 运行时包未满足期望版本，使用
+  `pnpm exec expo install <包名>` 将该包以 Expo 推荐的精确兼容范围提升为直接依赖，再复跑检查；
+  不接受 pnpm 恰好保留的较低传递依赖版本。
+- pnpm 11 默认供应链冷却策略会拒绝发布时间不足 24 小时的包。`pnpm-workspace.yaml` 的
+  `minimumReleaseAgeExclude` 只列出本次 Expo 官方兼容修复所需的精确版本，保持全局策略不变；
+  后续升级不得改成通配符、降低全局等待时间或复制无关依赖到该清单。
+- 本次 SDK 57 补丁升级后，`pnpm install --frozen-lockfile`、`expo-doctor`（20/20）、
+  文档、类型、lint 与 13 项单元测试均通过；重新执行 `pod install` 与 Xcode Release 构建后，
+  iPhone 17 Pro / iOS 26.5 Simulator 再次通过三条 Maestro Flow。
+- React Native 原生产物首次重建会展开预编译框架并占用数 GB 空间。若 Xcode 明确报
+  `No space left on device`，仅清理已核验的临时 DerivedData、下载分片和测试证据目录，
+  不清理仓库、模拟器数据或用户文件；释放空间后从新的 DerivedData 路径重新构建。
 - 已下载并 SHA-256 校验 Temurin JRE 17 与 Maestro CLI 2.7.0 官方归档，仅作为临时 Maestro
   运行环境，不写入仓库或项目依赖。当前 Release 原生产物已在 iPhone 17 Pro / iOS 26.5
   Simulator 通过三条 Flow；未来下载或运行环境变更后仍须以官方 checksum 校验并复跑。

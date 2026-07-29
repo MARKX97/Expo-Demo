@@ -1,6 +1,29 @@
 allowBuilds:
   unrs-resolver: true
 
+# Expo SDK 57 官方补丁发布后 24 小时内的精确版本例外；不放宽全局供应链冷却策略。
+minimumReleaseAgeExclude:
+  - '@expo/cli@57.0.11'
+  - '@expo/inline-modules@0.1.4'
+  - '@expo/local-build-cache-provider@57.0.5'
+  - '@expo/log-box@57.0.2'
+  - '@expo/prebuild-config@57.0.10'
+  - babel-preset-expo@57.0.5
+  - expo-asset@57.0.8
+  - expo-constants@57.0.8
+  - expo-modules-core@57.0.8
+  - expo@57.0.9
+  - '@expo/ui@57.0.8'
+  - expo-dev-client@57.0.10
+  - expo-dev-launcher@57.0.10
+  - expo-dev-menu@57.0.10
+  - expo-image-manipulator@57.0.7
+  - expo-image-picker@57.0.7
+  - expo-router@57.0.9
+  - eslint-config-expo@57.0.1
+  - jest-expo@57.0.3
+  - '@expo/metro-runtime@57.0.8'
+
 overrides:
   "@react-native/metro-config": 0.86.0
   react-native-worklets: 0.10.2
