@@ -4,3 +4,6 @@ allowBuilds:
 overrides:
   "@react-native/metro-config": 0.86.0
   react-native-worklets: 0.10.2
+
+patchedDependencies:
+  react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch

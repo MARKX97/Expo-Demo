@@ -4,7 +4,7 @@
 
 日期：2026-07-27
 
-状态：P0/P1 已实现；P2 自动化标识已落盘，待 EAS 与双端真机验收
+状态：P0/P1 已实现；iOS Simulator 的登录、失效重置与完整派工闭环 Maestro 已验证；Android 与真机 UAT 待执行
 
 技术栈：Expo + React Native + TypeScript + Expo Router
 
@@ -63,6 +63,16 @@ app/
 
 角色决定首页数据和可见操作，不复制两套详情页面。
 
+### iOS 原生导航兼容
+
+iOS 26.5 Simulator 的 Fabric 原生 Screen Stack 会在进入新建工单时，于卸载旧页的
+`setViewToSnapshot` 阶段异常退出；项目保留精确的 iOS 26 guard
+[`patches/react-native-screens@4.26.2.patch`](../patches/react-native-screens@4.26.2.patch)。Cloud iOS 18.2
+旧 binary 也在进入新建页退出；该页曾同步调用未显式提供的全局 `crypto`。本地草稿 ID 现在由不依赖
+Hermes 全局或额外原生模块的 RFC 4122 v4 兼容生成器创建。2026-07-29 的
+`critical-journey.yml` 已在 iOS 26.5 Simulator 通过完整业务闭环；此证据不替代未来重新生成原生
+artifact 后的复验，依赖升级也不能只用登录 smoke 验收。
+
 ## 4. 页面与状态
 
 | 页面 | Loading | Empty | Error / Recovery | 主操作 |
@@ -70,15 +80,27 @@ app/
 | 启动 | 全屏进度 | N/A | Session 读取失败：重试或退出 | N/A |
 | 登录 | 按钮内 loading | N/A | 字段下错误；认证失败可重试 | 登录 |
 | 忘记密码 | 按钮内 loading | N/A | 限流/网络错误可重试；不暴露邮箱是否存在 | 发送重置邮件 |
+| 重设密码 | 验证链接 loading | N/A | 无效、失效或 10 秒内未完成的 recovery exchange 均显示“链接无法使用”，可重新发送 | 保存新密码 |
 | 工单列表 | 骨架卡片 | 提示当前无工单；主管可新建 | 顶部错误条 + 下拉重试 | 主管：新建工单 |
 | 新建工单 | 上传/提交进度 | N/A | 定位到首个错误；照片或补偿失败可重试；退出前再次清理草稿 | 创建并派工 |
 | 工单详情 | 详情骨架 | 工单不存在 | 无权限/版本冲突后重新加载 | 由角色和状态决定 |
 | 重设密码 | 解析 deep link / 按钮 loading | N/A | 链接失效时重新发送 | 保存新密码 |
+
+新建工单的本地草稿 ID 必须在 Hermes 没有全局 `crypto` 时也能生成 RFC 4122 v4 格式值；不得在导航完成前
+同步依赖未链接的原生模块。该 ID 只用于幂等创建关联，授权、字段校验和最终持久化仍由 Supabase RPC 完成。
+
+表单滚动必须在 iOS 上收起软键盘，避免键盘遮挡下方的工程师选择和提交控件；自动化 Flow 也必须在描述输入后
+显式完成键盘收起，再继续点击动态列表。
+
+优先级和工程师单选卡片保留 `radio` 语义；触摸与 iOS 辅助功能激活必须调用同一状态更新，保证 VoiceOver 与
+Maestro 的无障碍激活不会出现“点击成功但选择未变化”。
 | 个人中心 | profile loading | N/A | profile 无效时退出登录 | 退出当前设备 |
 
 页面重新聚焦和下拉刷新时重新查询。V1 不做 realtime subscription；界面必须显示“上次更新”时间，避免用户误以为是实时数据。
 
-密码重置路由同时处理冷启动初始 URL 和运行中 URL event；同一 recovery URL 只消费一次。
+密码重置路由同时处理冷启动初始 URL 和运行中 URL event；同一 recovery URL 只消费一次。Expo Router
+可能先消费冷启动 URL，因此重设密码页还必须以路由参数为兜底触发 recovery 校验，不能只依赖根布局的
+`Linking.getInitialURL()`。
 
 ## 5. 客户端类型
 
@@ -239,7 +261,10 @@ V1 只交付中文；key 保留以便后续国际化，不在首版引入翻译�
 - TypeScript：导航参数、service 输入输出和状态枚举无 `any`。
 - Jest/RNTL：表单校验、错误映射、角色操作、loading/error/retry。
 - Expo Router：登录守卫、角色路由和密码重置深链。
-- Maestro：主管建单/改派、工程师开始/关闭、照片选择与校验错误。
+- Maestro：主管建单/改派、工程师开始/关闭、照片选择与校验错误；动态工程师卡片同时保留
+  可访问名称和 `engineer-option-<displayName>` testID，避免 iOS 系统 UI 自动化只命中文本。
+- iOS 26：先验证“登录 → 新建工单”不会使 App 退出，再执行完整关键流；原生退出不能通过重试
+  标记为通过。
 - 无障碍/真机：VoiceOver/TalkBack、44pt 触控、最大字体、错误宣读。
 
 ## 14. 风险与假设
@@ -252,6 +277,11 @@ V1 只交付中文；key 保留以便后续国际化，不在首版引入翻译�
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-29 | Codex | 三次 iOS 26.5 Simulator 构建证明：快照 guard 只能推进崩溃点，随后仍在 Screen Stack 回收、转场事件和 UIKit 卸载时退出。撤回未验证的私有补丁，iOS 26 明确阻塞至上游兼容版本。 |
+| 2026-07-29 | Codex | 根因确认在 `react-native-screens` Fabric 快照路径；以 pnpm patch 在精确固定的 4.26.2 上跳过 iOS 26 快照，待新 iOS 构建与完整 Maestro 复验。 |
+| 2026-07-28 | Codex | iOS Maestro 登录与失效重置通过；关键流在 iOS 26 Fabric Screen Stack 旧页快照处崩溃，未将其误标为通过。 |
+| 2026-07-28 | Codex | 三组公开内部演示账号已通过 Auth/profile smoke；原生页面登录和主流程仍需独立验收。 |
+| 2026-07-28 | Codex | 审校 P2 证据：iOS Simulator 已冷启动到真实登录页；真实账号登录、Maestro 与双端 UAT 未完成。 |
 | 2026-07-27 | Codex | 补齐新建页退出前的草稿照片补偿与重试契约。 |
 | 2026-07-25 | Codex | 建立 Expo 前端实现基线与验收契约。 |
 | 2026-07-25 | Codex | 补齐页面到 Service 和 Supabase 接口的一对一映射。 |

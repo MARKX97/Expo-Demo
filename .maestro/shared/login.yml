@@ -8,3 +8,16 @@ appId: com.markx97.elevatorhandoff
 - inputText: ${PASSWORD}
 - tapOn:
     id: login-submit
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: iOS
+      visible:
+        text: '^(以后|Not Now)$'
+    commands:
+      - tapOn:
+          text: '^(以后|Not Now)$'
+- waitForAnimationToEnd
+- tapOn:
+    text: '^(以后|Not Now)$'
+    optional: true

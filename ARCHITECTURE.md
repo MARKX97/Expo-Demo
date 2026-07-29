@@ -4,7 +4,7 @@
 
 日期：2026-07-25
 
-状态：P0/P1 已实现；P2 构建/E2E 配置已落盘，待外部双端验证
+状态：P0/P1 已实现；P2 双平台测试构建、Auth/profile smoke 与 iOS Maestro 完整关键流已验证；iOS 26 原生导航兼容补丁已固定，待 Android、DB/集成与真机 UAT 证据
 
 ## 目标
 
@@ -153,6 +153,12 @@ flowchart TB
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-29 | Codex | 在 iOS 26.5 Simulator 以当前导出的 Hermes bundle 通过登录、失效重置与完整 `critical-journey.yml`；修复 Expo Router 冷启动先消费 recovery deep link、表单键盘遮挡后续自动化操作以及系统保存密码弹窗时序。 |
+| 2026-07-29 | Codex | `react-native-screens` 精确固定 4.26.2，并保留 iOS 26 快照 guard；Cloud iOS 18.2 旧 binary 在新建页退出，草稿 UUID 改为不依赖 Hermes 全局或额外原生模块的兼容实现后必须以完整 Maestro 闭环复验。 |
+| 2026-07-28 | Codex | 尝试切换 JS Stack 及禁用 inactive screen detach，仍由外层原生 Stack 触发相同快照崩溃，已回退该未验证兼容措施。 |
+| 2026-07-28 | Codex | iOS Maestro 登录与失效重置已通过；派工闭环在 iOS 26 原生 Screen Stack 快照崩溃，未标记为 P2 通过。 |
+| 2026-07-28 | Codex | 三组公开内部演示账号已通过 Auth/profile smoke；未将该结果扩大为原生业务流验收。 |
+| 2026-07-28 | Codex | 审校外部证据：双平台 `e2e-test` 构建及 iOS Simulator 冷启动完成；Maestro、真实登录与跨设备 UAT 仍待验证。 |
 | 2026-07-27 | Codex | 关联 EAS 项目并固化 owner/projectId；环境变量与外部构建仍待验证。 |
 | 2026-07-25 | Codex | 落盘 P2 EAS 双平台测试构建、Maestro 主流程与 UAT 证据模板；未声明外部构建已通过。 |
 | 2026-07-25 | Codex | P0/P1 前后端按契约落地；保留数据库集成、E2E 与双端构建验证缺口。 |

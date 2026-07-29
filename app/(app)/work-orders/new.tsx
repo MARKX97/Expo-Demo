@@ -156,6 +156,7 @@ export default function NewWorkOrderScreen() {
               accessibilityRole="radio"
               accessibilityState={{ checked: priority === value }}
               key={value}
+              onAccessibilityTap={() => setPriority(value)}
               onPress={() => setPriority(value)}
               style={[styles.segmentItem, priority === value && styles.segmentActive]}
               testID={`priority-${value}`}
@@ -182,8 +183,10 @@ export default function NewWorkOrderScreen() {
             accessibilityRole="radio"
             accessibilityState={{ checked: assigneeId === engineer.id }}
             key={engineer.id}
+            onAccessibilityTap={() => setAssigneeId(engineer.id)}
             onPress={() => setAssigneeId(engineer.id)}
             style={[styles.option, assigneeId === engineer.id && styles.optionSelected]}
+            testID={`engineer-option-${engineer.displayName}`}
           >
             <Text style={styles.optionText}>{engineer.displayName}</Text>
             <Text style={styles.help}>{assigneeId === engineer.id ? '已选择' : '点击选择'}</Text>

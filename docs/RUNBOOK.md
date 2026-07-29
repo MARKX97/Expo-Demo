@@ -346,6 +346,10 @@ pnpm exec expo-doctor
 - `app.json` 中 package、bundle identifier 与 scheme 固定。
 - `expo-image-picker` plugin 保留明确的 iOS 相册用途文案；修改后重新构建 development
   client。
+- iOS 26 的 `react-native-screens` Fabric 快照路径由精确版本 `4.26.2` 加
+  `patches/react-native-screens@4.26.2.patch` 临时规避；patch 只在 iOS 26 卸载 Screen Stack 时跳过快照。
+  当前依赖组合仍不能在 iOS 26 运行完整主流程。每次 EAS iOS 构建必须从 lockfile 安装该版本和 patch；构建后先验证
+  “登录 → 新建工单”不退出，再运行完整 `critical-journey.yml`，不得只以登录 smoke 作为业务闭环证据。
 - Supabase migration 已应用，测试账号与角色存在。
 - Supabase Auth Redirect URLs 已允许 `elevatorhandoff://reset-password`，PKCE 重置邮件在
   发起请求的同一测试设备打开。
@@ -379,6 +383,37 @@ maestro test .maestro/flows/smoke-login.yml
 maestro test .maestro/flows/critical-journey.yml
 maestro test .maestro/flows/expired-reset-link.yml
 ```
+
+### 10.1 本次 iOS Simulator 排障与工具记录（2026-07-29）
+
+本次在 iOS 26.5 Simulator 使用现有 `e2e-test` 原生壳、导出的当前 Hermes bundle 和
+Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
+`critical-journey.yml` 均通过。该路径用于源代码回归，不替代以当前原生依赖重新生成的
+`e2e-test` 构建；恢复 EAS 额度或本机原生构建条件后，仍须重新验证新产物。
+
+| 问题 | 根因与处理 |
+| --- | --- |
+| 本地 `eas build --local` 无法开始 | 环境没有 Fastlane。Gem 与 Homebrew 安装均未成功，因此没有为排障额外加入 Fastlane；改用匹配的现有 Simulator 原生壳做源码回归。需要全新原生产物时，先确认 `fastlane --version`，再完成安装。 |
+| iOS 登录后业务页被遮挡 | 系统“保存密码”弹窗覆盖页面。共享登录 Flow 用条件分支关闭弹窗后再断言页面。 |
+| 多行输入后选择工程师或关闭工单无效 | iOS 软键盘覆盖控件。Flow 在描述和处理结果输入后显式 `hideKeyboard`。 |
+| 失效重置链接一直显示验证中 | Expo Router 在冷启动时先消费 deep link。重置页从路由参数回退消费链接，并以超时收敛到可恢复的失效状态。 |
+| 工单卡片找不到 | 无障碍名称是组合摘要，不等于单独梯号。Flow 改用包含梯号的正则选择器。 |
+
+本次工具处理如下；“未安装”表示没有新增到机器或仓库，不能把尝试当作环境前置条件：
+
+| 工具/下载 | 结果 | 后续做法 |
+| --- | --- | --- |
+| Maestro CLI 2.7.0 | 使用已有本地缓存版本；后续检查发现缓存压缩包已损坏，不能作为新的运行来源。 | 若 Java 未自动发现，设置本机 OpenJDK 的 `JAVA_HOME`；网络恢复后重新安装 CLI 再复跑 Flow。 |
+| CocoaPods 1.17.0 + Homebrew Ruby 4.0.6 | 已安装并验证 `pod --version`；`expo-doctor` 随后 20/20 通过。 | 这是本机 iOS 原生工具检查所需环境，不是项目依赖。 |
+| `pnpm dlx supabase@latest` / 项目 npm CLI | 当前 npm metadata 声明了不存在的 `darwin-arm64` 平台包；旧版下载二进制又被本机以退出码 137 终止。 | 不保留不可用依赖；使用经验证的官方 macOS ARM64 二进制，或在 CI 的 Supabase 环境运行 DB 测试。 |
+| Supabase 官方 release 二进制 | 51MB 下载在当前网络约 14KB/s，中止后未安装。 | 网络恢复后重新下载并校验版本。 |
+| Fastlane（RubyGems / Homebrew） | 安装分别中断或网络失败，未安装。 | 仅在需要本地重新生成 iOS 原生构建时安装。 |
+| `brew install supabase` | 会拉取 Node 运行时及其依赖，下载受网络阻塞后取消，未安装。 | 不以它作为本项目的默认 Supabase CLI 安装方式。 |
+
+临时 Node 22/pnpm shim 和导出的 Hermes bundle 只用于本机验证，未写入仓库、未新增项目依赖。
+本机没有 Supabase CLI 时，`pnpm run verify` 会在已通过文档、Expo Doctor、类型、lint 与单元测试后停在
+`supabase test db`；低权限集成套件在未注入本地 Supabase/Mailpit 变量时会明确跳过。可先运行
+`pnpm run verify:docs`、`pnpm run verify:fast`，并以 GitHub `verify` 的数据库门禁补齐证据。
 
 账号通过 `MAESTRO_*` shell 变量注入；不要把 `-e PASSWORD=...` 命令复制到共享日志。
 数据脚本会在任何网络请求前校验重置开关、HTTPS URL、project ref 与 secret key：

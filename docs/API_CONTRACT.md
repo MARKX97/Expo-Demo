@@ -4,7 +4,7 @@
 
 日期：2026-07-27
 
-状态：P0/P1 已实现并通过 Supabase CI 集成验证；P2 待 EAS/真机验证
+状态：P0/P1 已实现并通过 Supabase CI 集成验证；P2 双平台测试构建、Auth/profile smoke 与 iOS Simulator 冷启动完成，待 Maestro/原生登录/真机验证
 
 适用：Expo App ↔ Supabase Auth / PostgREST / RPC / Storage
 
@@ -294,16 +294,12 @@ supabase.auth.resetPasswordForEmail(email, {
 
 1. 校验 scheme 与 `reset-password` route。
 2. 从 query 读取一次性 `code`；缺失即 `AUTH_RECOVERY_EXPIRED`。
-3. 调用：
-
-```ts
-supabase.auth.exchangeCodeForSession(code)
-```
-
+3. 调用 `exchangeCodeForSession(code)`，并以 10 秒为上限；超时与 Supabase 返回的无效/失效结果均映射为 `AUTH_RECOVERY_EXPIRED`，不得让重设页无限显示验证中。
 4. 成功后只进入重设密码页，不进入正常业务首页。
 5. URL 和 code 不写日志、不写业务 state、不写聊天记录。
 
-路由层同时处理冷启动初始 URL 和 App 已打开时的 URL event，并对同一 URL 去重。
+路由层同时处理冷启动初始 URL 和 App 已打开时的 URL event，并对同一 URL 去重；重设密码页以路由参数
+再次兜底触发校验，因为 Expo Router 可能在冷启动时先消费 deep link，导致根布局的 `getInitialURL()` 为空。
 PKCE code verifier 保存在发起重置的设备，因此邮件链接必须在同一设备打开；换设备或 code
 超过有效期时提示在当前设备重新发送重置邮件。
 
@@ -660,6 +656,8 @@ V1 的自动保证只覆盖 App 仍可继续执行补偿的失败和取消路径
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-28 | Codex | 记录三组演示账号的真实 Auth/profile 验证，不以此替代原生页面验收。 |
+| 2026-07-28 | Codex | 审校外部验证状态；未将构建成功等同于接口端到端验收。 |
 | 2026-07-27 | Codex | 增加 `cancelDraft` 补偿入口，并同步 CI 已完成的 Supabase 集成状态。 |
 | 2026-07-25 | Codex | 补充 Storage 上传返回值所需的最小草稿 SELECT 权限，避免上传被自身 policy 拒绝。 |
 | 2026-07-25 | Codex | 建立页面、Service、Auth、查询、RPC 与 Storage 的一对一对接契约。 |

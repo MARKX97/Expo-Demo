@@ -260,9 +260,26 @@ service key 只允许用于 suite setup/teardown，断言必须使用真实低�
 ### 8.1 稳定性约束
 
 - 关键控件提供稳定 `testID` 和可访问名称。
+- 工程师选择和改派是动态列表：卡片必须同时提供以当前显示名构成的稳定 `testID`
+  （`engineer-option-<displayName>`）。Flow 使用该 ID 点击并在首次选择后断言“已选择”；描述输入后必须
+  显式调用 `hideKeyboard`，否则 iOS 键盘会遮挡动态列表并造成“点击成功但选择未变化”的假象。
+- 输入多行描述后，Flow 必须先收起软键盘再滚动或点击工程师卡片；不能点击被键盘遮挡的
+  accessibility bounds。
 - 优先使用 ID 或确定文本，不使用坐标点击。
 - 每条 flow 从 `clearState: true` 和确定 seed 开始。
 - 禁止固定 `sleep`；等待明确的可见状态。
+- 登录后的明确页面等待为 45 秒，以覆盖 iOS Simulator 首次 TLS/代理建连；不得以增加
+  重跑次数替代该等待。
+- iOS 成功登录后会显示系统“保存密码”弹窗；共享登录 Flow 必须以 iOS 条件分支关闭它，
+  再断言业务页面，不能把系统弹窗误报为认证失败。
+- iOS 深链确认弹窗的按钮随系统语言变化；Flow 必须同时识别 `Open` 与 `打开`，再验证
+  App 内的失效链接恢复状态。iOS 可在 App 已启动后保留一次确认浮层，需再执行一次条件式
+  关闭，不能让它遮挡业务断言。
+- iOS 26 必须使用精确的 `react-native-screens` `4.26.2` 和仓库的
+  `patches/react-native-screens@4.26.2.patch`。patch 在 Screen Stack 卸载时跳过会导致 Fabric
+  原生退出的快照；依赖版本不得放宽或移除 patch。Cloud iOS 18.2 旧 binary 也曾在“登录 → 新建工单”退出；
+  修复新建页 UUID 初始化后，每次升级先运行 `smoke-login.yml` 并手动验证该导航不退出，再运行
+  `critical-journey.yml`；原生退出不能通过重试标记为通过。
 - 使用 Maestro `addMedia` 把
   `tests/fixtures/work-order-photo.jpg` 放入设备相册。
 - 系统相册选择器按 Android/iOS 拆分共享 subflow。
@@ -276,17 +293,17 @@ Maestro 的 [`addMedia`](https://docs.maestro.dev/reference/commands-available/a
 
 | EAS / shell 变量 | Flow 内变量 | 用途 |
 | --- | --- | --- |
-| `MAESTRO_SUPERVISOR_EMAIL` | `SUPERVISOR_EMAIL` | 主管测试邮箱 |
-| `MAESTRO_SUPERVISOR_PASSWORD` | `SUPERVISOR_PASSWORD` | 主管测试密码 |
-| `MAESTRO_ENGINEER_A_EMAIL` | `ENGINEER_A_EMAIL` | 工程师 A 测试邮箱 |
-| `MAESTRO_ENGINEER_A_PASSWORD` | `ENGINEER_A_PASSWORD` | 工程师 A 测试密码 |
-| `MAESTRO_ENGINEER_B_EMAIL` | `ENGINEER_B_EMAIL` | 工程师 B 测试邮箱 |
-| `MAESTRO_ENGINEER_B_PASSWORD` | `ENGINEER_B_PASSWORD` | 工程师 B 测试密码 |
-| `MAESTRO_ENGINEER_A_NAME` | `ENGINEER_A_NAME` | 工程师 A 页面显示名 |
-| `MAESTRO_ENGINEER_B_NAME` | `ENGINEER_B_NAME` | 工程师 B 页面显示名 |
+| `MAESTRO_SUPERVISOR_EMAIL` | `MAESTRO_SUPERVISOR_EMAIL` | 主管测试邮箱 |
+| `MAESTRO_SUPERVISOR_PASSWORD` | `MAESTRO_SUPERVISOR_PASSWORD` | 主管测试密码 |
+| `MAESTRO_ENGINEER_A_EMAIL` | `MAESTRO_ENGINEER_A_EMAIL` | 工程师 A 测试邮箱 |
+| `MAESTRO_ENGINEER_A_PASSWORD` | `MAESTRO_ENGINEER_A_PASSWORD` | 工程师 A 测试密码 |
+| `MAESTRO_ENGINEER_B_EMAIL` | `MAESTRO_ENGINEER_B_EMAIL` | 工程师 B 测试邮箱 |
+| `MAESTRO_ENGINEER_B_PASSWORD` | `MAESTRO_ENGINEER_B_PASSWORD` | 工程师 B 测试密码 |
+| `MAESTRO_ENGINEER_A_NAME` | `MAESTRO_ENGINEER_A_NAME` | 工程师 A 页面显示名 |
+| `MAESTRO_ENGINEER_B_NAME` | `MAESTRO_ENGINEER_B_NAME` | 工程师 B 页面显示名 |
 
-Maestro CLI 会读取 `MAESTRO_` 前缀的 shell 变量，并在 Flow 内暴露去掉前缀后的名称。
-EAS `maestro` job 使用 `environment: production` 读取同名变量。`EXPO_PUBLIC_SUPABASE_*`
+Maestro CLI 会读取 `MAESTRO_` 前缀的 shell 变量；Flow 必须使用完整变量名，不能假设
+前缀会被去除。EAS `maestro` job 使用 `environment: production` 读取同名变量。`EXPO_PUBLIC_SUPABASE_*`
 仍由 `e2e-test.environment = preview` 注入构建；`production` 在本 PoC 中只作为 Maestro
 管理变量的隔离环境，当前没有 build profile 使用它。
 
@@ -442,6 +459,34 @@ Android → iOS 串行执行同一套 Flow；解码后的每个值在写入 `GIT
 仓库代码都可能越权读取测试项目，所以 Android/iOS 都只允许维护者手动触发，不允许
 对任意 Pull Request 自动运行。
 
+### 8.4 本次 iOS Simulator 执行记录（2026-07-29）
+
+在 iPhone 17 Pro / iOS 26.5 Simulator 上，以下 Flow 均通过：
+
+```bash
+maestro test --udid <simulator-udid> .maestro/flows/smoke-login.yml
+maestro test --udid <simulator-udid> .maestro/flows/expired-reset-link.yml
+maestro test --udid <simulator-udid> .maestro/flows/critical-journey.yml
+```
+
+`critical-journey.yml` 覆盖主管登录、建单必填校验、紧急标识、照片上传、改派往返、两名工程师的数据隔离、开始处理、关闭校验与关闭后只读。Maestro 日志、截图和调试产物已在执行机生成；不得提交含账号、密码或临时路径的副本。
+
+| 故障 | 根因 | 已验证的修复 |
+| --- | --- | --- |
+| 登录成功后无法断言工作台 | iOS 保存密码系统弹窗遮挡页面。 | 共享登录 Flow 条件关闭弹窗。 |
+| 动态工程师选项未改变 | 键盘遮挡列表，且动态项需要稳定可访问标识。 | 输入后收起键盘；卡片使用 `engineer-option-<displayName>`。 |
+| 工单详情无法按梯号匹配 | 卡片的可访问名称是完整摘要。 | 使用包含梯号的正则匹配。 |
+| 无效 recovery deep link 持续 loading | 冷启动链接先被 Expo Router 消费。 | 页面从路由参数回退消费链接；认证交换超时后显示可恢复的失效状态。 |
+| iOS 原生导航退出风险 | `react-native-screens` 的 iOS 26/Fabric 组合需要固定保护。 | 保持 `4.26.2` 及仓库 patch，并以完整关键流验证，不以重试代替修复。 |
+
+本次本机检查中，`verify:docs`、`expo-doctor`（20/20）、类型检查、lint、13 项单元测试和
+`git diff --check` 通过。为恢复 Expo Doctor，安装并验证了 CocoaPods 1.17.0 与其 Homebrew Ruby
+运行时；它们只属于本机测试工具链。完整 `pnpm run verify` 在 `supabase test db` 停止：本机没有
+可执行的 Supabase CLI。项目级 npm CLI 的当前发布元数据缺少 ARM64 平台包；旧版下载的官方二进制又被
+此 macOS 环境以退出码 137 终止，因此已移除该不可用开发依赖。低权限集成套件在未提供本地
+Supabase/Mailpit 四项变量时按设计跳过（2 项 skipped），未将跳过视为通过。
+该限制不影响已通过的 iOS Flow，但发布候选仍须按第 9 节补齐 DB、集成、Android 和跨设备 UAT 证据。
+
 ## 9. CI 与质量门禁
 
 | 时机 | 必须通过 | 是否阻塞 |
@@ -505,7 +550,8 @@ E2E 不塞进本地 `verify`，因为它需要构建产物和云端设备；由 
 
 - commit SHA、EAS build ID、应用版本和测试环境。
 - Maestro 结果、失败截图和主流程视频。
-- 主管与工程师测试账号标识，不记录密码。
+- 主管与工程师测试账号标识；默认不记录密码。仅本仓库明确标注为“公开内部演示”的虚构账号，
+  可按 owner 明确授权在 `README.md` 记录统一密码；不得对真实人员、生产环境或外部项目复用。
 - 创建的工单 ID、照片数量和最终状态。
 - 密码重置邮件时间、redirect 结果。
 - Android/iOS 安装与启动结果。
@@ -541,29 +587,24 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 ## 12. 当前缺口
 
 仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
-`e2e-test` profile 与双平台 EAS workflow；以下仍未取得外部证据：
+`e2e-test` profile 与双平台 EAS workflow。当前证据和未完成项如下：
 
-- GitHub Verify 已在 `main` 成功从空库重放 migration，并通过 43 项 pgTAP、低权限
-  Auth/RLS/Storage/RPC 集成测试与本地 Mailpit/PKCE 密码重置成功链路。
-- 数据库生成类型已接入客户端；GitHub Verify 从 migration 重新生成并已证明提交版本零漂移。
-- EAS 项目已关联到 App；`development`/`preview` 的 App 公开变量与仅供 Maestro 的
-  `production` 虚构账号、E2E 数据门禁变量均已配置。
-- 托管 Supabase 已通过 migration 初始化并同步 Auth 配置；三类测试账号的密码登录与
-  角色已验证。
-- iOS Simulator 与 Android 的 `e2e-test` 构建均已成功。iOS build ID 为
-  `b9751d27-e544-4f2a-8a95-cbc309c13aae`；Android APK build ID 为
-  `95a61bde-6a07-48f5-b6c4-fe0b0be1bad0`。两者尚未取得 Maestro 运行证据。
-- iOS Simulator 运行时已安装；上述 iOS build 已在 iOS 26.5 的 iPhone 17 Pro Simulator
-  成功安装、冷启动并显示登录页。已导入一张测试照片供手动建单；登录、建单和跨角色闭环
-  仍待执行并记录。
-- 免费 Expo 账户不能执行 EAS Maestro job；GitHub `Device E2E` fallback 已激活，
-  仓库 Secret `E2E_ENV_B64` 已配置，且已获得运行确认。工作流表单的浏览器连接重复超时，
-  因此尚未提交；恢复连接后只提交一次，并以 GitHub run URL 作为运行证据。
-- EAS `device:list` 当前未找到 Apple Developer Team，因而不能创建包含 iPhone UDID 的
-  Ad Hoc `preview` IPA；必须先由项目 owner 关联有效的付费 Apple Developer Program 团队。
-  本机虽安装 Xcode，但尚未安装 iOS Simulator runtime，现有 Simulator 构建也暂不能安装运行。
-- 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI 和无障碍真机验收尚未执行。
-- 完整 `pnpm run verify` 已由 GitHub runner 通过；本地完整复现仍需要 Supabase CLI 与
-  Docker 环境。
+- iPhone 17 Pro / iOS 26.5 Simulator 已以当前 Hermes bundle 运行
+  `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`，三条均通过。关键流覆盖
+  主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读；这不是 Android 或真机 UAT 的替代。
+- 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
+  `pnpm run verify` 在 `supabase test db` 停止：Docker 已可用，但没有可执行 Supabase CLI；项目级
+  npm CLI 的当前发布元数据缺少 ARM64 平台包，旧版二进制则被此 macOS 环境以退出码 137 终止，故未保留
+  不可用依赖。低权限集成套件在未注入本地 Supabase/Mailpit 变量时按设计跳过，不能视为通过。
+- GitHub Verify 的最新成功运行（2026-07-27）对应当前 `HEAD` `5d528aab676d24078e90091d4592c32c857d125e`，
+  已从空库重放 migration，并通过 43 项 pgTAP、低权限 Auth/RLS/Storage/RPC 集成及本地 Mailpit/PKCE
+  密码重置；它不能替代当前 24 项未提交工作树变更的 DB 复跑。
+- Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
+  尚无运行证据。iOS 当前源码的验证使用既有原生壳；重新生成 iOS native artifact 后仍须复跑三条 Flow。
+- 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
+  `5d528aab676d24078e90091d4592c32c857d125e`，不覆盖当前未提交工作树，不能作为本轮新原生产物的
+  验收证据。
+- 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI、VoiceOver/TalkBack、最大字体和 44pt 真机验收
+  尚未执行。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

@@ -66,7 +66,11 @@ export function Screen({
         style={styles.flex}
       >
         {scroll ? (
-          <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+          >
             {content}
           </ScrollView>
         ) : content}

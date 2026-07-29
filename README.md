@@ -55,7 +55,22 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 ```
 
 `EXPO_PUBLIC_*` 会进入客户端包，只能填写 Supabase URL 与 publishable key。禁止把
-`service_role` key、密码或真实用户数据写入客户端环境变量或提交到 Git。
+`service_role` key 或真实用户数据写入客户端环境变量或提交到 Git。下方内部演示账号的
+统一密码是本 PoC 明确授权的例外，不是管理员密钥，禁止用于生产或其他项目。
+
+## 内部演示账号
+
+以下账号只用于本仓库关联的 PoC Supabase 项目，便于任何克隆仓库的协作者体验双角色流程。
+它们不是生产账号；如需停止公开体验，应先在 Supabase Auth 停用或删除账号，再从本文移除。
+
+| 角色 | 邮箱 | 密码 |
+| --- | --- | --- |
+| 电梯区域主管 | `elevator-handoff-supervisor@example.com` | `ElevatorDemo2026!` |
+| 电梯工程师 A | `elevator-handoff-engineer-a@example.com` | `ElevatorDemo2026!` |
+| 电梯工程师 B | `elevator-handoff-engineer-b@example.com` | `ElevatorDemo2026!` |
+
+主管创建并指派工单；工程师 A/B 用于验证“仅看自己的工单”、开始处理和关闭流程。登录前，请确保
+`.env.local` 使用本仓库关联的 Supabase URL 与 publishable key。
 
 首次在设备上开发，需要先生成并安装 development build：
 

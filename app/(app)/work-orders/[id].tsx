@@ -177,8 +177,10 @@ function Actions({
             accessibilityRole="radio"
             accessibilityState={{ checked: selectedEngineer === engineer.id }}
             key={engineer.id}
+            onAccessibilityTap={() => setSelectedEngineer(engineer.id)}
             onPress={() => setSelectedEngineer(engineer.id)}
             style={[styles.option, selectedEngineer === engineer.id && styles.optionSelected]}
+            testID={`engineer-option-${engineer.displayName}`}
           >
             <Text style={styles.optionText}>{engineer.displayName}</Text>
             <Text style={styles.help}>{selectedEngineer === engineer.id ? '已选择' : '点击选择'}</Text>

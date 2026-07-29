@@ -9,9 +9,18 @@ name: Expired password reset recovery
     link: elevatorhandoff://reset-password?code=expired-e2e-code
 - runFlow:
     when:
-      visible: Open
+      visible:
+        text: '^(打开|Open)$'
     commands:
-      - tapOn: Open
+      - tapOn:
+          text: '^(打开|Open)$'
+- runFlow:
+    when:
+      visible:
+        text: '^(打开|Open)$'
+    commands:
+      - tapOn:
+          text: '^(打开|Open)$'
 - extendedWaitUntil:
     visible: 链接无法使用
     timeout: 15000

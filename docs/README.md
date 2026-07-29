@@ -1,8 +1,8 @@
 # 仓库知识索引
 
-版本：0.3
+版本：0.4
 
-最后审校：2026-07-27
+最后审校：2026-07-29
 
 ## 目的
 
@@ -20,20 +20,21 @@
 | --- | --- | --- | --- |
 | 产品范围与验收 | [`prd.md`](prd.md) | 已定义 | 验收 ID 与测试映射 |
 | 总体架构 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | 已实现 | typecheck、lint、结构审查 |
-| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL、Maestro flow；双端执行待补 |
+| 前端与交互 | [`FRONTEND.md`](FRONTEND.md) | 已实现 | Jest、RNTL；iOS Maestro 登录、失效重置与完整关键流通过 |
 | 后端与数据库 | [`BACKEND.md`](BACKEND.md) | 已实现 | CI migration 重放、43 项 pgTAP、低权限集成已通过；生成类型与漂移门禁已落地 |
 | 前后端接口对接 | [`API_CONTRACT.md`](API_CONTRACT.md) | 已实现 | Service/RPC 与低权限集成套件已通过 CI；E2E 待补 |
-| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | GitHub CI、类型漂移、Mailpit/PKCE 已通过；EAS E2E 与真机证据待补 |
-| Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已定义 | EAS build、真机验收 |
+| 测试与质量门禁 | [`TESTING.md`](TESTING.md) | 已实现 | GitHub CI、类型漂移、Mailpit/PKCE 与 iOS 关键 E2E 已通过；Android 与真机证据待补 |
+| Android/iOS 运行 | [`RUNBOOK.md`](RUNBOOK.md) | 已实现 | 双平台 `e2e-test` 构建完成；iOS Simulator 完整 Flow 已通过；Android/真机 UAT 待补 |
 | Agent 开发护栏 | [`HARNESS.md`](HARNESS.md) | 已定义 | 文档检查、review 清单 |
 | 视觉规范 | [`../design-system/电梯故障派工/MASTER.md`](../design-system/电梯故障派工/MASTER.md) | 已定义 | UI/a11y 验收 |
 | AI 开发记录 | [`ai-chat-history.jsonl`](ai-chat-history.jsonl) | 已生成 | 非门禁记录；交付前补齐 |
 
 仓库已落地 P0/P1 业务页面、Service、Supabase migration、pgTAP、前端测试，以及 P2
 Maestro flow 与 EAS 双平台测试构建配置。Supabase migration、pgTAP、低权限集成和本地
-Mailpit/PKCE 密码重置已由 GitHub CI 验证；生成类型与漂移门禁已落地。EAS 构建、Maestro
-运行和双端真机证据尚未完成。EAS 项目已关联，环境变量仍待配置，因此产品实现仍不能
-标记为“已验证”。
+Mailpit/PKCE 密码重置已由 GitHub CI 验证；生成类型与漂移门禁已落地。EAS 项目和构建环境
+已配置，Android APK 与 iOS Simulator 构建均完成。iOS 26.5 Simulator 已以当前源码通过登录、
+失效重置和完整派工 Flow；iOS 26 原生导航快照兼容 patch 必须保留，并在未来原生依赖升级后复验。
+Android Maestro、双角色跨设备 UAT、真实邮件重置和真机验收仍无证据，因此产品实现不能标记为“已验证”。
 
 ## 变更路由
 

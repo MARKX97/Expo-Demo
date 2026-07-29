@@ -13,6 +13,25 @@ const authEvents = new Set<AuthEvent>([
   'USER_UPDATED',
 ]);
 
+function withRecoveryTimeout<T>(operation: PromiseLike<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new AppError('AUTH_RECOVERY_EXPIRED', 'Recovery exchange timed out')),
+      10_000,
+    );
+    Promise.resolve(operation).then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 async function contextFor(userId: string, email: string | undefined): Promise<AuthContext> {
   const profile = await profileService.getCurrent();
   return { userId, email: email ?? '', profile };
@@ -82,7 +101,7 @@ async function consumePasswordRecoveryUrl(url: string): Promise<void> {
     }
     const code = parsed.searchParams.get('code');
     if (!code) throw new AppError('AUTH_RECOVERY_EXPIRED', 'Missing recovery code');
-    const { error } = await getSupabase().auth.exchangeCodeForSession(code);
+    const { error } = await withRecoveryTimeout(getSupabase().auth.exchangeCodeForSession(code));
     if (error) throw error;
   } catch (error) {
     const mapped = mapSupabaseError(error);

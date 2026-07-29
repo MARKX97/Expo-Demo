@@ -1,0 +1,15 @@
+diff --git a/ios/RNSScreenStack.mm b/ios/RNSScreenStack.mm
+index 192f5d2c77192f323844b0d11ee179081891e7a4..4c8b4681507b0e86adf04431698b28f3f4e9e803 100644
+--- a/ios/RNSScreenStack.mm
++++ b/ios/RNSScreenStack.mm
+@@ -1313,7 +1313,9 @@ - (nullable RNSScreenView *)childScreenForTag:(react::Tag)tag
+ - (void)unmountChildComponentView:(UIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index
+ {
+   RNSScreenView *screenChildComponent = (RNSScreenView *)childComponentView;
+-  [screenChildComponent.controller setViewToSnapshot];
++  if (!@available(iOS 26.0, *)) {
++    [screenChildComponent.controller setViewToSnapshot];
++  }
+
+   RCTAssert(screenChildComponent.reactSuperview == self,
+             @"Attempt to unmount a view which is mounted inside different view. (parent: %@, child: %@, index: %@)",

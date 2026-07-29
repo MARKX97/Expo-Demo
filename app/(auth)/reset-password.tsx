@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 
 import { Button, Field, LoadingState, Notice, Panel, Screen } from '@/components/ui';
 import { errorMessage } from '@/lib/app-error';
@@ -7,12 +7,18 @@ import { useAuth } from '@/lib/auth-context';
 import { validatePassword } from '@/lib/validation';
 
 export default function ResetPasswordScreen() {
-  const { recoveryReady, recoveryError, completePasswordReset } = useAuth();
+  const { recoveryReady, recoveryError, completePasswordReset, consumeRecoveryUrl } = useAuth();
+  const { code } = useLocalSearchParams<{ code?: string }>();
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!code || recoveryReady || recoveryError) return;
+    void consumeRecoveryUrl(`elevatorhandoff://reset-password?code=${encodeURIComponent(code)}`);
+  }, [code, consumeRecoveryUrl, recoveryError, recoveryReady]);
 
   if (!recoveryReady && !recoveryError) {
     return <Screen><LoadingState label="正在验证重置链接…" /></Screen>;
