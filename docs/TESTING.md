@@ -596,9 +596,10 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `pnpm run verify` 在 `supabase test db` 停止：Docker 已可用，但没有可执行 Supabase CLI；项目级
   npm CLI 的当前发布元数据缺少 ARM64 平台包，旧版二进制则被此 macOS 环境以退出码 137 终止，故未保留
   不可用依赖。低权限集成套件在未注入本地 Supabase/Mailpit 变量时按设计跳过，不能视为通过。
-- GitHub Verify 的最新成功运行（2026-07-27）对应当前 `HEAD` `5d528aab676d24078e90091d4592c32c857d125e`，
-  已从空库重放 migration，并通过 43 项 pgTAP、低权限 Auth/RLS/Storage/RPC 集成及本地 Mailpit/PKCE
-  密码重置；它不能替代当前 24 项未提交工作树变更的 DB 复跑。
+- GitHub Verify 于 2026-07-30 在当前 `HEAD` `2efb37c7718981d5058b58c4450280b6341b7093` 成功完成：
+  从空库启动并重放 migration、校验生成类型、文档、Expo Doctor、静态/Jest、pgTAP，以及低权限
+  Auth/RLS/Storage/RPC 和本地 Mailpit/PKCE 密码重置集成。运行记录：
+  [Verify #30474985934](https://github.com/MARKX97/Expo-Demo/actions/runs/30474985934)。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
   尚无运行证据。iOS 当前源码的验证使用既有原生壳；重新生成 iOS native artifact 后仍须复跑三条 Flow。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交

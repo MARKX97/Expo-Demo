@@ -403,3 +403,4 @@
 {"record_type":"message","timestamp":"2026-07-30T00:30:00.000Z","role":"assistant","content":"继续核查后确认：GitHub Verify 最近一次成功运行对应当前 HEAD，已覆盖数据库、低权限集成和本地 Mailpit/PKCE；但当前工作树仍有未提交变更，不能以旧运行覆盖。已排除本机 macOS CLI、Docker 容器内 CLI 和现有 Docker 缓存三条路径；要取得当前工作树的同等证据，需要推送分支触发 Ubuntu CI。"}
 {"record_type":"message","timestamp":"2026-07-30T00:35:00.000Z","role":"user","content":"授权提交并推送当前变更，以触发 GitHub CI。"}
 {"record_type":"message","timestamp":"2026-07-30T00:36:00.000Z","role":"assistant","content":"已复核待提交变更、凭据风险和提交前门禁；未发现真实凭据或环境文件。类型检查、lint、13 项单元测试、文档检查和格式检查通过。将提交并推送当前工作树，随后以 GitHub Verify 的数据库、低权限集成和 Mailpit/PKCE 结果作为当前版本证据。"}
+{"record_type":"message","timestamp":"2026-07-30T00:42:00.000Z","role":"assistant","content":"已提交并推送当前工作树。GitHub Verify 在该提交上成功完成本地 Supabase 启动与 migration 重放、生成类型、文档、Expo Doctor、静态/Jest、pgTAP，以及低权限 Auth/RLS/Storage/RPC 和 Mailpit/PKCE 密码重置集成。macOS 本机 CLI 仍不可执行，但不再阻塞当前提交的后端测试证据。"}

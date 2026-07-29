@@ -169,9 +169,9 @@ Mailpit/PKCE 密码重置验证；数据库生成类型及漂移门禁已落地�
 Maestro 登录、失效重置与完整派工闭环；`react-native-screens` 的固定版本和 patch 必须保留，升级后须先复验三条 Flow，不能仅凭单页 smoke 宣称兼容。
 
 当前未完成的是 Android Maestro、以新原生产物复验 iOS、跨设备 UAT、真实邮件重置和真机证据。
-本机也未重跑 DB/低权限集成门禁：Supabase CLI 的 npm 路径当前不可用且远端集成变量未注入。详见
-`docs/RUNBOOK.md` 第 10.1 节与 `docs/TESTING.md` 第 8.4 节；完成真实运行并产生证据后，
-才能在 `docs/README.md` 提升状态。
+本机仍不能执行 Supabase CLI，但当前提交已由 GitHub Ubuntu Verify 完整通过 DB/低权限集成与
+Mailpit/PKCE 门禁，见 `docs/TESTING.md` 第 12 节。该 CI 证据不替代 Android、重新生成 iOS 原生产物、
+跨设备 UAT、真实邮件和真机验收。
 
 后续实现任务必须按 `docs/TESTING.md` 扩展对应自动链路；只有检查真实运行并产生证据后，
 才能在 `docs/README.md` 提升状态。
