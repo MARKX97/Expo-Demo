@@ -348,7 +348,7 @@ pnpm exec expo-doctor
   client。
 - iOS 26 的 `react-native-screens` Fabric 快照路径由精确版本 `4.26.2` 加
   `patches/react-native-screens@4.26.2.patch` 临时规避；patch 只在 iOS 26 卸载 Screen Stack 时跳过快照。
-  当前源码已在本地 Xcode Release Simulator 原生产物完成启动验证，但尚未以该新原生产物复跑完整关键流。每次 EAS iOS 构建必须从 lockfile 安装该版本和 patch；构建后先验证
+  当前源码已在本地 Xcode Release Simulator 原生产物复跑完整关键流。每次 EAS iOS 构建必须从 lockfile 安装该版本和 patch；构建后先验证
   “登录 → 新建工单”不退出，再运行完整 `critical-journey.yml`，不得只以启动或登录 smoke 作为业务闭环证据。
 - Supabase migration 已应用，测试账号与角色存在。
 - Supabase Auth Redirect URLs 已允许 `elevatorhandoff://reset-password`，PKCE 重置邮件在
@@ -389,7 +389,8 @@ node scripts/run-maestro.mjs .maestro/flows/expired-reset-link.yml
 本次在 iOS 26.5 Simulator 使用现有 `e2e-test` 原生壳、导出的当前 Hermes bundle 和
 Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
 `critical-journey.yml` 均通过。2026-07-30 又以当前源码构建的 Release 原生产物复跑三条
-Flow 均通过；这不替代 Android、真机、真实邮件重置或跨设备 UAT。
+Flow 均通过。另有两台 iOS Simulator 的跨角色建单、关闭与新会话读取 Flow 通过；两者均不替代
+Android、真机、真实邮件重置或真机跨设备 UAT。
 
 | 问题 | 根因与处理 |
 | --- | --- |

@@ -1,0 +1,50 @@
+appId: com.markx97.elevatorhandoff
+name: Cross-device engineer processes work order
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${ENGINEER_A_EMAIL}
+      PASSWORD: ${ENGINEER_A_PASSWORD}
+- extendedWaitUntil:
+    visible:
+      text: '.*${CROSS_DEVICE_WORK_ORDER_CODE}.*'
+    timeout: 45000
+- tapOn:
+    text: '.*${CROSS_DEVICE_WORK_ORDER_CODE}.*'
+- scrollUntilVisible:
+    element:
+      id: start-work-order
+    direction: DOWN
+- tapOn:
+    id: start-work-order
+- extendedWaitUntil:
+    visible: 处理中
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: close-work-order
+    direction: DOWN
+- tapOn:
+    id: close-work-order
+- scrollUntilVisible:
+    element:
+      id: work-order-resolution
+    direction: DOWN
+- tapOn:
+    id: work-order-resolution
+- inputText: ${CROSS_DEVICE_RESOLUTION}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: close-work-order
+    direction: DOWN
+- tapOn:
+    id: close-work-order
+- tapOn: 确认关闭
+- extendedWaitUntil:
+    visible: 已关闭
+    timeout: 15000

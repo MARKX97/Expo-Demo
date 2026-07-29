@@ -1,8 +1,8 @@
 # 测试与质量策略
 
-版本：0.6
+版本：0.7
 
-最后审校：2026-07-27
+最后审校：2026-07-30
 
 ## 1. 目标
 
@@ -341,12 +341,17 @@ project ref 不匹配都会在网络请求前失败，且输出不包含密钥�
 | `smoke-login.yml` | 清空状态 → 主管登录 → 工单列表 |
 | `critical-journey.yml` | 主管校验失败路径 → 选择照片建单 → 改派往返 → 工程师 B 隔离 → 工程师 A 开始、空结果校验并关闭 |
 | `expired-reset-link.yml` | 冷启动打开无效 reset deep link → 显示恢复入口；仅验证失败恢复，不伪造成功 recovery |
+| `cross-device-create.yml` → `cross-device-process.yml` → `cross-device-verify.yml` | 主管 Simulator 创建并指派含照片工单 → 工程师 Simulator 读取、开始并关闭 → 主管新会话读取关闭状态；三个 Flow 共享一次性工单号与处理结果变量 |
 
 `critical-journey.yml` 通过 `addMedia` 写入
 `tests/fixtures/work-order-photo.jpg`，再调用
 `.maestro/shared/pick-first-image.yml`。该 subflow 按 Maestro 官方 recipe 使用 Android
 MediaProvider / DocumentsUI 与 iOS 17/18 选择器的可选 fallback；若平台系统 UI 升级，
 只更新此文件并保留失败截图。
+
+跨设备 Flow 必须在两个不同 UDID 上顺序执行；`CROSS_DEVICE_WORK_ORDER_CODE` 和
+`CROSS_DEVICE_RESOLUTION` 由测试调度器生成并以额外 Maestro `-e` 参数传入，不是账号凭据。
+测试调度器在三个 Flow 前执行 `prepare`、结束后无条件执行 `cleanup`，以免隔离数据遗留。
 
 真实密码重置成功依赖“同一设备发起请求后收到的实时 PKCE 链接”，不能用仓库内固定 token
 自动化。发布候选必须按第 11 节 UAT 在真机验证成功链路；自动 Flow 只覆盖失效链接的
@@ -598,6 +603,10 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`，三条均通过。关键流覆盖
   主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读。测试数据清理复核为 0 张
   `E2E-*` 工单、0 个附件；这不是 Android 或真机 UAT 的替代。
+- 两台独立 iOS Simulator 会话已通过新增跨设备链路：主管在 iPhone 17 Pro 创建含照片并
+  指派的工单，工程师在 iPhone 17 Pro Max 读取、开始处理、填写结果并关闭；主管以清空
+  session/keychain 的新会话读取到 `closed` 状态和处理结果。调度器随后清理 1 张 `E2E-*`
+  工单及 1 个附件。这是跨会话同步的自动化证据，仍不替代真机跨设备 UAT。
 - Expo SDK 57 官方补丁升级（Expo 57.0.9、React Native 0.86.2 及匹配运行时）后，已重新
   Pod 安装、构建新的 iOS Release 原生产物，并再次通过同一组三条 Flow；不能以升级前二进制
   替代此证据。
@@ -615,11 +624,13 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   [Verify #30475418136](https://github.com/MARKX97/Expo-Demo/actions/runs/30475418136)。依赖兼容修复提交
   `7639a4e` 的 [Verify #30491230201](https://github.com/MARKX97/Expo-Demo/actions/runs/30491230201)
   也已完整通过，作为当前 Expo SDK 57 补丁版本的 DB/RLS、低权限集成与 Mailpit/PKCE 证据。
+  文档证据提交 `9d60c8c` 的 [Verify #30491582748](https://github.com/MARKX97/Expo-Demo/actions/runs/30491582748)
+  也完整通过同一链路。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
   尚无运行证据。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
   `5d528aab676d24078e90091d4592c32c857d125e`，不覆盖当前未提交工作树，不能作为本轮新原生产物的
   验收证据。
-- 真实 SMTP 密码重置、双角色跨设备 UAT、VoiceOver/TalkBack、最大字体和 44pt 真机验收尚未执行。
+- 真实 SMTP 密码重置、双角色真机跨设备 UAT、VoiceOver/TalkBack、最大字体和 44pt 真机验收尚未执行。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

@@ -1,0 +1,27 @@
+appId: com.markx97.elevatorhandoff
+name: Cross-device supervisor observes closed work order
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
+- extendedWaitUntil:
+    visible:
+      text: '.*${CROSS_DEVICE_WORK_ORDER_CODE}.*'
+    timeout: 45000
+- tapOn:
+    text: '.*${CROSS_DEVICE_WORK_ORDER_CODE}.*'
+- scrollUntilVisible:
+    element:
+      id: work-order-status
+    direction: DOWN
+- assertVisible: 已关闭
+- scrollUntilVisible:
+    element:
+      text: ${CROSS_DEVICE_RESOLUTION}
+    direction: DOWN
+- assertVisible: ${CROSS_DEVICE_RESOLUTION}

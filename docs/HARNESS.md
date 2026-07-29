@@ -1,8 +1,8 @@
 # Harness Engineering 开发护栏
 
-版本：0.5
+版本：0.6
 
-日期：2026-07-27
+日期：2026-07-30
 
 ## 目标
 
@@ -168,11 +168,12 @@ EAS workflow。GitHub CI 已完成 migration 重放、43 项 pgTAP、低权限�
 Mailpit/PKCE 密码重置验证；数据库生成类型及漂移门禁已落地。iOS 26.5 Simulator 已通过
 Maestro 登录、失效重置与完整派工闭环；`react-native-screens` 的固定版本和 patch 必须保留，升级后须先复验三条 Flow，不能仅凭单页 smoke 宣称兼容。
 
-当前未完成的是 Android Maestro、跨设备 UAT、真实邮件重置和真机证据。本地 Xcode Release 原生产物
-已通过三条 iOS Flow，但不等同于上述人工和跨设备验证。本机 npm 启动的
+当前未完成的是 Android Maestro、真机跨设备 UAT、真实邮件重置和真机证据。本地 Xcode Release 原生产物
+已通过三条 iOS Flow；两台独立 iOS Simulator 也已完成主管建单、工程师关闭、主管新会话读取的跨会话
+自动验证，但不等同于上述真机人工验证。本机 npm 启动的
 Supabase CLI 仍存在 Node/Corepack 兼容问题；官方 macOS ARM64 CLI 可执行只读管理操作，且 GitHub
 Ubuntu Verify 已完整通过 DB/低权限集成与 Mailpit/PKCE 门禁，见 `docs/TESTING.md` 第 12 节。该 CI
-证据不替代 Android、跨设备 UAT、真实邮件和真机验收。
+证据不替代 Android、真机跨设备 UAT、真实邮件和真机验收。
 
 后续实现任务必须按 `docs/TESTING.md` 扩展对应自动链路；只有检查真实运行并产生证据后，
 才能在 `docs/README.md` 提升状态。

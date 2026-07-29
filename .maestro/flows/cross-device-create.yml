@@ -1,0 +1,65 @@
+appId: com.markx97.elevatorhandoff
+name: Cross-device supervisor creates assigned work order
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- addMedia:
+    - ../../tests/fixtures/work-order-photo.jpg
+- runFlow:
+    file: ../shared/login.yml
+    env:
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
+- extendedWaitUntil:
+    visible: 工单总览
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: nav-new-work-order
+    timeout: 15000
+- tapOn:
+    id: nav-new-work-order
+- scrollUntilVisible:
+    element:
+      id: work-order-area
+    direction: DOWN
+- tapOn:
+    id: work-order-area
+- inputText: 跨设备测试区
+- tapOn:
+    id: work-order-code
+- inputText: ${CROSS_DEVICE_WORK_ORDER_CODE}
+- scrollUntilVisible:
+    element:
+      id: work-order-description
+    direction: DOWN
+- tapOn:
+    id: work-order-description
+- inputText: Cross device handoff test
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: engineer-option-${ENGINEER_A_NAME}
+    direction: DOWN
+- tapOn:
+    id: engineer-option-${ENGINEER_A_NAME}
+- scrollUntilVisible:
+    element:
+      id: pick-work-order-photo
+    direction: DOWN
+- tapOn:
+    id: pick-work-order-photo
+- runFlow: ../shared/pick-first-image.yml
+- extendedWaitUntil:
+    visible: 移除照片 1
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: create-work-order-submit
+    direction: DOWN
+- tapOn:
+    id: create-work-order-submit
+- extendedWaitUntil:
+    visible: 待处理
+    timeout: 60000

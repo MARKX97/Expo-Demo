@@ -115,7 +115,7 @@ flowchart TB
 | --- | --- | --- | --- |
 | P0 工程与安全基线 | 建立 Auth/profile、核心 schema/constraint、最小 RLS、seed；生成数据库类型 | 建立 Expo Router、Supabase 单例、session/profile 恢复、登录和角色路由 | 先固定 `API_CONTRACT.md`；migration 可从空库重放，生成类型一致，主管/工程师真实账号可登录，匿名和停用账号被服务端拒绝，`verify` 基线可执行 |
 | P1 业务闭环 | 完成查询、写 RPC、Storage policy、幂等与乐观锁，并覆盖 pgTAP/低权限集成测试 | 完成列表、建单上传、详情、改派、开始、关闭和密码重置；所有操作只调用 Service | 后端每稳定一组接口并更新生成类型，前端即可联调该组；主管建单至工程师关闭的主流程通过组件、数据库和集成测试，失败路径无脏数据 |
-| P2 双端交付 | 固化 E2E 测试项目、数据准备/清理与验证证据 | 完成双端系统相册、深链、无障碍、错误恢复和构建配置验证 | 仅在 P1 前后端闭环后执行完整 Maestro；Android/iOS 构建可安装，密码重置与跨设备 UAT 通过，全部 PRD 验收 ID 有证据 |
+| P2 双端交付 | 固化 E2E 测试项目、数据准备/清理与验证证据 | 完成双端系统相册、深链、无障碍、错误恢复和构建配置验证 | 仅在 P1 前后端闭环后执行完整 Maestro；Android/iOS 构建可安装，密码重置与真机跨设备 UAT 通过，全部 PRD 验收 ID 有证据 |
 
 可并行边界：
 
@@ -153,6 +153,7 @@ flowchart TB
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
+| 2026-07-30 | Codex | 新增并通过两台独立 iOS Simulator 的跨角色 Maestro 链路：主管建单、工程师关闭、主管新会话读取关闭结果；测试数据与附件在结束后清理。该自动证据不替代真机跨设备 UAT。 |
 | 2026-07-30 | Codex | Expo SDK 57 补丁依赖升级后，使用新的 iOS Release 原生产物再次通过 Maestro 登录、失效重置与完整派工闭环；冻结安装与 Expo Doctor 20/20 通过，未放宽供应链冷却策略。GitHub Verify #30491230201 也完整通过 DB/RLS、低权限集成与 Mailpit/PKCE。 |
 | 2026-07-30 | Codex | 当前源码以本地 Xcode Release Simulator 原生产物通过 Maestro 登录、失效重置与完整派工闭环；测试后已复核清理 0 张 `E2E-*` 工单和 0 个附件。GitHub Verify #30474985934（功能提交）及 #30475418136（文档提交）均完成 DB/RLS/低权限集成与 Mailpit/PKCE。 |
 | 2026-07-29 | Codex | 在 iOS 26.5 Simulator 以当前导出的 Hermes bundle 通过登录、失效重置与完整 `critical-journey.yml`；修复 Expo Router 冷启动先消费 recovery deep link、表单键盘遮挡后续自动化操作以及系统保存密码弹窗时序。 |
