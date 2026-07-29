@@ -612,7 +612,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   Mailpit/PKCE 密码重置集成；后续文档提交
   `95da066118e12dc98cb7d8b36b196a146c85b0d6` 也完整通过同一链路。运行记录：
   [Verify #30474985934](https://github.com/MARKX97/Expo-Demo/actions/runs/30474985934)、
-  [Verify #30475418136](https://github.com/MARKX97/Expo-Demo/actions/runs/30475418136)。
+  [Verify #30475418136](https://github.com/MARKX97/Expo-Demo/actions/runs/30475418136)。依赖兼容修复提交
+  `7639a4e` 的 [Verify #30491230201](https://github.com/MARKX97/Expo-Demo/actions/runs/30491230201)
+  也已完整通过，作为当前 Expo SDK 57 补丁版本的 DB/RLS、低权限集成与 Mailpit/PKCE 证据。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
   尚无运行证据。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交

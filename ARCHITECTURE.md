@@ -153,7 +153,7 @@ flowchart TB
 
 | 日期 | 修改人 | 摘要 |
 | --- | --- | --- |
-| 2026-07-30 | Codex | Expo SDK 57 补丁依赖升级后，使用新的 iOS Release 原生产物再次通过 Maestro 登录、失效重置与完整派工闭环；冻结安装与 Expo Doctor 20/20 通过，未放宽供应链冷却策略。 |
+| 2026-07-30 | Codex | Expo SDK 57 补丁依赖升级后，使用新的 iOS Release 原生产物再次通过 Maestro 登录、失效重置与完整派工闭环；冻结安装与 Expo Doctor 20/20 通过，未放宽供应链冷却策略。GitHub Verify #30491230201 也完整通过 DB/RLS、低权限集成与 Mailpit/PKCE。 |
 | 2026-07-30 | Codex | 当前源码以本地 Xcode Release Simulator 原生产物通过 Maestro 登录、失效重置与完整派工闭环；测试后已复核清理 0 张 `E2E-*` 工单和 0 个附件。GitHub Verify #30474985934（功能提交）及 #30475418136（文档提交）均完成 DB/RLS/低权限集成与 Mailpit/PKCE。 |
 | 2026-07-29 | Codex | 在 iOS 26.5 Simulator 以当前导出的 Hermes bundle 通过登录、失效重置与完整 `critical-journey.yml`；修复 Expo Router 冷启动先消费 recovery deep link、表单键盘遮挡后续自动化操作以及系统保存密码弹窗时序。 |
 | 2026-07-29 | Codex | `react-native-screens` 精确固定 4.26.2，并保留 iOS 26 快照 guard；Cloud iOS 18.2 旧 binary 在新建页退出，草稿 UUID 改为不依赖 Hermes 全局或额外原生模块的兼容实现后必须以完整 Maestro 闭环复验。 |
