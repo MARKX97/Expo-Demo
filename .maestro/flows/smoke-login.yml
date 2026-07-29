@@ -7,8 +7,8 @@ name: Supervisor login smoke
 - runFlow:
     file: ../shared/login.yml
     env:
-      EMAIL: ${MAESTRO_SUPERVISOR_EMAIL}
-      PASSWORD: ${MAESTRO_SUPERVISOR_PASSWORD}
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
 - extendedWaitUntil:
     visible: 工单总览
     timeout: 45000

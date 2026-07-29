@@ -10,8 +10,8 @@ name: Dispatch, isolation and close
 - runFlow:
     file: ../shared/login.yml
     env:
-      EMAIL: ${MAESTRO_SUPERVISOR_EMAIL}
-      PASSWORD: ${MAESTRO_SUPERVISOR_PASSWORD}
+      EMAIL: ${SUPERVISOR_EMAIL}
+      PASSWORD: ${SUPERVISOR_PASSWORD}
 - extendedWaitUntil:
     visible: 工单总览
     timeout: 45000
@@ -63,10 +63,10 @@ name: Dispatch, isolation and close
     id: priority-urgent
 - scrollUntilVisible:
     element:
-      id: engineer-option-${MAESTRO_ENGINEER_A_NAME}
+      id: engineer-option-${ENGINEER_A_NAME}
     direction: DOWN
 - tapOn:
-    id: engineer-option-${MAESTRO_ENGINEER_A_NAME}
+    id: engineer-option-${ENGINEER_A_NAME}
 - scrollUntilVisible:
     element:
       id: pick-work-order-photo
@@ -88,25 +88,25 @@ name: Dispatch, isolation and close
     timeout: 60000
 - scrollUntilVisible:
     element:
-      id: engineer-option-${MAESTRO_ENGINEER_B_NAME}
+      id: engineer-option-${ENGINEER_B_NAME}
     direction: DOWN
 - tapOn:
-    id: engineer-option-${MAESTRO_ENGINEER_B_NAME}
+    id: engineer-option-${ENGINEER_B_NAME}
 - tapOn:
     id: reassign-work-order
 - extendedWaitUntil:
-    visible: ${MAESTRO_ENGINEER_B_NAME}
+    visible: ${ENGINEER_B_NAME}
     timeout: 15000
 - scrollUntilVisible:
     element:
-      id: engineer-option-${MAESTRO_ENGINEER_A_NAME}
+      id: engineer-option-${ENGINEER_A_NAME}
     direction: DOWN
 - tapOn:
-    id: engineer-option-${MAESTRO_ENGINEER_A_NAME}
+    id: engineer-option-${ENGINEER_A_NAME}
 - tapOn:
     id: reassign-work-order
 - extendedWaitUntil:
-    visible: ${MAESTRO_ENGINEER_A_NAME}
+    visible: ${ENGINEER_A_NAME}
     timeout: 15000
 - scrollUntilVisible:
     element:
@@ -120,8 +120,8 @@ name: Dispatch, isolation and close
 - runFlow:
     file: ../shared/login.yml
     env:
-      EMAIL: ${MAESTRO_ENGINEER_B_EMAIL}
-      PASSWORD: ${MAESTRO_ENGINEER_B_PASSWORD}
+      EMAIL: ${ENGINEER_B_EMAIL}
+      PASSWORD: ${ENGINEER_B_PASSWORD}
 - extendedWaitUntil:
     visible: 我的工单
     timeout: 45000
@@ -133,8 +133,8 @@ name: Dispatch, isolation and close
 - runFlow:
     file: ../shared/login.yml
     env:
-      EMAIL: ${MAESTRO_ENGINEER_A_EMAIL}
-      PASSWORD: ${MAESTRO_ENGINEER_A_PASSWORD}
+      EMAIL: ${ENGINEER_A_EMAIL}
+      PASSWORD: ${ENGINEER_A_PASSWORD}
 - extendedWaitUntil:
     visible:
       text: '.*${output.workOrderCode}.*'

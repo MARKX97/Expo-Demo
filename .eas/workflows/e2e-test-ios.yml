@@ -16,6 +16,15 @@ jobs:
     needs: [build_ios_for_e2e]
     type: maestro
     environment: production
+    env:
+      SUPERVISOR_EMAIL: ${{ env.MAESTRO_SUPERVISOR_EMAIL }}
+      SUPERVISOR_PASSWORD: ${{ env.MAESTRO_SUPERVISOR_PASSWORD }}
+      ENGINEER_A_EMAIL: ${{ env.MAESTRO_ENGINEER_A_EMAIL }}
+      ENGINEER_A_PASSWORD: ${{ env.MAESTRO_ENGINEER_A_PASSWORD }}
+      ENGINEER_B_EMAIL: ${{ env.MAESTRO_ENGINEER_B_EMAIL }}
+      ENGINEER_B_PASSWORD: ${{ env.MAESTRO_ENGINEER_B_PASSWORD }}
+      ENGINEER_A_NAME: ${{ env.MAESTRO_ENGINEER_A_NAME }}
+      ENGINEER_B_NAME: ${{ env.MAESTRO_ENGINEER_B_NAME }}
     params:
       build_id: ${{ needs.build_ios_for_e2e.outputs.build_id }}
       flow_path:

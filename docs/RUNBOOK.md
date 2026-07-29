@@ -379,17 +379,17 @@ pnpm dlx eas-cli@latest workflow:validate .eas/workflows/e2e-test-ios.yml
 本地已有对应 APK / iOS Simulator `.app` 和模拟器时，可用 Maestro CLI：
 
 ```bash
-maestro test .maestro/flows/smoke-login.yml
-maestro test .maestro/flows/critical-journey.yml
-maestro test .maestro/flows/expired-reset-link.yml
+node scripts/run-maestro.mjs .maestro/flows/smoke-login.yml
+node scripts/run-maestro.mjs .maestro/flows/critical-journey.yml
+node scripts/run-maestro.mjs .maestro/flows/expired-reset-link.yml
 ```
 
 ### 10.1 本次 iOS Simulator 排障与工具记录（2026-07-29）
 
 本次在 iOS 26.5 Simulator 使用现有 `e2e-test` 原生壳、导出的当前 Hermes bundle 和
 Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
-`critical-journey.yml` 均通过。该路径用于源代码回归，不替代以当前原生依赖重新生成的
-`e2e-test` 构建；恢复 EAS 额度或本机原生构建条件后，仍须重新验证新产物。
+`critical-journey.yml` 均通过。2026-07-30 又以当前源码构建的 Release 原生产物复跑三条
+Flow 均通过；这不替代 Android、真机、真实邮件重置或跨设备 UAT。
 
 | 问题 | 根因与处理 |
 | --- | --- |
@@ -403,7 +403,7 @@ Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
 
 | 工具/下载 | 结果 | 后续做法 |
 | --- | --- | --- |
-| Maestro CLI 2.7.0 | 使用已有本地缓存版本；后续检查发现缓存压缩包已损坏，不能作为新的运行来源。 | 若 Java 未自动发现，设置本机 OpenJDK 的 `JAVA_HOME`；网络恢复后重新安装 CLI 再复跑 Flow。 |
+| Maestro CLI 2.7.0 + Temurin JRE 17 | 已使用校验后的官方归档作为临时运行时，并通过三条 iOS Flow。 | 不写入仓库或项目依赖；未来在可信 macOS/CI runner 上复跑同一组 Flow。 |
 | CocoaPods 1.17.0 + Homebrew Ruby 4.0.6 | 已安装并验证 `pod --version`；`expo-doctor` 随后 20/20 通过。 | 这是本机 iOS 原生工具检查所需环境，不是项目依赖。 |
 | `pnpm dlx supabase@latest` / 项目 npm CLI | 当前 npm metadata 声明了不存在的 `darwin-arm64` 平台包；旧版下载二进制又被本机以退出码 137 终止。 | 不保留不可用依赖；使用经验证的官方 macOS ARM64 二进制，或在 CI 的 Supabase 环境运行 DB 测试。 |
 | Supabase 官方 release 二进制 | 早期 51MB 下载在当前网络约 14KB/s 时中止；本轮确认现有官方 macOS ARM64 CLI 2.109.1 可运行项目只读管理操作。 | 本地 DB 测试仍要求本地 Supabase 服务成功启动；否则以 CI 作为正式 DB/集成证据。 |
@@ -416,13 +416,16 @@ Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
 - Supabase CLI 的 npm 启动器在本机 Node 20/Corepack 组合下会触发动态 import 错误；直接使用
   官方 macOS ARM64 CLI 2.109.1 已完成项目只读访问和 API key 类型校验。远端 CI 仍是
   DB/RLS/低权限集成与 Mailpit/PKCE 的正式证据。
-- 已下载并 SHA-256 校验 Temurin JRE 17，仅作为临时 Maestro 运行环境，不写入仓库。
-  Maestro CLI 2.7.0 官方 Release 只有约 300MB 的通用归档；当前网络下载速率不足以在合理
-  时间内完成，因此本机完整 Flow 尚未重跑。恢复时使用官方 checksum 校验下载，或在具备
-  已安装 Maestro 的可信 macOS/CI runner 运行同一组 Flow。
+- 已下载并 SHA-256 校验 Temurin JRE 17 与 Maestro CLI 2.7.0 官方归档，仅作为临时 Maestro
+  运行环境，不写入仓库或项目依赖。当前 Release 原生产物已在 iPhone 17 Pro / iOS 26.5
+  Simulator 通过三条 Flow；未来下载或运行环境变更后仍须以官方 checksum 校验并复跑。
 - EAS `env:exec` 不会把 `Secret` 可见性的管理员密钥或测试账号密码下发到本机 shell。
   本机重跑时应由维护者在当前 shell 注入测试变量；不要为了本地便利将 EAS Secret 降级为
   Plain text，也不要把变量写入仓库。
+- Maestro CLI 2.7 在本机对 `MAESTRO_*` shell 变量的 Flow 自动导入不稳定，会使 Flow 输入
+  `undefined` 并被登录表单拒绝。保留 `MAESTRO_*` 作为密钥入口，统一通过
+  `node scripts/run-maestro.mjs` 转为 CLI `-e` 参数；EAS `maestro` job 在 workflow 的 `env`
+  显式映射成同名的非前缀 Flow 变量。禁止把密码值直接复制到命令行或 YAML。
 | Fastlane（RubyGems / Homebrew） | 安装分别中断或网络失败，未安装。 | 仅在需要本地重新生成 iOS 原生构建时安装。 |
 | `brew install supabase` | 会拉取 Node 运行时及其依赖，下载受网络阻塞后取消，未安装。 | 不以它作为本项目的默认 Supabase CLI 安装方式。 |
 

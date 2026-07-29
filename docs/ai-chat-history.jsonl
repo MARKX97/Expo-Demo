@@ -407,3 +407,6 @@
 {"record_type":"message","timestamp":"2026-07-30T03:00:00.000Z","role":"user","content":"继续完成非 Android 的测试；完成 Supabase CLI、DB/RLS、低权限集成与 Mailpit/PKCE 相关验证。"}
 {"record_type":"message","timestamp":"2026-07-30T03:01:00.000Z","role":"user","content":"授权继续执行。"}
 {"record_type":"message","timestamp":"2026-07-30T03:20:00.000Z","role":"assistant","content":"已确认 GitHub Verify 两次完整通过 DB/RLS、低权限 Auth/RLS/Storage/RPC 与 Mailpit/PKCE。当前源码的 iOS Release Simulator 原生产物已构建、安装并冷启动；完整新原生产物 Maestro Flow 尚受官方 300MB CLI 下载网络速度限制。文档、类型检查、Expo lint 与 13 项单元测试通过。本机 Supabase CLI 可执行只读管理操作，但本地 Supabase 镜像启动无进展，因此未把本机 pgTAP 误标为通过。"}
+{"record_type":"message","timestamp":"2026-07-30T04:15:00.000Z","role":"user","content":"完成可下载的 Supabase CLI、DB/RLS、低权限集成与 Mailpit/PKCE 相关验证，并授权继续执行。"}
+{"record_type":"message","timestamp":"2026-07-30T04:32:00.000Z","role":"assistant","content":"已核实 GitHub Verify 是当前 DB/RLS、低权限集成与 Mailpit/PKCE 的正式通过证据。本机 iOS 测试发现 Maestro 2.7 对 MAESTRO_ 前缀变量的自动注入不稳定，导致登录邮箱变为 undefined；已以无依赖包装脚本显式映射为 Flow 变量，并同步 EAS 与 GitHub workflow。该脚本自检通过。"}
+{"record_type":"message","timestamp":"2026-07-30T04:33:00.000Z","role":"assistant","content":"以当前源码构建的 iOS Release Simulator 原生产物，在 iPhone 17 Pro、iOS 26.5 上通过 Maestro 2.7 的主管登录、失效重置链接和完整派工闭环。闭环覆盖照片建单、改派、工程师隔离、开始处理、必填处理结果及关闭后只读；测试清理复核为零残留 E2E 工单和附件。文档已更新，Android、真实邮件重置、跨设备与真机人工验收仍如实保留为未执行。"}

@@ -293,19 +293,21 @@ Maestro 的 [`addMedia`](https://docs.maestro.dev/reference/commands-available/a
 
 | EAS / shell 变量 | Flow 内变量 | 用途 |
 | --- | --- | --- |
-| `MAESTRO_SUPERVISOR_EMAIL` | `MAESTRO_SUPERVISOR_EMAIL` | 主管测试邮箱 |
-| `MAESTRO_SUPERVISOR_PASSWORD` | `MAESTRO_SUPERVISOR_PASSWORD` | 主管测试密码 |
-| `MAESTRO_ENGINEER_A_EMAIL` | `MAESTRO_ENGINEER_A_EMAIL` | 工程师 A 测试邮箱 |
-| `MAESTRO_ENGINEER_A_PASSWORD` | `MAESTRO_ENGINEER_A_PASSWORD` | 工程师 A 测试密码 |
-| `MAESTRO_ENGINEER_B_EMAIL` | `MAESTRO_ENGINEER_B_EMAIL` | 工程师 B 测试邮箱 |
-| `MAESTRO_ENGINEER_B_PASSWORD` | `MAESTRO_ENGINEER_B_PASSWORD` | 工程师 B 测试密码 |
-| `MAESTRO_ENGINEER_A_NAME` | `MAESTRO_ENGINEER_A_NAME` | 工程师 A 页面显示名 |
-| `MAESTRO_ENGINEER_B_NAME` | `MAESTRO_ENGINEER_B_NAME` | 工程师 B 页面显示名 |
+| `MAESTRO_SUPERVISOR_EMAIL` | `SUPERVISOR_EMAIL` | 主管测试邮箱 |
+| `MAESTRO_SUPERVISOR_PASSWORD` | `SUPERVISOR_PASSWORD` | 主管测试密码 |
+| `MAESTRO_ENGINEER_A_EMAIL` | `ENGINEER_A_EMAIL` | 工程师 A 测试邮箱 |
+| `MAESTRO_ENGINEER_A_PASSWORD` | `ENGINEER_A_PASSWORD` | 工程师 A 测试密码 |
+| `MAESTRO_ENGINEER_B_EMAIL` | `ENGINEER_B_EMAIL` | 工程师 B 测试邮箱 |
+| `MAESTRO_ENGINEER_B_PASSWORD` | `ENGINEER_B_PASSWORD` | 工程师 B 测试密码 |
+| `MAESTRO_ENGINEER_A_NAME` | `ENGINEER_A_NAME` | 工程师 A 页面显示名 |
+| `MAESTRO_ENGINEER_B_NAME` | `ENGINEER_B_NAME` | 工程师 B 页面显示名 |
 
-Maestro CLI 会读取 `MAESTRO_` 前缀的 shell 变量；Flow 必须使用完整变量名，不能假设
-前缀会被去除。EAS `maestro` job 使用 `environment: production` 读取同名变量。`EXPO_PUBLIC_SUPABASE_*`
-仍由 `e2e-test.environment = preview` 注入构建；`production` 在本 PoC 中只作为 Maestro
-管理变量的隔离环境，当前没有 build profile 使用它。
+`MAESTRO_*` 保留为 EAS、GitHub 和本地 shell 的密钥入口；Flow 不直接引用它们。实际 CLI
+调用由 `scripts/run-maestro.mjs` 以 Maestro 官方 `-e` 参数注入上表右列，EAS `maestro` job
+则在 job `env` 显式映射。这样避免不同 Maestro 版本对 `MAESTRO_` 自动导入行为的差异，且不把
+密码写入 YAML、Git 或共享命令历史。`EXPO_PUBLIC_SUPABASE_*` 仍由
+`e2e-test.environment = preview` 注入构建；`production` 在本 PoC 中只作为 Maestro 管理变量的
+隔离环境，当前没有 build profile 使用它。
 
 Maestro 数据 hook 还需要以下变量：
 
@@ -323,6 +325,9 @@ node scripts/e2e-test-data.mjs self-check
 node scripts/e2e-test-data.mjs prepare
 node scripts/e2e-test-data.mjs cleanup
 ```
+
+`scripts/run-maestro.mjs --self-check` 验证变量映射；实际执行时它接收标准 Maestro `test`
+参数，例如 `node scripts/run-maestro.mjs --udid <id> .maestro/flows/smoke-login.yml`。
 
 `prepare` 先执行同范围清理，再创建或更新虚构 Auth 用户和 `profiles`；`cleanup` 严格按
 Storage 对象 → `work_order_attachments` → `work_orders` 顺序删除
@@ -589,9 +594,10 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 仓库已落盘 Jest/RNTL、migration/pgTAP、低权限 Supabase 集成套件、Maestro flows、
 `e2e-test` profile 与双平台 EAS workflow。当前证据和未完成项如下：
 
-- iPhone 17 Pro / iOS 26.5 Simulator 已以当前 Hermes bundle 运行
+- iPhone 17 Pro / iOS 26.5 Simulator 已以当前源码构建的 Release 原生产物运行
   `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`，三条均通过。关键流覆盖
-  主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读；这不是 Android 或真机 UAT 的替代。
+  主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读。测试数据清理复核为 0 张
+  `E2E-*` 工单、0 个附件；这不是 Android 或真机 UAT 的替代。
 - 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
   `pnpm run verify` 仍在 `supabase test db` 停止：项目 npm 启动器受 Node 20/Corepack 动态 import
   错误影响；官方 macOS ARM64 CLI 2.109.1 可运行，但本机 `supabase start` 在 Docker 镜像启动阶段
@@ -605,15 +611,10 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   [Verify #30474985934](https://github.com/MARKX97/Expo-Demo/actions/runs/30474985934)、
   [Verify #30475418136](https://github.com/MARKX97/Expo-Demo/actions/runs/30475418136)。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
-  尚无运行证据。iOS 当前源码已重新以本地 Xcode Release Simulator 原生产物完成构建、安装与冷启动，
-  但尚未以该新原生产物复跑三条 Flow，不能标记为完整 E2E 通过。
-- 本机已校验临时 Temurin JRE 17；Maestro 2.7.0 仅提供约 300MB 的官方通用归档，当前网络速度
-  无法在合理时间内完成下载。该外部工具限制不影响上述 CI 的数据库/集成证据，但阻塞本机新原生产物
-  的完整 Flow；恢复步骤见 `RUNBOOK.md` 第 10.2 节。
+  尚无运行证据。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
   `5d528aab676d24078e90091d4592c32c857d125e`，不覆盖当前未提交工作树，不能作为本轮新原生产物的
   验收证据。
-- 真实 SMTP 密码重置、双角色跨设备 UAT、相册系统 UI、VoiceOver/TalkBack、最大字体和 44pt 真机验收
-  尚未执行。
+- 真实 SMTP 密码重置、双角色跨设备 UAT、VoiceOver/TalkBack、最大字体和 44pt 真机验收尚未执行。
 
 在这些项目完成前，不能把仓库状态标记为“已验证”。

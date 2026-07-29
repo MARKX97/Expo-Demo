@@ -95,7 +95,7 @@ jobs:
           script: |
             adb install -r "$RUNNER_TEMP/app.apk"
             node scripts/e2e-test-data.mjs prepare
-            maestro test \
+            node scripts/run-maestro.mjs \
               --format junit \
               --output output/maestro-android.xml \
               --test-output-dir output/maestro-android \
@@ -195,7 +195,7 @@ jobs:
       - name: Run iOS Maestro
         run: |
           node scripts/e2e-test-data.mjs prepare
-          maestro test \
+          node scripts/run-maestro.mjs \
             --format junit \
             --output output/maestro-ios.xml \
             --test-output-dir output/maestro-ios \
