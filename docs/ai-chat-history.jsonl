@@ -420,3 +420,5 @@
 {"record_type":"message","timestamp":"2026-07-30T05:27:00.000Z","role":"assistant","content":"已定位到阻塞点：工程师页面在填写处理结果后，“完成并关闭”按钮位于视口外，原 Flow 没有重新滚动。产品逻辑正常；我将把测试 Flow 补成可见后再点击，然后重跑三段跨设备链路。"}
 {"record_type":"message","timestamp":"2026-07-30T05:31:00.000Z","role":"assistant","content":"跨设备链路已通过：主管 iPhone 17 Pro 建单，工程师 iPhone 17 Pro Max 完成处理并关闭，主管以全新会话确认已关闭；测试数据和照片也已清理。接下来只记录证据并跑静态门禁。"}
 {"record_type":"message","timestamp":"2026-07-30T05:34:00.000Z","role":"assistant","content":"跨设备 E2E 的三个 Flow 与文档、类型、lint、13 项单元测试、Expo Doctor 20/20、Maestro 和测试数据脚本自检均通过。未将 Android、真实 SMTP 密码重置或真机可访问性验收误标为完成。"}
+{"record_type":"message","timestamp":"2026-07-30T05:35:00.000Z","role":"assistant","content":"验证与文档已同步，且没有把未做的 Android、真实邮件重置或真机可访问性验收标成通过。我现在提交并推送这批可复用的跨设备 E2E 测试。"}
+{"record_type":"message","timestamp":"2026-07-30T05:36:00.000Z","role":"assistant","content":"跨设备 E2E 已提交并推送到 main。我会确认这次推送触发的 GitHub Verify；它将再次覆盖本地 Supabase、RLS、低权限集成与 Mailpit/PKCE。"}
