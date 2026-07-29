@@ -348,8 +348,8 @@ pnpm exec expo-doctor
   client。
 - iOS 26 的 `react-native-screens` Fabric 快照路径由精确版本 `4.26.2` 加
   `patches/react-native-screens@4.26.2.patch` 临时规避；patch 只在 iOS 26 卸载 Screen Stack 时跳过快照。
-  当前依赖组合仍不能在 iOS 26 运行完整主流程。每次 EAS iOS 构建必须从 lockfile 安装该版本和 patch；构建后先验证
-  “登录 → 新建工单”不退出，再运行完整 `critical-journey.yml`，不得只以登录 smoke 作为业务闭环证据。
+  当前源码已在本地 Xcode Release Simulator 原生产物完成启动验证，但尚未以该新原生产物复跑完整关键流。每次 EAS iOS 构建必须从 lockfile 安装该版本和 patch；构建后先验证
+  “登录 → 新建工单”不退出，再运行完整 `critical-journey.yml`，不得只以启动或登录 smoke 作为业务闭环证据。
 - Supabase migration 已应用，测试账号与角色存在。
 - Supabase Auth Redirect URLs 已允许 `elevatorhandoff://reset-password`，PKCE 重置邮件在
   发起请求的同一测试设备打开。
@@ -406,7 +406,23 @@ Maestro CLI 2.7.0 验证；`smoke-login.yml`、`expired-reset-link.yml` 与
 | Maestro CLI 2.7.0 | 使用已有本地缓存版本；后续检查发现缓存压缩包已损坏，不能作为新的运行来源。 | 若 Java 未自动发现，设置本机 OpenJDK 的 `JAVA_HOME`；网络恢复后重新安装 CLI 再复跑 Flow。 |
 | CocoaPods 1.17.0 + Homebrew Ruby 4.0.6 | 已安装并验证 `pod --version`；`expo-doctor` 随后 20/20 通过。 | 这是本机 iOS 原生工具检查所需环境，不是项目依赖。 |
 | `pnpm dlx supabase@latest` / 项目 npm CLI | 当前 npm metadata 声明了不存在的 `darwin-arm64` 平台包；旧版下载二进制又被本机以退出码 137 终止。 | 不保留不可用依赖；使用经验证的官方 macOS ARM64 二进制，或在 CI 的 Supabase 环境运行 DB 测试。 |
-| Supabase 官方 release 二进制 | 51MB 下载在当前网络约 14KB/s，中止后未安装。 | 网络恢复后重新下载并校验版本。 |
+| Supabase 官方 release 二进制 | 早期 51MB 下载在当前网络约 14KB/s 时中止；本轮确认现有官方 macOS ARM64 CLI 2.109.1 可运行项目只读管理操作。 | 本地 DB 测试仍要求本地 Supabase 服务成功启动；否则以 CI 作为正式 DB/集成证据。 |
+
+### 10.2 新原生产物与本机 E2E 工具复验（2026-07-30）
+
+- 使用 Xcode 26.6 在 iPhone 17 Pro / iOS 26.5 Simulator 构建当前源码的 `Release`
+  原生产物，已完成安装与冷启动并进入主管工单总览。该结果只证明当前 native bundle 可以启动，
+  不替代 `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`。
+- Supabase CLI 的 npm 启动器在本机 Node 20/Corepack 组合下会触发动态 import 错误；直接使用
+  官方 macOS ARM64 CLI 2.109.1 已完成项目只读访问和 API key 类型校验。远端 CI 仍是
+  DB/RLS/低权限集成与 Mailpit/PKCE 的正式证据。
+- 已下载并 SHA-256 校验 Temurin JRE 17，仅作为临时 Maestro 运行环境，不写入仓库。
+  Maestro CLI 2.7.0 官方 Release 只有约 300MB 的通用归档；当前网络下载速率不足以在合理
+  时间内完成，因此本机完整 Flow 尚未重跑。恢复时使用官方 checksum 校验下载，或在具备
+  已安装 Maestro 的可信 macOS/CI runner 运行同一组 Flow。
+- EAS `env:exec` 不会把 `Secret` 可见性的管理员密钥或测试账号密码下发到本机 shell。
+  本机重跑时应由维护者在当前 shell 注入测试变量；不要为了本地便利将 EAS Secret 降级为
+  Plain text，也不要把变量写入仓库。
 | Fastlane（RubyGems / Homebrew） | 安装分别中断或网络失败，未安装。 | 仅在需要本地重新生成 iOS 原生构建时安装。 |
 | `brew install supabase` | 会拉取 Node 运行时及其依赖，下载受网络阻塞后取消，未安装。 | 不以它作为本项目的默认 Supabase CLI 安装方式。 |
 

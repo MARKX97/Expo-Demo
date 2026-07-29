@@ -593,15 +593,23 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `smoke-login.yml`、`expired-reset-link.yml` 和 `critical-journey.yml`，三条均通过。关键流覆盖
   主管建单和照片、改派、工程师隔离、开始、关闭校验和关闭后只读；这不是 Android 或真机 UAT 的替代。
 - 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
-  `pnpm run verify` 在 `supabase test db` 停止：Docker 已可用，但没有可执行 Supabase CLI；项目级
-  npm CLI 的当前发布元数据缺少 ARM64 平台包，旧版二进制则被此 macOS 环境以退出码 137 终止，故未保留
-  不可用依赖。低权限集成套件在未注入本地 Supabase/Mailpit 变量时按设计跳过，不能视为通过。
-- GitHub Verify 于 2026-07-30 在当前 `HEAD` `2efb37c7718981d5058b58c4450280b6341b7093` 成功完成：
-  从空库启动并重放 migration、校验生成类型、文档、Expo Doctor、静态/Jest、pgTAP，以及低权限
-  Auth/RLS/Storage/RPC 和本地 Mailpit/PKCE 密码重置集成。运行记录：
-  [Verify #30474985934](https://github.com/MARKX97/Expo-Demo/actions/runs/30474985934)。
+  `pnpm run verify` 仍在 `supabase test db` 停止：项目 npm 启动器受 Node 20/Corepack 动态 import
+  错误影响；官方 macOS ARM64 CLI 2.109.1 可运行，但本机 `supabase start` 在 Docker 镜像启动阶段
+  无进展，`supabase test db` 因无本地 Postgres 连接失败。低权限集成套件在未注入本地
+  Supabase/Mailpit 变量时按设计跳过，不能视为通过。
+- GitHub Verify 于 2026-07-30 在功能提交
+  `2efb37c7718981d5058b58c4450280b6341b7093` 成功完成：从空库启动并重放 migration、校验
+  生成类型、文档、Expo Doctor、静态/Jest、pgTAP，以及低权限 Auth/RLS/Storage/RPC 和本地
+  Mailpit/PKCE 密码重置集成；后续文档提交
+  `95da066118e12dc98cb7d8b36b196a146c85b0d6` 也完整通过同一链路。运行记录：
+  [Verify #30474985934](https://github.com/MARKX97/Expo-Demo/actions/runs/30474985934)、
+  [Verify #30475418136](https://github.com/MARKX97/Expo-Demo/actions/runs/30475418136)。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
-  尚无运行证据。iOS 当前源码的验证使用既有原生壳；重新生成 iOS native artifact 后仍须复跑三条 Flow。
+  尚无运行证据。iOS 当前源码已重新以本地 Xcode Release Simulator 原生产物完成构建、安装与冷启动，
+  但尚未以该新原生产物复跑三条 Flow，不能标记为完整 E2E 通过。
+- 本机已校验临时 Temurin JRE 17；Maestro 2.7.0 仅提供约 300MB 的官方通用归档，当前网络速度
+  无法在合理时间内完成下载。该外部工具限制不影响上述 CI 的数据库/集成证据，但阻塞本机新原生产物
+  的完整 Flow；恢复步骤见 `RUNBOOK.md` 第 10.2 节。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
   `5d528aab676d24078e90091d4592c32c857d125e`，不覆盖当前未提交工作树，不能作为本轮新原生产物的
   验收证据。
