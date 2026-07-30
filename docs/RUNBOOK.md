@@ -396,7 +396,7 @@ Android、真机、真实邮件重置或真机跨设备 UAT。
 | --- | --- |
 | 本地 `eas build --local` 无法开始 | 环境没有 Fastlane。Gem 与 Homebrew 安装均未成功，因此没有为排障额外加入 Fastlane；改用匹配的现有 Simulator 原生壳做源码回归。需要全新原生产物时，先确认 `fastlane --version`，再完成安装。 |
 | iOS 登录后业务页被遮挡 | 系统“保存密码”弹窗覆盖页面。共享登录 Flow 用条件分支关闭弹窗后再断言页面。 |
-| 多行输入后选择工程师或关闭工单无效 | iOS 软键盘覆盖控件。Flow 在描述和处理结果输入后显式 `hideKeyboard`。 |
+| 多行输入后选择工程师或关闭工单无效 | iOS 软键盘覆盖控件。描述输入后以页面滚动收起键盘；处理结果输入后收起键盘并滚动到关闭按钮。 |
 | 失效重置链接一直显示验证中 | Expo Router 在冷启动时先消费 deep link。重置页从路由参数回退消费链接，并以超时收敛到可恢复的失效状态。 |
 | 工单卡片找不到 | 无障碍名称是组合摘要，不等于单独梯号。Flow 改用包含梯号的正则选择器。 |
 
@@ -417,6 +417,9 @@ Android、真机、真实邮件重置或真机跨设备 UAT。
 - Supabase CLI 的 npm 启动器在本机 Node 20/Corepack 组合下会触发动态 import 错误；直接使用
   官方 macOS ARM64 CLI 2.109.1 已完成项目只读访问和 API key 类型校验。远端 CI 仍是
   DB/RLS/低权限集成与 Mailpit/PKCE 的正式证据。
+- 若终端已切到 Node 22，但 `pnpm` 仍解析到旧 Node 20 的 Corepack shim，执行
+  `nvm use 22 && corepack enable`，并确认 `command -v node` 与 `command -v pnpm` 都位于
+  Node 22 目录后再运行验证。该操作只修复本机工具入口，不修改仓库依赖或 lockfile。
 - Expo SDK 57 的依赖兼容检查会随 SDK 补丁发布更新。若 `pnpm exec expo-doctor` 报告
   `Patch version mismatches`，先使用 `pnpm exec expo install --fix` 同步 Expo 官方建议的补丁版本，
   再执行 `pnpm install --frozen-lockfile`、完整快速门禁和 iOS Release Flow；不要以
@@ -460,9 +463,11 @@ Android、真机、真实邮件重置或真机跨设备 UAT。
 | `brew install supabase` | 会拉取 Node 运行时及其依赖，下载受网络阻塞后取消，未安装。 | 不以它作为本项目的默认 Supabase CLI 安装方式。 |
 
 临时 Node 22/pnpm shim 和导出的 Hermes bundle 只用于本机验证，未写入仓库、未新增项目依赖。
-本机没有 Supabase CLI 时，`pnpm run verify` 会在已通过文档、Expo Doctor、类型、lint 与单元测试后停在
-`supabase test db`；低权限集成套件在未注入本地 Supabase/Mailpit 变量时会明确跳过。可先运行
-`pnpm run verify:docs`、`pnpm run verify:fast`，并以 GitHub `verify` 的数据库门禁补齐证据。
+2026-07-30 已从 Supabase 官方 release 下载并按同版本 `checksums.txt` 校验 macOS ARM64 CLI
+`2.109.1`，可正常执行。npm 启动器仍不作为本机安装路径。以最小服务集启动时，CLI 在 Docker
+预检阶段退出且没有创建容器；本机只剩约 4 GB 可用空间，未为一次验证清理共享 Docker 缓存或用户数据。
+因此本机没有把 `pnpm run verify` 的数据库/低权限集成段标记为通过；仍可运行
+`pnpm run verify:docs`、`pnpm run verify:fast`，数据库正式证据以 GitHub `verify` 为准。
 
 账号通过 `MAESTRO_*` shell 变量注入；不要把 `-e PASSWORD=...` 命令复制到共享日志。
 数据脚本会在任何网络请求前校验重置开关、HTTPS URL、project ref 与 secret key：

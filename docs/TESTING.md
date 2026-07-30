@@ -493,9 +493,10 @@ maestro test --udid <simulator-udid> .maestro/flows/critical-journey.yml
 
 本次本机检查中，`verify:docs`、`expo-doctor`（20/20）、类型检查、lint、13 项单元测试和
 `git diff --check` 通过。为恢复 Expo Doctor，安装并验证了 CocoaPods 1.17.0 与其 Homebrew Ruby
-运行时；它们只属于本机测试工具链。完整 `pnpm run verify` 在 `supabase test db` 停止：本机没有
-可执行的 Supabase CLI。项目级 npm CLI 的当前发布元数据缺少 ARM64 平台包；旧版下载的官方二进制又被
-此 macOS 环境以退出码 137 终止，因此已移除该不可用开发依赖。低权限集成套件在未提供本地
+运行时；它们只属于本机测试工具链。完整 `pnpm run verify` 的数据库段尚未在本机通过：项目级 npm
+CLI 的当前发布元数据缺少 ARM64 平台包。2026-07-30 已下载并按官方 `checksums.txt` 校验 release
+CLI `2.109.1`，但其最小 `supabase start` 在 Docker 预检阶段退出且没有创建容器；当前约 4 GB
+可用磁盘空间不足以安全尝试拉取/重建服务，未清理共享 Docker 缓存。低权限集成套件在未提供本地
 Supabase/Mailpit 四项变量时按设计跳过（2 项 skipped），未将跳过视为通过。
 该限制不影响已通过的 iOS Flow，但发布候选仍须按第 9 节补齐 DB、集成、Android 和跨设备 UAT 证据。
 
@@ -627,10 +628,10 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
 - 最大 Dynamic Type 的 iOS Simulator 完整派工回归和 Increase Contrast 登录 smoke 已通过；
   业务文字/输入以 1.4 倍上限保留放大可读性，并保证关键操作保持在可滚动视口内。该自动化
   证据不替代真机 VoiceOver 与物理触控测量。
-- 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。完整
-  `pnpm run verify` 仍在 `supabase test db` 停止：项目 npm 启动器受 Node 20/Corepack 动态 import
-  错误影响；官方 macOS ARM64 CLI 2.109.1 可运行，但本机 `supabase start` 在 Docker 镜像启动阶段
-  无进展，`supabase test db` 因无本地 Postgres 连接失败。低权限集成套件在未注入本地
+- 本机 `verify:docs`、Expo Doctor（20/20）、类型检查、lint 和 13 项单元测试通过。官方 macOS
+  ARM64 Supabase CLI 2.109.1 已按 release checksum 下载并可执行；但本机最小 `supabase start`
+  在 Docker 预检阶段退出、未创建容器，故 `supabase test db` 和低权限集成未在本机标记通过。
+  当前磁盘空间约 4 GB，未清理共享 Docker 缓存来强行重试；低权限集成套件在未注入本地
   Supabase/Mailpit 变量时按设计跳过，不能视为通过。
 - GitHub Verify 于 2026-07-30 在功能提交
   `2efb37c7718981d5058b58c4450280b6341b7093` 成功完成：从空库启动并重放 migration、校验
@@ -642,7 +643,9 @@ Android 真机、iOS 真机/Simulator 分别复制一份以下表格；未执行
   `7639a4e` 的 [Verify #30491230201](https://github.com/MARKX97/Expo-Demo/actions/runs/30491230201)
   也已完整通过，作为当前 Expo SDK 57 补丁版本的 DB/RLS、低权限集成与 Mailpit/PKCE 证据。
   文档证据提交 `9d60c8c` 的 [Verify #30491582748](https://github.com/MARKX97/Expo-Demo/actions/runs/30491582748)
-  也完整通过同一链路。
+  也完整通过同一链路；当前最大字号修复提交 `5f9196a` 的
+  [Verify #30495930710](https://github.com/MARKX97/Expo-Demo/actions/runs/30495930710) 同样成功，
+  是最新提交的 DB/RLS、低权限集成和 Mailpit/PKCE 完整证据。
 - Android `e2e-test` APK 已构建，但当前没有 Android SDK、模拟器或已连接设备，因此 Android Maestro
   尚无运行证据。
 - 2026-07-29 的只读 EAS 查询显示，最新 iOS `e2e-test` 产物仍对应旧提交
